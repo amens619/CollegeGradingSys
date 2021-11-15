@@ -42,7 +42,7 @@ namespace CollegeGradingSys
             });
             //=======================================
             services.AddMvc();
-            services.AddTransient<ICollegeGradingSysRepository<College>, CollegeDbRepository>();
+            services.AddScoped<ICollegeGradingSysRepository<College>, CollegeDbRepository>();
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
