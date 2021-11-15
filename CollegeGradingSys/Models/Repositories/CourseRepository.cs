@@ -1,0 +1,69 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace CollegeGradingSys.Models.Repositories
+{
+    public class CourseRepository : ICollegeGradingSysRepository<Course>
+    {
+        IList<Course> courses;
+        public CourseRepository()
+        {
+            courses = new List<Course>()
+            {
+                new Course { Id=1, Specialization=new Specialization { Id=1},  CourseName ="تفسير (101(", Level= Level.الأول, SubCourses=new List<SubCourse>(){ new SubCourse { Id =1, SmallMark = 60, BigMark = 100  } }, Term=Term.الأول},
+                new Course { Id=1, Specialization=new Specialization { Id=1},  CourseName ="حديث (101(", Level=Level.الأول, SubCourses=new List<SubCourse>(){ new SubCourse { Id =1, SmallMark = 60, BigMark = 100  } }, Term=Term.الأول},
+                 new Course { Id=1,Specialization=new Specialization { Id=1},  CourseName ="التزكية (101(",Level=Level.الأول,
+                     SubCourses=new List<SubCourse>()
+                     {
+                             new SubCourse { Id =1, SubCourseName="الحلية", SmallMark = 60, BigMark = 100  },
+                             new SubCourse { Id =1, SubCourseName="المستخلص", SmallMark = 60, BigMark = 100  }
+                     },
+                     Term=Term.الأول}
+            };
+        }
+        public void Add(Course entity)
+        {
+            entity.Id = courses.Max(a => a.Id) + 1;
+            courses.Add(entity);
+        }
+
+        public void Delete(int id)
+        {
+            var course = Find(id);
+            courses.Remove(course);
+        }
+
+        public Course Find(int id)
+        {
+           return courses.SingleOrDefault(a => a.Id == id);
+        }
+
+        public IList<Course> List()
+        {
+            return courses;
+        }
+
+        public void Update(int id, Course newCourses)
+        {
+            var oldCourse = Find(id);
+            oldCourse.Level = newCourses.Level;
+            oldCourse.CourseName = newCourses.CourseName;
+            oldCourse.SubCourses = newCourses.SubCourses;
+            //foreach (var newSubCourse in newCourses.SubCourses)
+            //{
+            //    var oldSubCourse = oldCourse.SubCourses.SingleOrDefault(a => a.Id == newSubCourse.Id);
+            //    oldSubCourse.SmallMark = newSubCourse.SmallMark;
+            //    oldSubCourse.BigMark = newSubCourse.BigMark;
+            //    oldSubCourse.Note = newSubCourse.Note;
+            //}
+           
+            oldCourse.Specialization = newCourses.Specialization;
+            oldCourse.Term = newCourses.Term;
+                      
+        }
+
+       
+    }
+}
