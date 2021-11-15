@@ -1,4 +1,6 @@
 using CollegeGradingSys.Data;
+using CollegeGradingSys.Models;
+using CollegeGradingSys.Models.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -12,6 +14,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Options;
 
 namespace CollegeGradingSys
 {
@@ -27,9 +32,21 @@ namespace CollegeGradingSys
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                var supportedCultures = new[]
+                 { new CultureInfo("ar")};
+                options.DefaultRequestCulture = new RequestCulture("ar");
+                options.SupportedCultures = supportedCultures;
+                options.SupportedUICultures = supportedCultures;
+            });
+            //=======================================
+            services.AddMvc();
+            services.AddTransient<ICollegeGradingSysRepository<College>, CollegeDbRepository>();
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                    Configuration.GetConnectionString("SqlCon")));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -59,6 +76,12 @@ namespace CollegeGradingSys
             app.UseAuthentication();
             app.UseAuthorization();
 
+            //====================================
+
+
+            var localizationOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>().Value;
+            app.UseRequestLocalization(localizationOptions);
+            //====================================
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
