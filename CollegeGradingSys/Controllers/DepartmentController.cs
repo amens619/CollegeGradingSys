@@ -1,5 +1,6 @@
 ﻿using CollegeGradingSys.Models;
 using CollegeGradingSys.Models.Repositories;
+using CollegeGradingSys.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -12,10 +13,12 @@ namespace CollegeGradingSys.Controllers
     public class DepartmentController : Controller
     {
         private readonly ICollegeGradingSysRepository<Department> DepartmentRepository;
+        private readonly ICollegeGradingSysRepository<College> CollegeRepository;
 
-        public DepartmentController(ICollegeGradingSysRepository<Department> DepartmentRepository)
+        public DepartmentController(ICollegeGradingSysRepository<Department> DepartmentRepository, ICollegeGradingSysRepository<College> CollegeRepository)
         {
             this.DepartmentRepository = DepartmentRepository;
+            this.CollegeRepository = CollegeRepository;
         }
         // GET: DepartmentController
         public ActionResult Index()
@@ -36,16 +39,35 @@ namespace CollegeGradingSys.Controllers
         public ActionResult Create()
         {
 
-            return View();
+            var model = new CollegeDepartmentViewModel
+            {
+                 Colleges = FillSelectList()
+            };
+
+            return View(model);
         }
 
         // POST: DepartmentController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Department department)
+        public ActionResult Create(CollegeDepartmentViewModel  model)
         {
             try
             {
+
+                if (model.CollegeId == -1)
+                {
+                    ViewBag.Message = "الرجاء اختيار الكلية من القائمة";
+
+                    return View(GetAllColleges());
+                }
+                var college = CollegeRepository.Find(model.CollegeId);
+                Department department = new Department
+                {
+                    Id = model.Id,
+                     DepartmentName  = model.DepartmentName,
+                     College = college,                    
+                };                
                 DepartmentRepository.Add(department);
                 return RedirectToAction(nameof(Index));
             }
@@ -59,17 +81,31 @@ namespace CollegeGradingSys.Controllers
         public ActionResult Edit(int id)
         {
             var department = DepartmentRepository.Find(id);
-            return View(department);
+            var collegeId = department.College == null ? department.College.Id = 0 : department.College.Id;
+            var model = new CollegeDepartmentViewModel
+            { 
+                Id = department.Id,
+                DepartmentName = department.DepartmentName,
+                 CollegeId= collegeId,
+                Colleges = CollegeRepository.List().ToList()
+        };
+            return View(model);
         }
 
         // POST: DepartmentController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id,Department department)
+        public ActionResult Edit(int id,CollegeDepartmentViewModel model)
         {
             try
             {
-
+                var college = CollegeRepository.Find(model.CollegeId);
+                Department department = new()
+                {
+                    Id = model.Id,
+                    DepartmentName = model.DepartmentName,
+                    College = college,
+                };                
                 DepartmentRepository.Update(id, department);
                 return RedirectToAction(nameof(Index));
             }
@@ -83,13 +119,14 @@ namespace CollegeGradingSys.Controllers
         public ActionResult Delete(int id)
         {
             var department = DepartmentRepository.Find(id);
-            return View(department);
+            
+            return View(department);       
         }
 
         // POST: DepartmentController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, Department  department)
+        public ActionResult Delete(int id, CollegeDepartmentViewModel model)
         {
             try
             {
@@ -100,6 +137,23 @@ namespace CollegeGradingSys.Controllers
             {
                 return View();
             }
+        }
+
+        List<College> FillSelectList()
+        {
+            var Colleges = CollegeRepository.List().ToList();
+            Colleges.Insert(0, new College { Id = -1,  CollegeName = "-- أختر --" });
+
+            return Colleges;
+        }
+
+        CollegeDepartmentViewModel GetAllColleges()
+        {
+            var vmodel = new CollegeDepartmentViewModel
+            {
+                 Colleges  = FillSelectList()
+            };
+            return vmodel;
         }
     }
 }

@@ -46,6 +46,8 @@ namespace CollegeGradingSys
             services.AddSingleton<ICollegeGradingSysRepository<College>, CollegeRepository>();
             services.AddSingleton<ICollegeGradingSysRepository<Nationality>, NationalityRepository>();
             services.AddSingleton<ICollegeGradingSysRepository<Department>, DepartmentRepository>();
+            services.AddSingleton<ICollegeGradingSysRepository<Specialization>, SpecializationRepository>();
+            
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(

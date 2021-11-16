@@ -17,7 +17,8 @@ namespace CollegeGradingSys.Models.Repositories
         }
         public void Add(Specialization entity)
         {
-            entity.Id = specializations.Max(a => a.Id) + 1; 
+            var specialization = specializations.FirstOrDefault();
+            entity.Id = specialization != null ? specializations.Max(b => b.Id) + 1 : 1;            
             specializations.Add(entity);
         }
 

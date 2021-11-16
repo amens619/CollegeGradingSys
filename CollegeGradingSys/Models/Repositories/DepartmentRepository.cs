@@ -44,6 +44,8 @@ namespace CollegeGradingSys.Models.Repositories
         {
            var oldDep = Find(id);
             oldDep.DepartmentName = newDep.DepartmentName;
+            oldDep.College = newDep.College;
+            
         }
     }
 }
