@@ -18,7 +18,11 @@ namespace CollegeGradingSys.Models.Repositories
         }
         public void Add(Nationality entity)
         {
-            entity.Id = nationalities.Max(a => a.Id) + 1;
+
+            var nationality = nationalities.FirstOrDefault();
+
+            entity.Id = nationality != null ? nationalities.Max(b => b.Id) + 1 : 1;
+            
             nationalities.Add(entity);
         }
 

@@ -15,5 +15,12 @@ namespace CollegeGradingSys.Data
         }
 
         public DbSet<College> College { get; set; }
+
+        public DbSet<Nationality> Nationality { get; set; }
+
+        //protected override void OnModelCreating(ModelBuilder modelBuilder)
+        //{
+        //    base.OnModelCreating(modelBuilder);
+        //}
     }
 }
