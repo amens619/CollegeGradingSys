@@ -11,9 +11,12 @@ namespace CollegeGradingSys.Models
     {
         [Key]
         public int Id { get; set; }
+
+        [Required]
+        [StringLength(30, MinimumLength = 3)]
+        [Display(Name = "التخصص")]
         public string SpecializationName { get; set; }
 
-        public int DepartmentId { get; set; }
         public Department Department { get; set; }
     }
 }

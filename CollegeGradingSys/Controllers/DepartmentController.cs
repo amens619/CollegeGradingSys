@@ -21,6 +21,7 @@ namespace CollegeGradingSys.Controllers
         public ActionResult Index()
         {
             var departments = DepartmentRepository.List();
+            
             return View(departments);
         }
 

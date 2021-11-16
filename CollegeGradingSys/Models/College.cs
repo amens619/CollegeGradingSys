@@ -13,7 +13,7 @@ namespace CollegeGradingSys.Models
 
         [Required]
         [StringLength(30, MinimumLength = 3)]
-        [Display(Name = "اسم الكلية")]
+        [Display(Name = "الكلية")]
         public string CollegeName { get; set; }
 
         public ICollection<Department>  Departments { get; set; }

@@ -12,10 +12,10 @@ namespace CollegeGradingSys.Models.Repositories
         {
             departments = new List<Department>()
             {
-                new Department{ Id=1, DepartmentName="فقه", CollegeId=1   },
-                 new Department{ Id=2, DepartmentName="علوم القرآن" ,CollegeId=1 },
-                 new Department{ Id=3, DepartmentName="اللغة العربية",CollegeId=1 },
-                 new Department{ Id=4, DepartmentName="الاقتصاد", CollegeId=1 }
+                new Department{ Id=1, DepartmentName="فقه" , College= new College{  Id =1,CollegeName="الشريعة"} },
+                 new Department{ Id=2, DepartmentName="علوم القرآن" , College =new College{  Id =1,CollegeName="الشريعة"} },
+                 new Department{ Id=3, DepartmentName="اللغة العربية", College =new College{  Id =1,CollegeName="الشريعة"}},
+                 new Department{ Id=4, DepartmentName="الاقتصاد",  College =new College{  Id =1,CollegeName="الشريعة"} }
             };
         }
         public void Add(Department entity)

@@ -17,7 +17,7 @@ namespace CollegeGradingSys.Models
         [Display(Name = "القسم")]
         public string DepartmentName { get; set; }
 
-        public int CollegeId { get; set; }
+        
         public College College { get; set; }
 
         public ICollection<Specialization> Specializations { get; set; }

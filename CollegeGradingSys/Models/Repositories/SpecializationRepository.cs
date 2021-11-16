@@ -12,7 +12,7 @@ namespace CollegeGradingSys.Models.Repositories
         {
             specializations = new List<Specialization>()
             {
-                new  Specialization{ Id=1, SpecializationName="عام", Department = new Department{ Id=1 }  }
+                new  Specialization{ Id=1, SpecializationName="عام", Department = new Department{ Id=1, DepartmentName="فقه" }  }
             };
         }
         public void Add(Specialization entity)
