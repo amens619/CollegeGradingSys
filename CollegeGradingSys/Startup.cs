@@ -43,8 +43,10 @@ namespace CollegeGradingSys
             //=======================================
             services.AddMvc();
             
-            services.AddScoped<ICollegeGradingSysRepository<College>, CollegeDbRepository>();
+            services.AddSingleton<ICollegeGradingSysRepository<College>, CollegeRepository>();
             services.AddSingleton<ICollegeGradingSysRepository<Nationality>, NationalityRepository>();
+            services.AddSingleton<ICollegeGradingSysRepository<Department>, DepartmentRepository>();
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("SqlCon")));
