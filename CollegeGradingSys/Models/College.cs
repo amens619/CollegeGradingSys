@@ -15,5 +15,7 @@ namespace CollegeGradingSys.Models
         [StringLength(30, MinimumLength = 3)]
         [Display(Name = "اسم الكلية")]
         public string CollegeName { get; set; }
+
+        public ICollection<Department>  Departments { get; set; }
     }
 }

@@ -14,10 +14,7 @@
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.DepartmentName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SpecializationId)
-            </th>
+            </th>           
             <th></th>
         </tr>
     </thead>
@@ -26,10 +23,7 @@
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.DepartmentName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SpecializationId)
-            </td>
+            </td>           
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
