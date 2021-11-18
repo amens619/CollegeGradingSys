@@ -13,12 +13,14 @@ namespace CollegeGradingSys.Models
 
         [Required]
         [StringLength(60, MinimumLength = 3)]
-        [Display(Name = "اسم الدولة")]
+        [Display(Name = "الدولة")]
         public string CountryName { get; set; }
 
         [Required]
         [StringLength(60, MinimumLength = 3)]
         [Display(Name = "الجنسية")]
         public string NationalityName { get; set; }
+
+        public ICollection<Governorate>  Governorates { get; set; }
     }
 }

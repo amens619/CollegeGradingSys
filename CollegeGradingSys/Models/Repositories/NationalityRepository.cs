@@ -13,7 +13,7 @@ namespace CollegeGradingSys.Models.Repositories
             nationalities = new List<Nationality>()
             {
                 new Nationality { Id=1, CountryName="اليمن" , NationalityName="يمني"},
-                new Nationality { Id=2, CountryName="السودان", NationalityName="سوداني"}
+                new Nationality { Id=2, CountryName="السعودية", NationalityName="سعودي"}
             };
         }
         public void Add(Nationality entity)

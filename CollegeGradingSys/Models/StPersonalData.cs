@@ -20,6 +20,6 @@ namespace CollegeGradingSys.Models
 
         public StHighSchoolData  StHighSchoolData { get; set; }
         public Nationality Nationality { get; set; }
-        public Governorate Governorate { get; set; }
+        public oldGovernorate Governorate { get; set; }
     }
 }

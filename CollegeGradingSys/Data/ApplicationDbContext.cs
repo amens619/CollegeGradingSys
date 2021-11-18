@@ -23,7 +23,8 @@ namespace CollegeGradingSys.Data
 
         public DbSet<Specialization> Specialization { get; set; }
 
-        
+        public DbSet<District> District { get; set; }
+        public DbSet<Governorate> Governorate { get; set; }
 
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{

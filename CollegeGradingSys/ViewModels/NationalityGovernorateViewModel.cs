@@ -1,12 +1,13 @@
-﻿using System;
+﻿using CollegeGradingSys.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CollegeGradingSys.Models
+namespace CollegeGradingSys.ViewModels
 {
-    public class Governorate
+    public class NationalityGovernorateViewModel
     {
         [Key]
         public int Id { get; set; }
@@ -17,8 +18,8 @@ namespace CollegeGradingSys.Models
         public string GovernorateName { get; set; }
 
 
-        public Nationality  Nationality { get; set; }
+        public int NationalityId { get; set; }
 
-        public ICollection<District> Districts { get; set; }
+        public ICollection<Nationality>  Nationalities { get; set; }
     }
 }

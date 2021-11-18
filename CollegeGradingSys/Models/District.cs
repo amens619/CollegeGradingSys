@@ -6,19 +6,17 @@ using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Models
 {
-    public class Governorate
+    public class District
     {
         [Key]
         public int Id { get; set; }
 
         [Required]
         [StringLength(60, MinimumLength = 3)]
-        [Display(Name = "المحافظة/المنطقة")]
-        public string GovernorateName { get; set; }
+        [Display(Name = "المديرية/المدينة")]
+        public string DistrictName { get; set; }
 
 
-        public Nationality  Nationality { get; set; }
-
-        public ICollection<District> Districts { get; set; }
+        public Governorate Governorate { get; set; }
     }
 }
