@@ -19,13 +19,11 @@ namespace CollegeGradingSys.Data
 
         public DbSet<Nationality> Nationality { get; set; }
 
-        public DbSet<Department> Department { get; set; }
+        public DbSet<Department> Department { get; set; }       
 
-        public DbSet<CollegeGradingSys.ViewModels.CollegeDepartmentViewModel> CollegeDepartmentViewModel { get; set; }
+        public DbSet<Specialization> Specialization { get; set; }
 
-        public DbSet<CollegeGradingSys.Models.Specialization> Specialization { get; set; }
-
-        public DbSet<CollegeGradingSys.ViewModels.DepartmentSpecializationViewModel> DepartmentSpecializationViewModel { get; set; }
+        
 
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{

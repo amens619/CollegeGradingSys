@@ -1,4 +1,5 @@
 ﻿using CollegeGradingSys.Data;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,12 +40,12 @@ namespace CollegeGradingSys.Models.Repositories
 
         public Department Find(int id)
         {
-            return db.Department.SingleOrDefault(a => a.Id == id);
+            return db.Department.Include(a => a.College).SingleOrDefault(a => a.Id == id);
         }
 
         public IList<Department> List()
         {
-            return db.Department.ToList();
+            return db.Department.Include(a => a.College).ToList();
         }
 
         public void Update(int id, Department newDepartment)

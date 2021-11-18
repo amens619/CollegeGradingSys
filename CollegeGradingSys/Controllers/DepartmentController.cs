@@ -80,7 +80,15 @@ namespace CollegeGradingSys.Controllers
         // GET: DepartmentController/Edit/5
         public ActionResult Edit(int id)
         {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
             var department = DepartmentRepository.Find(id);
+            if (department is null)
+            {
+                return NotFound();
+            }
             var collegeId = department.College == null ? department.College.Id = 0 : department.College.Id;
             var model = new CollegeDepartmentViewModel
             { 
@@ -118,7 +126,15 @@ namespace CollegeGradingSys.Controllers
         // GET: DepartmentController/Delete/5
         public ActionResult Delete(int id)
         {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
             var department = DepartmentRepository.Find(id);
+            if (department is null)
+            {
+                return NotFound();
+            }         
             
             return View(department);       
         }
