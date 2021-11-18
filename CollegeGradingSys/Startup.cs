@@ -44,7 +44,7 @@ namespace CollegeGradingSys
             services.AddMvc();
             
             services.AddScoped<ICollegeGradingSysRepository<College>, CollegeDbRepository>();
-            services.AddSingleton<ICollegeGradingSysRepository<Nationality>, NationalityRepository>();
+            services.AddScoped<ICollegeGradingSysRepository<Nationality>, NationalityDbRepository>();
             services.AddScoped<ICollegeGradingSysRepository<Department>, DepartmentDbRepository>();
             services.AddScoped<ICollegeGradingSysRepository<Specialization>, SpecializationDbRepository>();
             
