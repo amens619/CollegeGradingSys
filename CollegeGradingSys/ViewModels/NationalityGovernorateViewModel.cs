@@ -13,11 +13,11 @@ namespace CollegeGradingSys.ViewModels
         public int Id { get; set; }
 
         [Required]
-        [StringLength(60, MinimumLength = 3)]
+        [StringLength(60, MinimumLength = 2)]
         [Display(Name = "المحافظة/المنطقة")]
         public string GovernorateName { get; set; }
 
-
+        [Display(Name ="الدولة")]
         public int NationalityId { get; set; }
 
         public ICollection<Nationality>  Nationalities { get; set; }

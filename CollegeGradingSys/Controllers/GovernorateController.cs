@@ -23,16 +23,16 @@ namespace CollegeGradingSys.Controllers
         // GET: GovernorateController
         public ActionResult Index()
         {
-            var departments = GovernorateRepository.List();
+            var governorates = GovernorateRepository.List();
             
-            return View(departments);
+            return View(governorates);
         }
 
         // GET: GovernorateController/Details/5
         public ActionResult Details(int id)
         {
-            var department = GovernorateRepository.Find(id);
-            return View(department);
+            var governorate = GovernorateRepository.Find(id);
+            return View(governorate);
         }
 
         // GET: GovernorateController/Create
@@ -57,18 +57,18 @@ namespace CollegeGradingSys.Controllers
 
                 if (model.NationalityId == -1)
                 {
-                    ViewBag.Message = "الرجاء اختيار الكلية من القائمة";
+                    ViewBag.Message = "الرجاء اختيار الدولة من القائمة";
 
-                    return View(GetAllNationalitys());
+                    return View(GetAllNationalities());
                 }
                 var college = NationalityRepository.Find(model.NationalityId);
-                Governorate department = new Governorate
+                Governorate governorate = new Governorate
                 {
                     Id = model.Id,
                      GovernorateName  = model.GovernorateName,
                      Nationality = college,                    
                 };                
-                GovernorateRepository.Add(department);
+                GovernorateRepository.Add(governorate);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -84,16 +84,16 @@ namespace CollegeGradingSys.Controllers
             {
                 return NotFound();
             }
-            var department = GovernorateRepository.Find(id);
-            if (department is null)
+            var governorate = GovernorateRepository.Find(id);
+            if (governorate is null)
             {
                 return NotFound();
             }
-            var collegeId = department.Nationality == null ? department.Nationality.Id = 0 : department.Nationality.Id;
+            var collegeId = governorate.Nationality == null ? governorate.Nationality.Id = 0 : governorate.Nationality.Id;
             var model = new NationalityGovernorateViewModel
             { 
-                Id = department.Id,
-                GovernorateName = department.GovernorateName,
+                Id = governorate.Id,
+                GovernorateName = governorate.GovernorateName,
                  NationalityId= collegeId,
                 Nationalities = NationalityRepository.List().ToList()
         };
@@ -107,14 +107,14 @@ namespace CollegeGradingSys.Controllers
         {
             try
             {
-                var college = NationalityRepository.Find(model.NationalityId);
-                Governorate department = new()
+                var nationality = NationalityRepository.Find(model.NationalityId);
+                Governorate governorate = new()
                 {
                     Id = model.Id,
                     GovernorateName = model.GovernorateName,
-                    Nationality = college,
+                    Nationality = nationality,
                 };                
-                GovernorateRepository.Update(id, department);
+                GovernorateRepository.Update(id, governorate);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -130,13 +130,13 @@ namespace CollegeGradingSys.Controllers
             {
                 return NotFound();
             }
-            var department = GovernorateRepository.Find(id);
-            if (department is null)
+            var governorate = GovernorateRepository.Find(id);
+            if (governorate is null)
             {
                 return NotFound();
             }         
             
-            return View(department);       
+            return View(governorate);       
         }
 
         // POST: GovernorateController/Delete/5
@@ -157,13 +157,13 @@ namespace CollegeGradingSys.Controllers
 
         List<Nationality> FillSelectList()
         {
-            var Nationalitys = NationalityRepository.List().ToList();
-            Nationalitys.Insert(0, new Nationality { Id = -1,  NationalityName = "-- أختر --" });
+            var Nationalities = NationalityRepository.List().ToList();
+            Nationalities.Insert(0, new Nationality { Id = -1, CountryName = "-- أختر --" });
 
-            return Nationalitys;
+            return Nationalities;
         }
 
-        NationalityGovernorateViewModel GetAllNationalitys()
+        NationalityGovernorateViewModel GetAllNationalities()
         {
             var vmodel = new NationalityGovernorateViewModel
             {

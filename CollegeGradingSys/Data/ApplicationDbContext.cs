@@ -16,16 +16,16 @@ namespace CollegeGradingSys.Data
         }
 
         public DbSet<College> College { get; set; }
-
-        public DbSet<Nationality> Nationality { get; set; }
-
-        public DbSet<Department> Department { get; set; }       
+        public DbSet<Department> Department { get; set; }
 
         public DbSet<Specialization> Specialization { get; set; }
 
-        public DbSet<District> District { get; set; }
-        public DbSet<Governorate> Governorate { get; set; }
+        public DbSet<Nationality> Nationality { get; set; }
 
+        public DbSet<Governorate> Governorate { get; set; }
+        public DbSet<District> District { get; set; }
+      
+       
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{
         //    base.OnModelCreating(modelBuilder);
