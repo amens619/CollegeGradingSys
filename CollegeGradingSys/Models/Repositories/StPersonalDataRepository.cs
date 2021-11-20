@@ -15,15 +15,20 @@ namespace CollegeGradingSys.Models.Repositories
                 new StPersonalData { AcademicID=40030045, StName ="امين سالم محمد باشعيب", BirthDate= new DateTime(2000,12,24), BirthPlace="اليمن حضرموت" , College=new College{ Id=1 }, Sex= Sex.ذكر , IdentificatioNO="0755556644", Nationality= new Nationality{ Id=1 } , EnrollmentYearH=1442 , EnrollmentYearM=2019 , Governorate = oldGovernorate.حضرموت  }
             };
         }
-        public void Add(StPersonalData entity)
+        public StPersonalData Add(StPersonalData entity)
         {
             stPersonalDatas.Add(entity);
+            return entity;
         }
 
-        public void Delete(int academicID)
+        public StPersonalData Delete(int academicID)
         {
             var stPersonalData = Find(academicID);
-            stPersonalDatas.Remove(stPersonalData);
+            if (stPersonalData != null)
+            {
+                stPersonalDatas.Remove(stPersonalData);
+            }
+            return stPersonalData;
             
         }
 
@@ -37,19 +42,23 @@ namespace CollegeGradingSys.Models.Repositories
             return stPersonalDatas;
         }
 
-        public void Update(int academicID, StPersonalData newStPersonalData)
+        public StPersonalData Update(int academicID, StPersonalData newStPersonalData)
         {
             var oldStPersonalData = Find(academicID);
-            oldStPersonalData.StName = newStPersonalData.StName;
-            oldStPersonalData.Governorate = newStPersonalData.Governorate;
-            oldStPersonalData.IdentificatioNO = newStPersonalData.IdentificatioNO;
-            oldStPersonalData.Nationality = newStPersonalData.Nationality;
-            oldStPersonalData.BirthDate = newStPersonalData.BirthDate;
-            oldStPersonalData.BirthPlace = newStPersonalData.BirthPlace;
-            oldStPersonalData.College = newStPersonalData.College;
-            oldStPersonalData.EnrollmentYearH = newStPersonalData.EnrollmentYearH;
-            oldStPersonalData.EnrollmentYearM = newStPersonalData.EnrollmentYearM;
-            oldStPersonalData.Sex = newStPersonalData.Sex;
+            if (oldStPersonalData != null)
+            {
+                oldStPersonalData.StName = newStPersonalData.StName;
+                oldStPersonalData.Governorate = newStPersonalData.Governorate;
+                oldStPersonalData.IdentificatioNO = newStPersonalData.IdentificatioNO;
+                oldStPersonalData.Nationality = newStPersonalData.Nationality;
+                oldStPersonalData.BirthDate = newStPersonalData.BirthDate;
+                oldStPersonalData.BirthPlace = newStPersonalData.BirthPlace;
+                oldStPersonalData.College = newStPersonalData.College;
+                oldStPersonalData.EnrollmentYearH = newStPersonalData.EnrollmentYearH;
+                oldStPersonalData.EnrollmentYearM = newStPersonalData.EnrollmentYearM;
+                oldStPersonalData.Sex = newStPersonalData.Sex;
+            }
+            return newStPersonalData;
         }
     }
 }

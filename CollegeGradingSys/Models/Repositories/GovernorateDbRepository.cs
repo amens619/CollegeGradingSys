@@ -16,26 +16,22 @@ namespace CollegeGradingSys.Models.Repositories
             db = _db;
         }
 
-
-
-
-
-
-
-
-
-
-        public void Add(Governorate entity)
+        public Governorate Add(Governorate entity)
         {
             db.Governorate.Add(entity);
             SaveChange();
+            return entity;
         }
 
-        public void Delete(int id)
+        public Governorate Delete(int id)
         {
             var governorate = Find(id);
-            db.Governorate.Remove(governorate);
-            SaveChange();
+            if (governorate != null)
+            {
+                db.Governorate.Remove(governorate);
+                SaveChange();
+            }
+            return governorate;
         }
 
         public Governorate Find(int id)
@@ -48,10 +44,12 @@ namespace CollegeGradingSys.Models.Repositories
             return db.Governorate.Include(a => a.Nationality).ToList();
         }
 
-        public void Update(int id, Governorate newGovernorate)
+        public Governorate Update(int id, Governorate newGovernorate)
         {
-            db.Governorate.Update(newGovernorate);
+            var college = db.Governorate.Attach(newGovernorate);
+            college.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
             SaveChange();
+            return newGovernorate;
         }
 
         private void SaveChange()

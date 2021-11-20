@@ -17,16 +17,22 @@ namespace CollegeGradingSys.Models.Repositories
 
             };
         }
-        public void Add(StudentBatch newBatch)
+        public StudentBatch Add(StudentBatch newBatch)
         {
-            newBatch.Id = studentBatches.Max(a => a.Id) + 1;
+            var batch = studentBatches.FirstOrDefault();
+            newBatch.Id = batch != null ? studentBatches.Max(b => b.Id) + 1 : 1;
             studentBatches.Add(newBatch);
+            return newBatch;
         }
 
-        public void Delete(int id)
+        public StudentBatch Delete(int id)
         {
-            var Batch = Find(id);
-            studentBatches.Remove(Batch);
+            var batch = Find(id);
+            if (batch != null)
+            {
+                studentBatches.Remove(batch);
+            }
+            return batch;
         }
 
         public StudentBatch Find(int id)
@@ -39,11 +45,15 @@ namespace CollegeGradingSys.Models.Repositories
             return studentBatches;
         }
 
-        public void Update(int id, StudentBatch newBatch)
+        public StudentBatch Update(int id, StudentBatch newBatch)
         {
             var oldBatch = Find(id);
-            oldBatch.StudentBatchName = newBatch.StudentBatchName;
-            oldBatch.Note = newBatch.Note;
+            if (oldBatch != null)
+            {
+                oldBatch.StudentBatchName = newBatch.StudentBatchName;
+                oldBatch.Note = newBatch.Note;
+            }
+            return newBatch;
         }
     }
 }

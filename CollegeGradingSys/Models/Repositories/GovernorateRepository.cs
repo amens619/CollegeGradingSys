@@ -18,16 +18,22 @@ namespace CollegeGradingSys.Models.Repositories
                  new Governorate{ Id=4, GovernorateName="جدة",  Nationality =new Nationality{  Id =2,CountryName="السعودية"} }
             };
         }
-        public void Add(Governorate entity)
+        public Governorate Add(Governorate entity)
         {
-            entity.Id = governorates.Max(a => a.Id) + 1;
+            var college = governorates.FirstOrDefault();
+            entity.Id = college != null ? governorates.Max(b => b.Id) + 1 : 1;           
             governorates.Add(entity);
+            return entity;
         }
 
-        public void Delete(int id)
+        public Governorate Delete(int id)
         {
             var governorate = Find(id);
-            governorates.Remove(governorate);
+            if (governorate != null)
+            {
+                governorates.Remove(governorate);
+            }
+            return governorate;
         }
 
         public Governorate Find(int id)
@@ -40,11 +46,15 @@ namespace CollegeGradingSys.Models.Repositories
             return governorates;
         }
 
-        public void Update(int id, Governorate newDep)
+        public Governorate Update(int id, Governorate newDep)
         {
            var oldDep = Find(id);
-            oldDep.GovernorateName = newDep.GovernorateName;
-            oldDep.Nationality = newDep.Nationality;
+            if (oldDep != null)
+            {
+                oldDep.GovernorateName = newDep.GovernorateName;
+                oldDep.Nationality = newDep.Nationality;
+            }
+            return newDep;
             
         }
     }

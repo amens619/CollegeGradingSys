@@ -18,24 +18,22 @@ namespace CollegeGradingSys.Models.Repositories
 
 
 
-
-
-
-
-
-
-
-        public void Add(Department entity)
+        public Department Add(Department entity)
         {
             db.Department.Add(entity);
             SaveChange();
+            return entity;
         }
 
-        public void Delete(int id)
+        public Department Delete(int id)
         {
             var department = Find(id);
-            db.Department.Remove(department);
-            SaveChange();
+            if (department != null)
+            {
+                db.Department.Remove(department);
+                SaveChange();
+            }
+            return department;
         }
 
         public Department Find(int id)
@@ -48,10 +46,14 @@ namespace CollegeGradingSys.Models.Repositories
             return db.Department.Include(a => a.College).ToList();
         }
 
-        public void Update(int id, Department newDepartment)
+        public Department Update(int id, Department newDepartment)
         {
-            db.Department.Update(newDepartment);
+            
+            var department = db.Department.Attach(newDepartment);
+            department.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
             SaveChange();
+            return newDepartment;
+           
         }
 
         private void SaveChange()

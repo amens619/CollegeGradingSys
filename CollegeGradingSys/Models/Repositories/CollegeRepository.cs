@@ -16,20 +16,23 @@ namespace CollegeGradingSys.Models.Repositories
             };
         }
 
-        public void Add(College entity)
+        public College Add(College entity)
         {
             var college = colleges.FirstOrDefault();
-
             entity.Id = college != null ? colleges.Max(b => b.Id) + 1 : 1;
-
-
             colleges.Add(entity);
+            return entity;
         }
 
-        public void Delete(int id)
+        public College Delete(int id)
         {
-            var college = Find(id);
-            colleges.Remove(college);
+            College college = Find(id);
+            if( college != null)
+            {
+                colleges.Remove(college);
+            }
+
+            return college;
         }
 
         public College Find(int id)
@@ -42,10 +45,14 @@ namespace CollegeGradingSys.Models.Repositories
             return colleges;
         }
 
-        public void Update(int id, College newAuthor)
+        public College Update(int id, College newAuthor)
         {
             var oldCollege = Find(id);
-            oldCollege.CollegeName = newAuthor.CollegeName;
+            if (oldCollege != null)
+            {
+                oldCollege.CollegeName = newAuthor.CollegeName;
+            }
+            return newAuthor;
         }
     }
 }

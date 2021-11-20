@@ -15,17 +15,22 @@ namespace CollegeGradingSys.Models.Repositories
                 new  District{ Id=1, DistrictName="ارياف المكلا", Governorate = new Governorate{ Id=1, GovernorateName="حضرموت" }  }
             };
         }
-        public void Add(District entity)
+        public District Add(District entity)
         {
             var district = districts.FirstOrDefault();
             entity.Id = district != null ? districts.Max(b => b.Id) + 1 : 1;            
             districts.Add(entity);
+            return entity;
         }
 
-        public void Delete(int id)
+        public District Delete(int id)
         {
             var district = Find(id);
-            districts.Remove(district);
+            if (district != null)
+            {
+                districts.Remove(district);
+            }
+            return district;
         }
 
         public District Find(int id)
@@ -38,11 +43,15 @@ namespace CollegeGradingSys.Models.Repositories
             return districts;
         }
 
-        public void Update(int id, District newDistrict)
+        public District Update(int id, District newDistrict)
         {
            var oldDistrict = Find(id);
-            oldDistrict.DistrictName = newDistrict.DistrictName;
-            oldDistrict.Governorate = newDistrict.Governorate;
+            if (oldDistrict != null)
+            {
+                oldDistrict.DistrictName = newDistrict.DistrictName;
+                oldDistrict.Governorate = newDistrict.Governorate;
+            }
+            return newDistrict;
         }
     }
 }

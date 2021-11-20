@@ -15,12 +15,12 @@ namespace CollegeGradingSys.Models.Repositories
                 new SubCourse { Id=1 , }
             };
         }
-        public void Add(SubCourse entity)
+        public SubCourse Add(SubCourse entity)
         {
             throw new NotImplementedException();
         }
 
-        public void Delete(int id)
+        public SubCourse Delete(int id)
         {
             throw new NotImplementedException();
         }
@@ -35,7 +35,7 @@ namespace CollegeGradingSys.Models.Repositories
             throw new NotImplementedException();
         }
 
-        public void Update(int id, SubCourse entity)
+        public SubCourse Update(int id, SubCourse entity)
         {
             throw new NotImplementedException();
         }

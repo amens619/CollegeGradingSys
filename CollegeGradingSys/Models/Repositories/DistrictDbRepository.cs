@@ -15,27 +15,22 @@ namespace CollegeGradingSys.Models.Repositories
         {
             db = _db;
         }
-
-
-
-
-
-
-
-
-
-
-        public void Add(District entity)
+        public District Add(District entity)
         {
             db.District.Add(entity);
             SaveChange();
+            return entity;
         }
 
-        public void Delete(int id)
+        public District Delete(int id)
         {
-            var specialization = Find(id);
-            db.District.Remove(specialization);
-            SaveChange();
+            District district = Find(id);
+            if (district != null)
+            {
+                db.District.Remove(district);
+                SaveChange();
+            }
+            return district;
         }
 
         public District Find(int id)
@@ -48,10 +43,13 @@ namespace CollegeGradingSys.Models.Repositories
             return db.District.Include(a=> a.Governorate).ToList();
         }
 
-        public void Update(int id, District newDistrict)
+        public District Update(int id, District newDistrict)
         {
-            db.District.Update(newDistrict);
+            
+            var college = db.District.Attach(newDistrict);
+            college.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
             SaveChange();
+            return newDistrict;
         }
 
         private void SaveChange()

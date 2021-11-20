@@ -15,16 +15,22 @@ namespace CollegeGradingSys.Models.Repositories
                 new AcademicYear { Id= 1, AcademicYearStart = new DateTime(2021, 8, 1), AcademicYearEnd = new DateTime(2022, 4, 20) , AcademicYearName ="2021-2022"}
             };
         }
-        public void Add(AcademicYear entity)
+        public AcademicYear Add(AcademicYear entity)
         {
-            entity.Id = academicYears.Max(a => a.Id) + 1;
+            var college = academicYears.FirstOrDefault();
+            entity.Id = college != null ? academicYears.Max(b => b.Id) + 1 : 1;            
             academicYears.Add(entity);
+            return entity;
         }
 
-        public void Delete(int id)
+        public AcademicYear Delete(int id)
         {
-            var academicYear = Find(id);
-            academicYears.Remove(academicYear);
+            AcademicYear academicYear = Find(id);
+            if (academicYear != null)
+            {
+                academicYears.Remove(academicYear);
+            }
+            return academicYear;
         }
 
         public AcademicYear Find(int id)
@@ -37,12 +43,16 @@ namespace CollegeGradingSys.Models.Repositories
             return academicYears;
         }
 
-        public void Update(int id, AcademicYear newAcademicYear)
+        public AcademicYear Update(int id, AcademicYear newAcademicYear)
         {
             var oldAcademicYear = Find(id);
-            oldAcademicYear.AcademicYearStart = newAcademicYear.AcademicYearStart;
-            oldAcademicYear.AcademicYearEnd = newAcademicYear.AcademicYearEnd;
-            oldAcademicYear.AcademicYearName = newAcademicYear.AcademicYearName;
+            if (oldAcademicYear != null)
+            {
+                oldAcademicYear.AcademicYearStart = newAcademicYear.AcademicYearStart;
+                oldAcademicYear.AcademicYearEnd = newAcademicYear.AcademicYearEnd;
+                oldAcademicYear.AcademicYearName = newAcademicYear.AcademicYearName;
+            }
+            return newAcademicYear;
         }
     }
 }

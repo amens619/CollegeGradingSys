@@ -15,17 +15,22 @@ namespace CollegeGradingSys.Models.Repositories
                 new  Specialization{ Id=1, SpecializationName="عام", Department = new Department{ Id=1, DepartmentName="فقه" }  }
             };
         }
-        public void Add(Specialization entity)
+        public Specialization Add(Specialization entity)
         {
             var specialization = specializations.FirstOrDefault();
             entity.Id = specialization != null ? specializations.Max(b => b.Id) + 1 : 1;            
             specializations.Add(entity);
+            return entity;
         }
 
-        public void Delete(int id)
+        public Specialization Delete(int id)
         {
             var specialization = Find(id);
-            specializations.Remove(specialization);
+            if (specialization != null)
+            {
+                specializations.Remove(specialization);
+            }
+            return specialization;
         }
 
         public Specialization Find(int id)
@@ -38,11 +43,15 @@ namespace CollegeGradingSys.Models.Repositories
             return specializations;
         }
 
-        public void Update(int id, Specialization newSpec)
+        public Specialization Update(int id, Specialization newSpec)
         {
            var oldspec = Find(id);
-            oldspec.SpecializationName = newSpec.SpecializationName;
-            oldspec.Department = newSpec.Department;
+            if (oldspec != null)
+            {
+                oldspec.SpecializationName = newSpec.SpecializationName;
+                oldspec.Department = newSpec.Department;
+            }
+            return newSpec;
         }
     }
 }

@@ -16,26 +16,22 @@ namespace CollegeGradingSys.Models.Repositories
             db = _db;
         }
 
-
-
-
-
-
-
-
-
-
-        public void Add(Specialization entity)
+        public Specialization Add(Specialization entity)
         {
             db.Specialization.Add(entity);
             SaveChange();
+            return entity;
         }
 
-        public void Delete(int id)
+        public Specialization Delete(int id)
         {
             var specialization = Find(id);
-            db.Specialization.Remove(specialization);
-            SaveChange();
+            if (specialization != null)
+            {
+                db.Specialization.Remove(specialization);
+                SaveChange();
+            }
+            return specialization;
         }
 
         public Specialization Find(int id)
@@ -48,10 +44,12 @@ namespace CollegeGradingSys.Models.Repositories
             return db.Specialization.Include(a=> a.Department).ToList();
         }
 
-        public void Update(int id, Specialization newSpecialization)
-        {
-            db.Specialization.Update(newSpecialization);
+        public Specialization Update(int id, Specialization newSpecialization)
+        {            
+            var college = db.Specialization.Attach(newSpecialization);
+            college.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
             SaveChange();
+            return newSpecialization;
         }
 
         private void SaveChange()

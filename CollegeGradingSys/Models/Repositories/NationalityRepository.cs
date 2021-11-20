@@ -16,20 +16,22 @@ namespace CollegeGradingSys.Models.Repositories
                 new Nationality { Id=2, CountryName="السعودية", NationalityName="سعودي"}
             };
         }
-        public void Add(Nationality entity)
+        public Nationality Add(Nationality entity)
         {
-
             var nationality = nationalities.FirstOrDefault();
-
-            entity.Id = nationality != null ? nationalities.Max(b => b.Id) + 1 : 1;
-            
+            entity.Id = nationality != null ? nationalities.Max(b => b.Id) + 1 : 1;            
             nationalities.Add(entity);
+            return entity;
         }
 
-        public void Delete(int id)
+        public Nationality Delete(int id)
         {
             var nationality = Find(id);
-            nationalities.Remove(nationality);
+            if (nationality != null)
+            {
+                nationalities.Remove(nationality);
+            }
+            return nationality;
         }
 
         public Nationality Find(int id)
@@ -42,11 +44,15 @@ namespace CollegeGradingSys.Models.Repositories
             return nationalities;
         }
 
-        public void Update(int id, Nationality newNationality)
+        public Nationality Update(int id, Nationality newNationality)
         {
            var oldNationality = Find(id);
-            oldNationality.CountryName = newNationality.CountryName;
-            oldNationality.NationalityName = newNationality.NationalityName;
+            if (oldNationality != null)
+            {
+                oldNationality.CountryName = newNationality.CountryName;
+                oldNationality.NationalityName = newNationality.NationalityName;
+            }
+            return newNationality;
         }
     }
 }
