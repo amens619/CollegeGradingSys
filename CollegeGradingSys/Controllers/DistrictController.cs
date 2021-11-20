@@ -31,8 +31,8 @@ namespace CollegeGradingSys.Controllers
         // GET: DistrictController/Details/5
         public ActionResult Details(int id)
         {
-            var department = DistrictRepository.Find(id);
-            return View(department);
+            var district = DistrictRepository.Find(id);
+            return View(district);
         }
 
         // GET: DistrictController/Create
@@ -57,18 +57,18 @@ namespace CollegeGradingSys.Controllers
 
                 if (model.GovernorateId == -1)
                 {
-                    ViewBag.Message = "الرجاء اختيار القسم من القائمة";
+                    ViewBag.Message = "الرجاء اختيار المديرية من القائمة";
 
                     return View(GetAllGovernorates());
                 }
-                var department = GovernorateRepository.Find(model.GovernorateId);
-                District specialization = new()
+                var governorate = GovernorateRepository.Find(model.GovernorateId);
+                District  district  = new()
                 {
                     Id = model.Id,
                      DistrictName  = model.DistrictName,
-                     Governorate = department,                    
+                     Governorate = governorate,                    
                 };                
-                DistrictRepository.Add(specialization);
+                DistrictRepository.Add(district);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -80,13 +80,13 @@ namespace CollegeGradingSys.Controllers
         // GET: DistrictController/Edit/5
         public ActionResult Edit(int id)
         {
-            var department = DistrictRepository.Find(id);
-            var departmentId = department.Governorate == null ? department.Governorate.Id = 0 : department.Governorate.Id;
+            var district = DistrictRepository.Find(id);
+            var governorateId = district.Governorate == null ? district.Governorate.Id = 0 : district.Governorate.Id;
             var model = new GovernorateDistrictViewModel
             { 
-                Id = department.Id,
-                DistrictName = department.DistrictName,
-                 GovernorateId= departmentId,
+                Id = district.Id,
+                DistrictName = district.DistrictName,
+                 GovernorateId= governorateId,
                 Governorates = GovernorateRepository.List().ToList()
         };
             return View(model);
@@ -99,12 +99,12 @@ namespace CollegeGradingSys.Controllers
         {
             try
             {
-                var department = GovernorateRepository.Find(model.GovernorateId);
+                var governorate = GovernorateRepository.Find(model.GovernorateId);
                 District specialization = new()
                 {
                     Id = model.Id,
                     DistrictName = model.DistrictName,
-                    Governorate = department,
+                    Governorate = governorate,
                 };                
                 DistrictRepository.Update(id, specialization);
                 return RedirectToAction(nameof(Index));
@@ -118,15 +118,15 @@ namespace CollegeGradingSys.Controllers
         // GET: DistrictController/Delete/5
         public ActionResult Delete(int id)
         {
-            var specialization = DistrictRepository.Find(id);
+            var  district = DistrictRepository.Find(id);
             
-            return View(specialization);       
+            return View(district);       
         }
 
         // POST: DistrictController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, GovernorateDistrictViewModel model)
+        public ActionResult Delete(int id,District model)
         {
             try
             {
