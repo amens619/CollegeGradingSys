@@ -24,7 +24,8 @@ namespace CollegeGradingSys.Data
 
         public DbSet<Governorate> Governorate { get; set; }
         public DbSet<District> District { get; set; }
-        public DbSet<CollegeGradingSys.ViewModels.GovernorateDistrictViewModel> GovernorateDistrictViewModel { get; set; }
+        public DbSet<City> City { get; set; }
+        public DbSet<CollegeGradingSys.ViewModels.DistrictCityViewModel> DistrictCityViewModel { get; set; }
       
        
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
