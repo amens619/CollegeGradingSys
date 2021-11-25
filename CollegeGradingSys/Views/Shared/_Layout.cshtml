@@ -74,8 +74,28 @@
                         </button>
                         <div class="collapse" id="dashboard-collapse">
                             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                                <li><a href="~/College" class="link-dark rounded">إدارة الكليات</a></li>
-                                <li><a href="~/Department" class="link-dark rounded">إدارة الاقسام</a></li>
+                                <li><a asp-controller="College" class="link-dark rounded">إدارة الكليات</a></li>
+                                <li><a asp-controller="Department" class="link-dark rounded">إدارة الاقسام</a></li>
+                                <li><a asp-controller="Specialization" class="link-dark rounded">إدارة التخصصات</a></li>
+                                <li><a asp-controller="Nationality" class="link-dark rounded">إدارة الدول والجنسيان</a></li>
+                                <li><a asp-controller="Governorate" class="link-dark rounded">إدارة المحافظات</a></li>
+                                <li><a asp-controller="District" class="link-dark rounded">إدارة المديريات</a></li>
+                                <li><a asp-controller="City" class="link-dark rounded">إدارة المدن</a></li>
+                                <li><a asp-controller="#" class="link-dark rounded">إدارة المواد العليمية</a></li>
+                                <li><a asp-controller="#" class="link-dark rounded">إدارة العام الجامعي</a></li>
+
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse" data-bs-target="#St-collapse" aria-expanded="true">
+                            <span data-feather="users"></span>
+                            ادارة الطلاب
+                        </button>
+                        <div class="collapse" id="St-collapse">
+                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                <li><a asp-controller="StPersonalData" class="link-dark rounded">البيانات الشخصية</a></li>
+                                <li><a href="~/Department" class="link-dark rounded">البيانات من واقع الثانوية</a></li>
                                 <li><a href="~/Specialization" class="link-dark rounded">إدارة التخصصات</a></li>
                                 <li><a href="~/Nationality" class="link-dark rounded">إدارة الدول والجنسيان</a></li>
                                 <li><a href="~/Governorate" class="link-dark rounded">إدارة المحافظات</a></li>
@@ -87,16 +107,24 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <span data-feather="settings"></span>
-                            المنتجات
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <span data-feather="users"></span>
-                            الزبائن
-                        </a>
+                        <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse" data-bs-target="#Grading-collapse" aria-expanded="true">
+                            <span data-feather="edit"></span>
+                            ادارةالدرجات
+                        </button>
+                        <div class="collapse" id="Grading-collapse">
+                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                <li><a href="~/College" class="link-dark rounded">البيانات الشخصية</a></li>
+                                <li><a href="~/Department" class="link-dark rounded">البيانات من واقع الثانوية</a></li>
+                                <li><a href="~/Specialization" class="link-dark rounded">إدارة التخصصات</a></li>
+                                <li><a href="~/Nationality" class="link-dark rounded">إدارة الدول والجنسيان</a></li>
+                                <li><a href="~/Governorate" class="link-dark rounded">إدارة المحافظات</a></li>
+                                <li><a href="~/District" class="link-dark rounded">إدارة المديريات</a></li>
+                                <li><a href="~/City" class="link-dark rounded">إدارة المدن</a></li>
+                                <li><a href="#" class="link-dark rounded">إدارة المواد العليمية</a></li>
+                                <li><a href="#" class="link-dark rounded">إدارة العام الجامعي</a></li>
+                            </ul>
+                        </div>
+                       
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">

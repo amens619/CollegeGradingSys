@@ -13,8 +13,9 @@ namespace CollegeGradingSys.Models
         public int Average { get; set; }
         public string Source { get; set; }
         public string SeatNo { get; set; }
-        public DateTime EnrollmentYearM { get; set; }
-        public DateTime EnrollmentYearH { get; set; }
+        public int CertificateYear { get; set; }
+        public string HighSchoolName { get; set; }
+
         public string Note { get; set; }
 
 

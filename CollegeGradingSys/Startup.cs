@@ -43,14 +43,17 @@ namespace CollegeGradingSys
             //=======================================
             services.AddMvc();
 
-            services.AddScoped<ICollegeGradingSysRepository<College>, CollegeDbRepository>();
-            services.AddSingleton <ICollegeGradingSysRepository<Nationality>, NationalityRepository>();
-            services.AddSingleton <ICollegeGradingSysRepository<Governorate>, GovernorateRepository>();
-            services.AddSingleton <ICollegeGradingSysRepository<District>, DistrictRepository>();
-            services.AddSingleton <ICollegeGradingSysRepository <City>, CityRepository>();
-            services.AddScoped<ICollegeGradingSysRepository<Department>, DepartmentDbRepository>();
-            services.AddScoped<ICollegeGradingSysRepository<Specialization>, SpecializationDbRepository>();
+            services.AddSingleton<ICollegeGradingSysRepository<College>, CollegeRepository>();
+            services.AddSingleton<ICollegeGradingSysRepository<Nationality>, NationalityRepository>();
+            services.AddSingleton<ICollegeGradingSysRepository<Governorate>, GovernorateRepository>();
+            services.AddSingleton<ICollegeGradingSysRepository<District>, DistrictRepository>();
+            services.AddSingleton<ICollegeGradingSysRepository <City>, CityRepository>();
+            services.AddSingleton<ICollegeGradingSysRepository<Department>, DepartmentRepository>();
+            services.AddSingleton<ICollegeGradingSysRepository<Specialization>, SpecializationRepository>();
+            services.AddSingleton<ICollegeGradingSysRepository<StPersonalData>, StPersonalDataRepository>();
             
+
+
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(

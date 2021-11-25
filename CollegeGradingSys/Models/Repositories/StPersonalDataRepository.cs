@@ -12,7 +12,14 @@ namespace CollegeGradingSys.Models.Repositories
         {
             stPersonalDatas = new List<StPersonalData>()
             {
-                new StPersonalData { AcademicID=40030045, StName ="امين سالم محمد باشعيب", BirthDate= new DateTime(2000,12,24), BirthPlace="اليمن حضرموت" , College=new College{ Id=1 }, Sex= Sex.ذكر , IdentificatioNO="0755556644", Nationality= new Nationality{ Id=1 } , EnrollmentYearH=1442 , EnrollmentYearM=2019 , Governorate = oldGovernorate.حضرموت  }
+                new StPersonalData { AcademicID=40030045, StName ="امين سالم محمد باشعيب", BirthDate= new DateTime(2000,12,24), BirthPlace=new Nationality{ Id=1 } , Sex= Sex.ذكر , IdentificatioNO="0755556644", Nationality= new Nationality{ Id=1 } , EnrollmentYearH="1442" , EnrollmentYearM="2019" , Governorate = new Governorate { Id=1 , GovernorateName= "حضرموت" } , StAcademicDatas =new List<StAcademicData>()
+            {
+                new StAcademicData { Id=1, Specialization=new Specialization{ Id=1 , SpecializationName= "فقه" }, StStatus = StStatus.مقيد , StLevel = Level.الثاني},
+                new StAcademicData { Id=2, Specialization=new Specialization{ Id=1 , SpecializationName= "فقه" },  StStatus =   StStatus.منحسب ,StLevel = Level.الثالث}
+
+            } },
+                
+                  new StPersonalData { AcademicID=40030046, StName ="طالب احمد الجابري", BirthDate= new DateTime(2001,5,14), BirthPlace=new Nationality{ Id=2 } , Sex= Sex.ذكر , IdentificatioNO="0798888822", Nationality= new Nationality{ Id=1 } , EnrollmentYearH="1442" , EnrollmentYearM="2019" , Governorate = new Governorate { Id=1 , GovernorateName= "المهرة" }}
             };
         }
         public StPersonalData Add(StPersonalData entity)
@@ -53,7 +60,6 @@ namespace CollegeGradingSys.Models.Repositories
                 oldStPersonalData.Nationality = newStPersonalData.Nationality;
                 oldStPersonalData.BirthDate = newStPersonalData.BirthDate;
                 oldStPersonalData.BirthPlace = newStPersonalData.BirthPlace;
-                oldStPersonalData.College = newStPersonalData.College;
                 oldStPersonalData.EnrollmentYearH = newStPersonalData.EnrollmentYearH;
                 oldStPersonalData.EnrollmentYearM = newStPersonalData.EnrollmentYearM;
                 oldStPersonalData.Sex = newStPersonalData.Sex;
