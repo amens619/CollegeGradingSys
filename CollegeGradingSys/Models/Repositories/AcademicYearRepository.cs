@@ -12,7 +12,8 @@ namespace CollegeGradingSys.Models.Repositories
         {
             academicYears = new List<AcademicYear>()
             {
-                new AcademicYear { Id= 1, AcademicYearStart = new DateTime(2021, 8, 1), AcademicYearEnd = new DateTime(2022, 4, 20) , AcademicYearName ="2021-2022"}
+                new AcademicYear { Id= 1, AcademicYearStart = new DateTime(2021, 8, 1), AcademicYearEnd = new DateTime(2022, 4, 20) , AcademicYearName ="2021-2022"},
+                 new AcademicYear { Id= 2, AcademicYearStart = new DateTime(2022, 8, 1), AcademicYearEnd = new DateTime(2023, 4, 20) , AcademicYearName ="2022-2023"}
             };
         }
         public AcademicYear Add(AcademicYear entity)
@@ -51,6 +52,7 @@ namespace CollegeGradingSys.Models.Repositories
                 oldAcademicYear.AcademicYearStart = newAcademicYear.AcademicYearStart;
                 oldAcademicYear.AcademicYearEnd = newAcademicYear.AcademicYearEnd;
                 oldAcademicYear.AcademicYearName = newAcademicYear.AcademicYearName;
+                oldAcademicYear.Note = newAcademicYear.Note;
             }
             return newAcademicYear;
         }

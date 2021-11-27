@@ -8,17 +8,28 @@ namespace CollegeGradingSys.Models
 {
     public class AcademicYear
     {
+        [Key]
         public int Id { get; set; }
 
         [DataType(DataType.Date)]
+        [Required]        
+        [Display(Name = "تاريخ بداية العام")]
         public DateTime AcademicYearStart { get; set; }
 
         [DataType(DataType.Date)]
+        [Required]        
+        [Display(Name = "تاريخ نهاية العام")]
         public DateTime AcademicYearEnd { get; set; }
+        [Required]
+        [StringLength(30, MinimumLength = 3)]
+        [Display(Name = "اسم العام")]
         public string AcademicYearName { get; set; }
 
 
         public ICollection<StAcademicData>  stAcademicDatas { get; set; }
+      
+        [MaxLength(200)]
+        [Display(Name = "ملاحظة")]
         public string Note { get; set; }
 
     }

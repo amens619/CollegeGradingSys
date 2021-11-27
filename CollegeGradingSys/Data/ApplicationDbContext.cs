@@ -27,6 +27,7 @@ namespace CollegeGradingSys.Data
         public DbSet<City> City { get; set; }
         public DbSet<StPersonalData>  StPersonalData { get; set; }
         public DbSet<CollegeGradingSys.ViewModels.StPersonalDataViewModel> StPersonalDataViewCreateModel { get; set; }
+        public DbSet<CollegeGradingSys.Models.AcademicYear> AcademicYear { get; set; }
 
         
         //protected override void OnModelCreating(ModelBuilder modelBuilder)

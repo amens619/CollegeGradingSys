@@ -51,7 +51,7 @@ namespace CollegeGradingSys
             services.AddSingleton<ICollegeGradingSysRepository<Department>, DepartmentRepository>();
             services.AddSingleton<ICollegeGradingSysRepository<Specialization>, SpecializationRepository>();
             services.AddSingleton<ICollegeGradingSysRepository<StPersonalData>, StPersonalDataRepository>();
-            
+             services.AddSingleton<ICollegeGradingSysRepository<AcademicYear>, AcademicYearRepository>();
 
 
 
