@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,6 +11,7 @@ namespace CollegeGradingSys.Models
     {
         [Key]
         [Required]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         [Display(Name = "رقم القيد")]
         public int AcademicID { get; set; }
 
@@ -54,9 +56,9 @@ namespace CollegeGradingSys.Models
         [Display(Name = "سنة الالتحاق هجري")]
         public string EnrollmentYearH { get; set; }
 
-      
-       
 
+
+        [DisplayFormat(NullDisplayText = "لا توجد بيانات")]
         public StHighSchoolData  StHighSchoolData { get; set; }
 
         

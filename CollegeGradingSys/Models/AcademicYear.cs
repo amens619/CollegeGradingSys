@@ -14,11 +14,13 @@ namespace CollegeGradingSys.Models
         [DataType(DataType.Date)]
         [Required]        
         [Display(Name = "تاريخ بداية العام")]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime AcademicYearStart { get; set; }
 
         [DataType(DataType.Date)]
         [Required]        
         [Display(Name = "تاريخ نهاية العام")]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime AcademicYearEnd { get; set; }
         [Required]
         [StringLength(30, MinimumLength = 3)]
@@ -30,6 +32,7 @@ namespace CollegeGradingSys.Models
       
         [MaxLength(200)]
         [Display(Name = "ملاحظة")]
+        [DisplayFormat(NullDisplayText = "لا توجد ملاحظات")]
         public string Note { get; set; }
 
     }

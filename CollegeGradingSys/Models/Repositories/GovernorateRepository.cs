@@ -15,7 +15,8 @@ namespace CollegeGradingSys.Models.Repositories
                 new Governorate{ Id=1, GovernorateName="حضرموت" , Nationality= new Nationality{  Id =1,CountryName="اليمن"} },
                  new Governorate{ Id=2, GovernorateName="المهرة" , Nationality =new Nationality{  Id =1,CountryName="اليمن"} },
                  new Governorate{ Id=3, GovernorateName="صنعاء", Nationality =new Nationality{  Id =1,CountryName="اليمن"}},
-                 new Governorate{ Id=4, GovernorateName="جدة",  Nationality =new Nationality{  Id =2,CountryName="السعودية"} }
+                 new Governorate{ Id=4, GovernorateName="جدة",  Nationality =new Nationality{  Id =2,CountryName="السعودية"} },
+                   new Governorate{ Id=5, GovernorateName="الرياض",  Nationality =new Nationality{  Id =2,CountryName="السعودية"} }
             };
         }
         public Governorate Add(Governorate entity)

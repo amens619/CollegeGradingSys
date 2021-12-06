@@ -13,7 +13,7 @@ namespace CollegeGradingSys.ViewModels
         public int Id { get; set; }
 
         [Required]
-        [StringLength(60, MinimumLength = 3)]
+        [StringLength(60, MinimumLength = 3, ErrorMessage = "لا يمكن أن يكون اسم المدينة أطول من 60 حرفًا واصغر من 3 حرفًا.")]
         [Display(Name = "المدينة")]
         public string CityName { get; set; }
 

@@ -1,7 +1,10 @@
-﻿@model IEnumerable<CollegeGradingSys.Models.Governorate>
+﻿@model cloudscribe.Pagination.Models.PagedResult<Governorate>
 
 @{
     ViewData["Title"] = "Index";
+    ViewData["Controller"] = "Governorate";
+    ViewData["Action"] = "Index";
+}
 }
 
 <h1>Index</h1>
@@ -13,29 +16,34 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Nationality.CountryName)
+                الدولة
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.GovernorateName)
+                المحافظة
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nationality.CountryName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.GovernorateName)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model.Data)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Nationality.CountryName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.GovernorateName)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+
+
+<partial name="_PaginationPartial" model="Model" view-data="ViewData" />

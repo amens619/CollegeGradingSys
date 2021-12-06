@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using PagedList;
 
 namespace CollegeGradingSys.Controllers
 {
@@ -23,11 +24,52 @@ namespace CollegeGradingSys.Controllers
             this.NationalityRepository =  NationalityRepository;
         }
         // GET: StPersonalDataController
-        public ActionResult Index()
+        public ActionResult Index(string sortOrder, string currentFilter, string searchString, int? page)
         {
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewBag.SexSortParm = sortOrder == "SexSortParm" ? "SexSortParm_desc" : "SexSortParm";
+
+            if (searchString != null)
+            {
+                page = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewBag.CurrentFilter = searchString;
+
             var StPersonalDatas = StPersonalDataRepository.List();
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                StPersonalDatas = StPersonalDatas.Where(s => s.StName.Contains(searchString)).ToList();
+            }
+
+            switch (sortOrder)
+                {
+                    case "name_desc":
+                        StPersonalDatas = StPersonalDatas.OrderByDescending(s => s.StName).ToList();
+                        break;
+                case "SexSortParm":
+                    StPersonalDatas = StPersonalDatas.OrderBy(s => s.Sex).ToList();
+                    break;
+                case "SexSortParm_desc":
+                    StPersonalDatas = StPersonalDatas.OrderByDescending(s => s.Sex).ToList();
+                    break;
+                default:
+                        StPersonalDatas = StPersonalDatas.OrderBy(s => s.StName).ToList();
+                        break;
+                }
+
+
+            int pageSize = 3;
+            int pageNumber = (page ?? 1);
+            return View(StPersonalDatas.ToPagedList(pageNumber, pageSize));
             
-            return View(StPersonalDatas);
+           
         }
 
         // GET: StPersonalDataController/Details/5

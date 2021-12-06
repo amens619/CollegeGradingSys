@@ -61,6 +61,7 @@ namespace CollegeGradingSys.Controllers
 
                     return View(GetAllDistricts());
                 }
+
                 var district = DistrictRepository.Find(model.DistrictId);
                 City   city  = new()
                 {

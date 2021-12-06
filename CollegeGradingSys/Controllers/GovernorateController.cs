@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using cloudscribe.Pagination.Models;
 namespace CollegeGradingSys.Controllers
 {
     public class GovernorateController : Controller
@@ -21,13 +21,34 @@ namespace CollegeGradingSys.Controllers
             this.NationalityRepository = NationalityRepository;
         }
         // GET: GovernorateController
-        public ActionResult Index()
+        public ActionResult Index2()
         {
             var governorates = GovernorateRepository.List();
             
             return View(governorates);
         }
 
+        public ActionResult Index(int pageNumber =1,int pageSize=3)
+        {
+            int ExcludeRecords = (pageSize * pageNumber) - pageSize;
+            var governoratesR = GovernorateRepository.List();
+
+
+           var governorates= governoratesR.OrderBy(s => s.GovernorateName)
+                .Skip(ExcludeRecords)
+                .Take(pageSize)
+                .ToList();
+
+
+            var result = new PagedResult<Governorate>
+            {
+                Data = governorates.ToList(),
+                TotalItems = governoratesR.Count(),
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+            return View(result);
+        }
         // GET: GovernorateController/Details/5
         public ActionResult Details(int id)
         {

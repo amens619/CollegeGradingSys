@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,6 +14,8 @@ namespace CollegeGradingSys.Models
 
         public string CourseName { get; set; }
         public Specialization  Specialization { get; set; }
+
+        public bool IsTwoCourse { get; set; }
         public ICollection<SubCourse>  SubCourses { get; set; }
 
 
