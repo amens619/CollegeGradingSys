@@ -16,6 +16,6 @@ namespace CollegeGradingSys.Models
         [Display(Name = "الكلية")]
         public string CollegeName { get; set; }
 
-        public ICollection<Department>  Departments { get; set; }
+        public virtual ICollection<Department>  Departments { get; set; }
     }
 }

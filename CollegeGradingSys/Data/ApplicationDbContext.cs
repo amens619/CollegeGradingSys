@@ -26,13 +26,31 @@ namespace CollegeGradingSys.Data
         public DbSet<District> District { get; set; }
         public DbSet<City> City { get; set; }
         public DbSet<StPersonalData>  StPersonalData { get; set; }
-        public DbSet<CollegeGradingSys.ViewModels.StPersonalDataViewModel> StPersonalDataViewCreateModel { get; set; }
-        public DbSet<CollegeGradingSys.Models.AcademicYear> AcademicYear { get; set; }
-
-        
+        public DbSet<StHighSchoolData> StHighSchoolData { get; set; }
+        public DbSet<AcademicYear> AcademicYear { get; set; }
+        public DbSet<StAcademicData> StAcademicData { get; set; }
+        public DbSet<StudentBatch> StudentBatch { get; set; }
+        public DbSet<Course> Course { get; set; }
+        public DbSet<CourseGrade> CourseGrade { get; set; }
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{
         //    base.OnModelCreating(modelBuilder);
         //}
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<StPersonalData>()
+                
+                        .HasOne(m => m.Nationality)
+                        .WithMany(t => t.NationalityStPersonalDatas)
+                        .HasForeignKey(m => m.NationalityID)
+                        .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<StPersonalData>()
+                       .HasOne(m => m.Birthcountry)
+                        .WithMany(t => t.BirthcountryStPersonalDatas)
+                        .HasForeignKey(m => m.BirthcountryID)
+                        .OnDelete(DeleteBehavior.Restrict);
+        }
     }
 }

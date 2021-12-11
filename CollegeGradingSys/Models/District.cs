@@ -17,8 +17,8 @@ namespace CollegeGradingSys.Models
         public string DistrictName { get; set; }
 
 
-        public Governorate Governorate { get; set; }
+        public virtual Governorate Governorate { get; set; }
 
-        public ICollection<City> Cities  { get; set; }
+        public virtual ICollection<City> Cities  { get; set; }
     }
 }

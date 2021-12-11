@@ -21,6 +21,9 @@ namespace CollegeGradingSys.Models
         [Display(Name = "الجنسية")]
         public string NationalityName { get; set; }
 
-        public ICollection<Governorate>  Governorates { get; set; }
+        public virtual ICollection<Governorate>  Governorates { get; set; }
+        public virtual ICollection<StPersonalData> NationalityStPersonalDatas { get; set; }
+        public virtual ICollection<StPersonalData> BirthcountryStPersonalDatas { get; set; }
+
     }
 }

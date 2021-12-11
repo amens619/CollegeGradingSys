@@ -13,10 +13,15 @@ namespace CollegeGradingSys.Models
         public Term Term { get; set; }
 
         public string CourseName { get; set; }
-        public Specialization  Specialization { get; set; }
 
         public bool IsTwoCourse { get; set; }
-        public ICollection<SubCourse>  SubCourses { get; set; }
+
+        
+        public virtual Specialization Specialization { get; set; }
+
+        public virtual ICollection<SubCourse> SubCourses { get; set; }
+        public virtual ICollection<CourseGrade> CourseGrade  { get; set; }
+
 
 
     }

@@ -17,8 +17,8 @@ namespace CollegeGradingSys.Models
         public string GovernorateName { get; set; }
 
 
-        public Nationality  Nationality { get; set; }
+        public virtual Nationality  Nationality { get; set; }
 
-        public ICollection<District> Districts { get; set; }
+        public virtual ICollection<District> Districts { get; set; }
     }
 }

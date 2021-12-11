@@ -28,12 +28,14 @@ namespace CollegeGradingSys.Models
         public string AcademicYearName { get; set; }
 
 
-        public ICollection<StAcademicData>  stAcademicDatas { get; set; }
+       
       
         [MaxLength(200)]
         [Display(Name = "ملاحظة")]
         [DisplayFormat(NullDisplayText = "لا توجد ملاحظات")]
         public string Note { get; set; }
+
+        public virtual ICollection<StudentBatch>  StudentBatches { get; set; }
 
     }
 }

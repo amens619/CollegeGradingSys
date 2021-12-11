@@ -29,18 +29,22 @@ namespace CollegeGradingSys.Models
         [Display(Name = "الجنس")]
         public Sex Sex { get; set; }
 
+        public int NationalityID { get; set; }
+
         [Required]
         [Display(Name = "الجنسية")]
-        public Nationality Nationality { get; set; }
+        [ForeignKey("NationalityID")]
+        public virtual Nationality Nationality { get; set; }
 
-
+        public int BirthcountryID { get; set; }
         [Required]
         [Display(Name = "مكان الميلاد (الدولة ) ")]
-        public Nationality BirthPlace { get; set; }
+        [ForeignKey("BirthcountryID")]
+        public virtual Nationality Birthcountry { get; set; }
 
         [Required]
         [Display(Name = "مكان الميلاد (المحافظة )")]
-        public Governorate Governorate { get; set; }
+        public Governorate BirthGovernorate { get; set; }
 
         [Required]
         [Display(Name = "تاريخ الميلاد")]
@@ -59,10 +63,8 @@ namespace CollegeGradingSys.Models
 
 
         [DisplayFormat(NullDisplayText = "لا توجد بيانات")]
-        public StHighSchoolData  StHighSchoolData { get; set; }
-
-        
+        public virtual StHighSchoolData  StHighSchoolData { get; set; }        
        
-        public ICollection<StAcademicData>  StAcademicDatas { get; set; }
+        public virtual ICollection<StAcademicData>  StAcademicDatas { get; set; }
     }
 }

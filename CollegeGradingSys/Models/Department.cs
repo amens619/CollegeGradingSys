@@ -18,9 +18,9 @@ namespace CollegeGradingSys.Models
         public string DepartmentName { get; set; }
 
         
-        public College College { get; set; }
+        public virtual College College { get; set; }
 
-        public ICollection<Specialization> Specializations { get; set; }
+        public virtual ICollection<Specialization> Specializations { get; set; }
 
     }
 }

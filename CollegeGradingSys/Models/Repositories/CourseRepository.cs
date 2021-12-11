@@ -12,13 +12,13 @@ namespace CollegeGradingSys.Models.Repositories
         {
             courses = new List<Course>()
             {
-                new Course { Id=1, Specialization=new Specialization { Id=1},  CourseName ="تفسير (101(", Level= Level.الأول, SubCourses=new List<SubCourse>(){ new SubCourse { Id =1, SmallMark = 60, BigMark = 100  } }, Term=Term.الأول},
-                new Course { Id=1, Specialization=new Specialization { Id=1},  CourseName ="حديث (101(", Level=Level.الأول, SubCourses=new List<SubCourse>(){ new SubCourse { Id =1, SmallMark = 60, BigMark = 100  } }, Term=Term.الأول},
+                new Course { Id=1, Specialization=new Specialization { Id=1},  CourseName ="تفسير (101(", Level= Level.الأول, SubCourses=new List<SubCourse>(){ new SubCourse { Id =1, SmallGrade = 60, BigGrade = 100  } }, Term=Term.الأول},
+                new Course { Id=1, Specialization=new Specialization { Id=1},  CourseName ="حديث (101(", Level=Level.الأول, SubCourses=new List<SubCourse>(){ new SubCourse { Id =1, SmallGrade = 60, BigGrade = 100  } }, Term=Term.الأول},
                  new Course { Id=1,Specialization=new Specialization { Id=1},  CourseName ="التزكية (101(",Level=Level.الأول,
                      SubCourses=new List<SubCourse>()
                      {
-                             new SubCourse { Id =1, SubCourseName="الحلية", SmallMark = 60, BigMark = 100  },
-                             new SubCourse { Id =1, SubCourseName="المستخلص", SmallMark = 60, BigMark = 100  }
+                             new SubCourse { Id =1, SubCourseName="الحلية", SmallGrade = 60, BigGrade = 100  },
+                             new SubCourse { Id =1, SubCourseName="المستخلص", SmallGrade = 60, BigGrade = 100  }
                      },
                      Term=Term.الأول}
             };

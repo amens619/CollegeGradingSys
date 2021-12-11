@@ -16,6 +16,6 @@ namespace CollegeGradingSys.Models
         [Display(Name = "المدينة")]
         public string CityName { get; set; }
 
-        public District District { get; set; }
+        public virtual District District { get; set; }
     }
 }

@@ -17,6 +17,8 @@ namespace CollegeGradingSys.Models
         [Display(Name = "التخصص")]
         public string SpecializationName { get; set; }
 
-        public Department Department { get; set; }
+        public virtual Department Department { get; set; }
+        public virtual ICollection<Course> Courses  { get; set; }
+        public virtual ICollection<StudentBatch>  StudentBatches { get; set; }
     }
 }
