@@ -31,6 +31,7 @@ namespace CollegeGradingSys.Data
         public DbSet<StAcademicData> StAcademicData { get; set; }
         public DbSet<StudentBatch> StudentBatch { get; set; }
         public DbSet<Course> Course { get; set; }
+        public DbSet<SubCourse> SubCourse { get; set; }
         public DbSet<CourseGrade> CourseGrade { get; set; }
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{
