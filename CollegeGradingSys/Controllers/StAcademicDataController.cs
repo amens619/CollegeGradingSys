@@ -10,26 +10,22 @@ using CollegeGradingSys.Models;
 
 namespace CollegeGradingSys.Controllers
 {
-    public class StPersonalDataController : Controller
+    public class StAcademicDataController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public StPersonalDataController(ApplicationDbContext context)
+        public StAcademicDataController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: StPersonalData
-        public async Task<IActionResult> Index(int? id)
+        // GET: StAcademicData
+        public async Task<IActionResult> Index()
         {
-            if (id != null)
-            {
-                ViewData["AcademicID"] = id;
-            }
-            return View(await _context.StPersonalData.ToListAsync());
+            return View(await _context.StAcademicData.ToListAsync());
         }
 
-        // GET: StPersonalData/Details/5
+        // GET: StAcademicData/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -37,39 +33,39 @@ namespace CollegeGradingSys.Controllers
                 return NotFound();
             }
 
-            var stPersonalData = await _context.StPersonalData
-                .FirstOrDefaultAsync(m => m.AcademicID == id);
-            if (stPersonalData == null)
+            var stAcademicData = await _context.StAcademicData
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (stAcademicData == null)
             {
                 return NotFound();
             }
 
-            return View(stPersonalData);
+            return View(stAcademicData);
         }
 
-        // GET: StPersonalData/Create
+        // GET: StAcademicData/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: StPersonalData/Create
+        // POST: StAcademicData/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("AcademicID,StName,IdentificatioNO,Sex,BirthDate,EnrollmentYearM,EnrollmentYearH")] StPersonalData stPersonalData)
+        public async Task<IActionResult> Create([Bind("Id,StLevel,Term,StStatus,Average,GPA,Valuation,IsCurrentYear")] StAcademicData stAcademicData)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(stPersonalData);
+                _context.Add(stAcademicData);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(stPersonalData);
+            return View(stAcademicData);
         }
 
-        // GET: StPersonalData/Edit/5
+        // GET: StAcademicData/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -77,22 +73,22 @@ namespace CollegeGradingSys.Controllers
                 return NotFound();
             }
 
-            var stPersonalData = await _context.StPersonalData.FindAsync(id);
-            if (stPersonalData == null)
+            var stAcademicData = await _context.StAcademicData.FindAsync(id);
+            if (stAcademicData == null)
             {
                 return NotFound();
             }
-            return View(stPersonalData);
+            return View(stAcademicData);
         }
 
-        // POST: StPersonalData/Edit/5
+        // POST: StAcademicData/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("AcademicID,StName,IdentificatioNO,Sex,BirthDate,EnrollmentYearM,EnrollmentYearH")] StPersonalData stPersonalData)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,StLevel,Term,StStatus,Average,GPA,Valuation,IsCurrentYear")] StAcademicData stAcademicData)
         {
-            if (id != stPersonalData.AcademicID)
+            if (id != stAcademicData.Id)
             {
                 return NotFound();
             }
@@ -101,12 +97,12 @@ namespace CollegeGradingSys.Controllers
             {
                 try
                 {
-                    _context.Update(stPersonalData);
+                    _context.Update(stAcademicData);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!StPersonalDataExists(stPersonalData.AcademicID))
+                    if (!StAcademicDataExists(stAcademicData.Id))
                     {
                         return NotFound();
                     }
@@ -117,10 +113,10 @@ namespace CollegeGradingSys.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(stPersonalData);
+            return View(stAcademicData);
         }
 
-        // GET: StPersonalData/Delete/5
+        // GET: StAcademicData/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -128,30 +124,30 @@ namespace CollegeGradingSys.Controllers
                 return NotFound();
             }
 
-            var stPersonalData = await _context.StPersonalData
-                .FirstOrDefaultAsync(m => m.AcademicID == id);
-            if (stPersonalData == null)
+            var stAcademicData = await _context.StAcademicData
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (stAcademicData == null)
             {
                 return NotFound();
             }
 
-            return View(stPersonalData);
+            return View(stAcademicData);
         }
 
-        // POST: StPersonalData/Delete/5
+        // POST: StAcademicData/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var stPersonalData = await _context.StPersonalData.FindAsync(id);
-            _context.StPersonalData.Remove(stPersonalData);
+            var stAcademicData = await _context.StAcademicData.FindAsync(id);
+            _context.StAcademicData.Remove(stAcademicData);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool StPersonalDataExists(int id)
+        private bool StAcademicDataExists(int id)
         {
-            return _context.StPersonalData.Any(e => e.AcademicID == id);
+            return _context.StAcademicData.Any(e => e.Id == id);
         }
     }
 }

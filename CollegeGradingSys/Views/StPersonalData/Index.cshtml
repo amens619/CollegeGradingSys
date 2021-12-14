@@ -12,6 +12,9 @@
 <table class="table">
     <thead>
         <tr>
+            <th class="text-center">
+                <input id="checkallCheckbox"  type="checkbox">               
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.StName)
             </th>
@@ -34,8 +37,18 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
+        @foreach (var item in Model)
+        {
+            
+                string selectedRow = "";
+                if (item.AcademicID == (int?)ViewData["AcademicID"])
+                {
+                selectedRow = "table-success";
+                }
+        <tr class="@selectedRow">
+            <th class="text-center">
+                <input class="mycheckbox" type="checkbox">
+            </th>
             <td>
                 @Html.DisplayFor(modelItem => item.StName)
             </td>
@@ -55,11 +68,28 @@
                 @Html.DisplayFor(modelItem => item.EnrollmentYearH)
             </td>
             <td>
+                <a asp-action="Index" asp-route-id="@item.AcademicID">Select</a> |
                 <a asp-action="Edit" asp-route-id="@item.AcademicID">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.AcademicID">Details</a> |
                 <a asp-action="Delete" asp-route-id="@item.AcademicID">Delete</a>
             </td>
         </tr>
-}
-    </tbody>
+            }
+        </tbody>
 </table>
+<script>
+    $(function () {
+        $("#checkallCheckbox").click(function () {
+            $(".mycheckbox").attr('checked', this.checked);
+        });
+
+        $(".mycheckbox").click(function () {
+            if (!this.checked) {
+                $("#checkallCheckbox").attr('checked', false);
+            }
+            else if ($(".mycheckbox").length == $(".mycheckbox:checked").length) {
+                $("#checkallCheckbox").attr('checked', true);
+            }
+        });
+    }
+</script>
