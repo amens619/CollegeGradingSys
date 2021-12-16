@@ -82,12 +82,12 @@ namespace CollegeGradingSys.Controllers
 
                     return View(GetAllNationalities());
                 }
-                var college = NationalityRepository.Find(model.NationalityId);
+                var nationality = NationalityRepository.Find(model.NationalityId);
                 Governorate governorate = new Governorate
                 {
                     Id = model.Id,
                      GovernorateName  = model.GovernorateName,
-                     Nationality = college,                    
+                     Nationality = nationality,                    
                 };                
                 GovernorateRepository.Add(governorate);
                 return RedirectToAction(nameof(Index));

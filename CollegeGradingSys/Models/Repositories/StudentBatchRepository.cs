@@ -12,8 +12,8 @@ namespace CollegeGradingSys.Models.Repositories
         {
             studentBatches = new List<StudentBatch>()
             {
-                new StudentBatch { Id=1, StudentBatchName="2021-2022" , Note ="" },
-                new StudentBatch { Id=2, StudentBatchName="2022-2023" , Note ="" }
+                new StudentBatch { Id=1, StudentBatchName="2021-2022 فقه" , Note ="" , AcademicYear= new AcademicYear{Id=1 } },
+                new StudentBatch { Id=2, StudentBatchName="2022-2023 فقه" , Note ="" ,AcademicYear= new AcademicYear{Id=2 } }
 
             };
         }
@@ -52,6 +52,7 @@ namespace CollegeGradingSys.Models.Repositories
             {
                 oldBatch.StudentBatchName = newBatch.StudentBatchName;
                 oldBatch.Note = newBatch.Note;
+                oldBatch.AcademicYear = newBatch.AcademicYear;
             }
             return newBatch;
         }

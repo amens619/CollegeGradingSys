@@ -1,0 +1,65 @@
+﻿@model CollegeGradingSys.ViewModels.StudentBatchIndexData
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+<div class="col-md-8">
+    @using (Html.BeginForm("Index", "StudentBatch", FormMethod.Get))
+    {
+        <p>
+            <div class="form-group">
+                <label asp-for="AcademicYearId" class="control-label"></label>
+                <select asp-for="AcademicYearId" class="form-control" asp-items="ViewBag.AcademicYearId"></select>
+            </div>
+
+
+        </p>
+        <input type="submit" value="تصفية" class="btn btn-primary" /> 
+        <a asp-action="Index" class="btn btn-primary">إلغاء التصفية</a>
+    }
+
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                العام الدراسي
+            </th>
+            <th>
+                اسم الدفعة
+            </th>
+            <th>
+                ملاحظات
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.StudentBatches) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.AcademicYear.AcademicYearName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StudentBatchName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Note)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
