@@ -10,21 +10,23 @@
     <a asp-action="Create">Create New</a>
 </p>
 
-<div class="col-md-8">
-    @using (Html.BeginForm("Index", "StudentBatch", FormMethod.Get))
-    {
-        <p>
-            <div class="form-group">
-                <label asp-for="AcademicYearId" class="control-label"></label>
-                <select asp-for="AcademicYearId" class="form-control" asp-items="ViewBag.AcademicYearId"></select>
-            </div>
+<div class="card">
+    <div class="card-body col-md-8">
+        @using (Html.BeginForm("Index", "StudentBatch", FormMethod.Get))
+        {
+            <p>
+                <div class="form-group">
+                    <label asp-for="AcademicYearId" class="control-label"></label>
+                    <select asp-for="AcademicYearId" class="form-control" asp-items="ViewBag.AcademicYearId"></select>
+                </div>
 
 
-        </p>
-        <input type="submit" value="تصفية" class="btn btn-primary" /> 
-        <a asp-action="Index" class="btn btn-primary">إلغاء التصفية</a>
-    }
+            </p>
+            <input type="submit" value="تصفية" class="btn btn-primary" />
+            <a asp-action="Index" class="btn btn-primary" asp-route-id=-1>إلغاء التصفية</a>
+        }
 
+    </div>
 </div>
 
 <table class="table">

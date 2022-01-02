@@ -43,18 +43,29 @@ namespace CollegeGradingSys
             //=======================================
             services.AddMvc();
 
-            services.AddSingleton<ICollegeGradingSysRepository<College>, CollegeRepository>();
-            services.AddSingleton<ICollegeGradingSysRepository<Nationality>, NationalityRepository>();
-            services.AddSingleton<ICollegeGradingSysRepository<Governorate>, GovernorateRepository>();
-            services.AddSingleton<ICollegeGradingSysRepository<District>, DistrictRepository>();
-            services.AddSingleton<ICollegeGradingSysRepository <City>, CityRepository>();
-            services.AddSingleton<ICollegeGradingSysRepository<Department>, DepartmentRepository>();
-            services.AddSingleton<ICollegeGradingSysRepository<Specialization>, SpecializationRepository>();
-            services.AddSingleton<ICollegeGradingSysRepository<StPersonalData>, StPersonalDataRepository>();
-             services.AddSingleton<ICollegeGradingSysRepository<AcademicYear>, AcademicYearRepository>();
-            services.AddSingleton<ICollegeGradingSysRepository<StudentBatch>, StudentBatchRepository>();
+            //services.AddSingleton<ICollegeGradingSysRepository<College>, CollegeRepository>();
+            //services.AddSingleton<ICollegeGradingSysRepository<Nationality>, NationalityRepository>();
+            //services.AddSingleton<ICollegeGradingSysRepository<Governorate>, GovernorateRepository>();
+            //services.AddSingleton<ICollegeGradingSysRepository<District>, DistrictRepository>();
+            //services.AddSingleton<ICollegeGradingSysRepository <City>, CityRepository>();
+            //services.AddSingleton<ICollegeGradingSysRepository<Department>, DepartmentRepository>();
+            //services.AddSingleton<ICollegeGradingSysRepository<Specialization>, SpecializationRepository>();
+            //services.AddSingleton<ICollegeGradingSysRepository<StPersonalData>, StPersonalDataRepository>();
+            // services.AddSingleton<ICollegeGradingSysRepository<AcademicYear>, AcademicYearRepository>();
+            //services.AddSingleton<ICollegeGradingSysRepository<StudentBatch>, StudentBatchRepository>();
 
-
+            //============================================================================================
+            services.AddTransient<ICollegeGradingSysRepository<College>, CollegeDbRepository>();
+            services.AddTransient<ICollegeGradingSysRepository<Nationality>, NationalityDbRepository>();
+            services.AddTransient<ICollegeGradingSysRepository<Governorate>, GovernorateDbRepository>();
+            services.AddTransient<ICollegeGradingSysRepository<District>, DistrictDbRepository>();
+            services.AddTransient<ICollegeGradingSysRepository<City>, CityDbRepository>();
+            services.AddTransient<ICollegeGradingSysRepository<Department>, DepartmentDbRepository>();
+            services.AddTransient<ICollegeGradingSysRepository<Specialization>, SpecializationDbRepository>();
+            services.AddTransient<ICollegeGradingSysRepository<StPersonalData>, StPersonalDataDbRepository>();
+            services.AddTransient<ICollegeGradingSysRepository<AcademicYear>, AcademicYearDbRepository>();
+            services.AddTransient<ICollegeGradingSysRepository<StudentBatch>, StudentBatchDbRepository>();
+            services.AddTransient<ICollegeGradingSysRepository<StHighSchoolData>, StHighSchoolDataDbRepository>();
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(

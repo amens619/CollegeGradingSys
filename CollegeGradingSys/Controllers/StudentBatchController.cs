@@ -25,10 +25,13 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: StudentBatche
-        public async Task<IActionResult> Index(int? AcademicYearId)
+        public async Task<IActionResult> Index(int? id , int? AcademicYearId)
         {
-            
-                 var viewModel = new StudentBatchIndexData();
+            if (id != null)
+            {
+                AcademicYearId = id;
+            }
+            var viewModel = new StudentBatchIndexData();
             IList<StudentBatch> studentBatches = _studentBatchRepository.List();              
             
             if (AcademicYearId is not null and not (-1))

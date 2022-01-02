@@ -7,47 +7,113 @@
 <h1>Details</h1>
 
 <div>
-    <h4>StPersonalData</h4>
+    <h4>البيانات الشخصية للطالب</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.StName)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.StName)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.IdentificatioNO)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.IdentificatioNO)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Sex)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Sex)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Birthcountry)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Birthcountry.CountryName)
+        </dd>
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.BirthDate)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.BirthDate)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.EnrollmentYearM)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.EnrollmentYearM)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.EnrollmentYearH)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.EnrollmentYearH)
         </dd>
     </dl>
 </div>
+
+@if (@Model.StHighSchoolData != null)
+{
+<div>
+    <h4>بيانات شهادة الثانوية</h4>
+    <hr />
+    <div class="col-4">
+        @Html.DisplayNameFor(model => model.StHighSchoolData.CertificateType)
+    </div>
+    <div class="col-4">
+        @Html.DisplayFor(model => model.StHighSchoolData.CertificateType)
+    </div>
+    <div class="col-4">
+        @Html.DisplayNameFor(model => model.StHighSchoolData.Average)
+    </div>
+    <div class="col-4">
+        @Html.DisplayFor(model => model.StHighSchoolData.Average)
+    </div>
+    <div class="col-4">
+        @Html.DisplayNameFor(model => model.StHighSchoolData.Source)
+    </div>
+    <div class="col-4">
+        @Html.DisplayFor(model => model.StHighSchoolData.Source)
+    </div>
+    <div class="col-4">
+        @Html.DisplayNameFor(model => model.StHighSchoolData.SeatNo)
+    </div>
+    <div class="col-4">
+        @Html.DisplayFor(model => model.StHighSchoolData.SeatNo)
+    </div>
+    <div class="col-4">
+        @Html.DisplayNameFor(model => model.StHighSchoolData.CertificateYear)
+    </div>
+    <div class="col-4">
+        @Html.DisplayFor(model => model.StHighSchoolData.CertificateYear)
+    </div>
+    <div class="col-4">
+        @Html.DisplayNameFor(model => model.StHighSchoolData.HighSchoolName)
+    </div>
+    <div class="col-4">
+        @Html.DisplayFor(model => model.StHighSchoolData.HighSchoolName)
+    </div>
+    <div class="col-4">
+        @Html.DisplayNameFor(model => model.StHighSchoolData.Note)
+    </div>
+    <div class="col-4">
+        @Html.DisplayFor(model => model.StHighSchoolData.Note)
+    </div>
+
+</div>
+}
+else
+{
+    @if (ViewData["AcademicID"] != null)
+    {
+        <p>
+
+        </p>
+    }
+}
 <div>
     <a asp-action="Edit" asp-route-id="@Model.AcademicID">Edit</a> |
     <a asp-action="Index">Back to List</a>

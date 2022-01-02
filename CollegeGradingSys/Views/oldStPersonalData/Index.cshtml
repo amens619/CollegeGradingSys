@@ -1,5 +1,4 @@
 ﻿@model IEnumerable<CollegeGradingSys.Models.StPersonalData>
-<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
 @{
     ViewData["Title"] = "Index";
@@ -10,28 +9,23 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-@using (Html.BeginForm("Index", "Student", FormMethod.Get))
-{
-    <p>
-
-        البحث بالاسم : @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
-        <input type="submit" value="Search" />
-    </p>
-}
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.First().AcademicID)
+            <th class="text-center">
+                <input id="checkallCheckbox" type="checkbox">
             </th>
             <th>
-                @Html.ActionLink("اسم الطالب", "Index", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter })
+                @Html.DisplayNameFor(model => model.StName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.IdentificatioNO)
             </th>
             <th>
-                @Html.ActionLink("الجنس", "Index", new { sortOrder = ViewBag.SexSortParm, currentFilter = ViewBag.CurrentFilter })
+                @Html.DisplayNameFor(model => model.Sex)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BirthDate)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.EnrollmentYearM)
@@ -39,23 +33,22 @@
             <th>
                 @Html.DisplayNameFor(model => model.EnrollmentYearH)
             </th>
-           
-            <th>
-                @Html.DisplayNameFor(model => model.First().StAcademicDatas.LastOrDefault().StStatus)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.First().StAcademicDatas.LastOrDefault().StLevel)
-            </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.AcademicID)
-                </td>
+
+            string selectedRow = "";
+            if (item.AcademicID == (int?)ViewData["AcademicID"])
+            {
+                selectedRow = "table-success";
+            }
+            <tr class="@selectedRow">
+                <th class="text-center">
+                    <input class="mycheckbox" type="checkbox">
+                </th>
                 <td>
                     @Html.DisplayFor(modelItem => item.StName)
                 </td>
@@ -66,37 +59,16 @@
                     @Html.DisplayFor(modelItem => item.Sex)
                 </td>
                 <td>
+                    @Html.DisplayFor(modelItem => item.BirthDate)
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.EnrollmentYearM)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.EnrollmentYearH)
                 </td>
-                @if (item.StAcademicDatas != null)
-                {
-                   
-                    <td>
-                        @Html.DisplayFor(modelItem => item.StAcademicDatas.LastOrDefault().StStatus)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.StAcademicDatas.LastOrDefault().StLevel)
-
-                    </td>
-
-                }
-                else
-                {
-                    <td>
-                    </td>
-                    <td>
-                    </td>
-                    <td>
-                    </td>
-
-                }
-
-
-
                 <td>
+                    <a asp-action="Index" asp-route-id="@item.AcademicID">Select</a> |
                     <a asp-action="Edit" asp-route-id="@item.AcademicID">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.AcademicID">Details</a> |
                     <a asp-action="Delete" asp-route-id="@item.AcademicID">Delete</a>
@@ -105,4 +77,19 @@
         }
     </tbody>
 </table>
-<br />
+<script>
+    $(function () {
+        $("#checkallCheckbox").click(function () {
+            $(".mycheckbox").attr('checked', this.checked);
+        });
+
+        $(".mycheckbox").click(function () {
+            if (!this.checked) {
+                $("#checkallCheckbox").attr('checked', false);
+            }
+            else if ($(".mycheckbox").length == $(".mycheckbox:checked").length) {
+                $("#checkallCheckbox").attr('checked', true);
+            }
+        });
+    }
+</script>

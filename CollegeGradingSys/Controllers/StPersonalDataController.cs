@@ -1,157 +1,320 @@
-﻿using System;
+﻿using CollegeGradingSys.Models;
+using CollegeGradingSys.Models.Repositories;
+using CollegeGradingSys.ViewModels;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using CollegeGradingSys.Data;
-using CollegeGradingSys.Models;
+using cloudscribe.Pagination.Models;
 
 namespace CollegeGradingSys.Controllers
 {
     public class StPersonalDataController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ICollegeGradingSysRepository<StPersonalData> StPersonalDataRepository;
+        private readonly ICollegeGradingSysRepository<Governorate> GovernorateRepository;
+        private readonly ICollegeGradingSysRepository<Nationality> NationalityRepository;
+        private readonly ICollegeGradingSysRepository<StHighSchoolData> StHighSchoolDataRepository;
+        private readonly ICollegeGradingSysRepository<StudentBatch> StudentBatchRepository;
 
-        public StPersonalDataController(ApplicationDbContext context)
+        public StPersonalDataController(ICollegeGradingSysRepository<StPersonalData> StPersonalDataRepository,
+            ICollegeGradingSysRepository<Governorate> GovernorateRepository ,
+            ICollegeGradingSysRepository<Nationality> NationalityRepository, 
+            ICollegeGradingSysRepository<StHighSchoolData> StHighSchoolDataRepository,
+            ICollegeGradingSysRepository<StudentBatch> StudentBatchRepository
+            )
         {
-            _context = context;
+            this.StPersonalDataRepository = StPersonalDataRepository;
+            this.GovernorateRepository = GovernorateRepository;
+            this.NationalityRepository =  NationalityRepository;
+            this.StHighSchoolDataRepository = StHighSchoolDataRepository;
+            this.StudentBatchRepository = StudentBatchRepository;
         }
-
-        // GET: StPersonalData
-        public async Task<IActionResult> Index(int? id)
+        // GET: StPersonalDataController
+        public ActionResult Index(string sortOrder, string currentFilter, string searchString, string StudentBatchName, int? id, StStatus? StStatus, int? SearchAcademicID, int pageNumber = 1, int pageSize = 5)
         {
+
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewBag.SexSortParm = sortOrder == "SexSortParm" ? "SexSortParm_desc" : "SexSortParm";
+
+           
+
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewBag.CurrentFilter = searchString;
+
+            int ExcludeRecords = (pageSize * pageNumber) - pageSize;
+            var StPersonalDatasR = StPersonalDataRepository.List();
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                 StPersonalDatasR = StPersonalDatasR.Where(s => s.StName.Contains(searchString)).ToList();
+                    
+            }
+
+            if (SearchAcademicID != null)
+            {
+                StPersonalDatasR = StPersonalDatasR.Where(s => s.AcademicID.Equals(SearchAcademicID)).ToList();
+
+            }
+
+            var StPersonalDatas = StPersonalDatasR
+                .Skip(ExcludeRecords).Take(pageSize);
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    StPersonalDatas = StPersonalDatas.OrderByDescending(s => s.StName).ToList();
+                    break;
+                case "SexSortParm":
+                    StPersonalDatas = StPersonalDatas.OrderBy(s => s.Sex).ToList();
+                    break;
+                case "SexSortParm_desc":
+                    StPersonalDatas = StPersonalDatas.OrderByDescending(s => s.Sex).ToList();
+                    break;
+                default:
+                    StPersonalDatas = StPersonalDatas.OrderBy(s => s.StName).ToList();
+                    break;
+            }
+
+           
+
+
+
+            var result = new PagedResult<StPersonalData>
+            {
+                Data = StPersonalDatas.ToList(),
+                TotalItems = StPersonalDatasR.Count(),
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+
+            var model = new StPersonalDataFilteringIndexData
+            {
+                StudentBatchId=-1,
+                StudentBatches = FillSelectStudentBatchsList("-- الكل --"),
+                //StPersonalDatas = StPersonalDatas.ToList()
+                pagedResult = result
+            };
+
             if (id != null)
             {
+                model.StHighSchoolData = StHighSchoolDataRepository.Find(id ?? 0);
                 ViewData["AcademicID"] = id;
             }
-            return View(await _context.StPersonalData.ToListAsync());
+            //StudentBatchNamelist
+            //int pageSize = 3;
+            //int pageNumber = (page ?? 1);
+
+            ViewData["StudentBatchId"] = new SelectList(FillSelectStudentBatchsList("-- الكل --"), "Id", "studentBatchName",-1);
+            return View(model);
+            
+           
         }
 
-        // GET: StPersonalData/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: StPersonalDataController/Details/5
+        public ActionResult Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var stPersonalData = await _context.StPersonalData
-                .FirstOrDefaultAsync(m => m.AcademicID == id);
-            if (stPersonalData == null)
-            {
-                return NotFound();
-            }
-
+            var stPersonalData = StPersonalDataRepository.Find(id);
             return View(stPersonalData);
         }
 
-        // GET: StPersonalData/Create
-        public IActionResult Create()
+        // GET: StPersonalDataController/Create
+        public ActionResult Create()
         {
-            return View();
+
+            var model = new StPersonalDataViewModel
+            {
+                BirthDate = new DateTime(2000,1,1), 
+                Governorates = FillSelectGovernoratesList(),
+                 Nationalities = FillSelectNationalitiesList()
+            };
+
+            return View(model);
         }
 
-        // POST: StPersonalData/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: StPersonalDataController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("AcademicID,StName,IdentificatioNO,Sex,BirthDate,EnrollmentYearM,EnrollmentYearH")] StPersonalData stPersonalData)
+        public ActionResult Create(StPersonalDataViewModel model)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(stPersonalData);
-                await _context.SaveChangesAsync();
+
+                if (model.GovernorateId == -1)
+                {
+                    ViewBag.Message = "الرجاء اختيار المحافظة من القائمة";
+
+                    return View(GetAllStPersonalDatas());
+                }
+                if (model.NationalityId == -1)
+                {
+                    ViewBag.Message = "الرجاء اختيار الدولة من القائمة";
+
+                    return View(GetAllStPersonalDatas());
+                }
+                if (model.BirthPlaceId == -1)
+                {
+                    ViewBag.Message = "الرجاء اختيار الدولة من القائمة";
+
+                    return View(GetAllStPersonalDatas());
+                }
+                var governorate = GovernorateRepository.Find(model.GovernorateId);
+                var nationality = NationalityRepository.Find(model.NationalityId);
+                var birthPlace = NationalityRepository.Find(model.BirthPlaceId);
+                StPersonalData stPersonalData = new()
+                {
+                    AcademicID = model.AcademicID,
+                    StName = model.StName,
+                    IdentificatioNO =model.IdentificatioNO,
+                    Sex =model.Sex,
+                    BirthDate = model.BirthDate,
+                    Birthcountry = birthPlace,
+                    EnrollmentYearH= model.EnrollmentYearH,
+                    EnrollmentYearM=model.EnrollmentYearM,                         
+                    Nationality= nationality,
+                    BirthGovernorate = governorate,
+                };
+                StPersonalDataRepository.Add(stPersonalData);
                 return RedirectToAction(nameof(Index));
             }
-            return View(stPersonalData);
+            catch
+            {
+                return View();
+            }
         }
 
-        // GET: StPersonalData/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // GET: StPersonalDataController/Edit/5
+        public ActionResult Edit(int id)
         {
-            if (id == null)
+            var stPersonalData = StPersonalDataRepository.Find(id);
+            var governorateId = stPersonalData.BirthGovernorate == null ?  0 : stPersonalData.BirthGovernorate.Id;
+            var nationalityId = stPersonalData.Nationality == null ?  0 : stPersonalData.Nationality.Id;
+            var birthPlaceId = stPersonalData.Birthcountry == null ? 0 : stPersonalData.Birthcountry.Id;
+            var model = new StPersonalDataViewModel
             {
-                return NotFound();
-            }
+                AcademicID = stPersonalData.AcademicID,
 
-            var stPersonalData = await _context.StPersonalData.FindAsync(id);
-            if (stPersonalData == null)
-            {
-                return NotFound();
-            }
-            return View(stPersonalData);
+                StName = stPersonalData.StName,
+                IdentificatioNO = stPersonalData.IdentificatioNO,
+                Sex = stPersonalData.Sex,
+                BirthDate = stPersonalData.BirthDate,
+                BirthPlaceId = birthPlaceId,
+                EnrollmentYearH = stPersonalData.EnrollmentYearH,
+                EnrollmentYearM = stPersonalData.EnrollmentYearM,
+                NationalityId = nationalityId,
+                Nationalities = NationalityRepository.List().ToList(),
+                GovernorateId = governorateId,
+                Governorates = GovernorateRepository.List().ToList()
+            };
+            return View(model);
         }
 
-        // POST: StPersonalData/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: StPersonalDataController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("AcademicID,StName,IdentificatioNO,Sex,BirthDate,EnrollmentYearM,EnrollmentYearH")] StPersonalData stPersonalData)
+        public ActionResult Edit(int id,StPersonalDataViewModel model)
         {
-            if (id != stPersonalData.AcademicID)
+            try
             {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
+                var governorate = GovernorateRepository.Find(model.GovernorateId);
+                var nationality = NationalityRepository.Find(model.NationalityId);
+                var birthPlace = NationalityRepository.Find(model.BirthPlaceId);
+                StPersonalData stPersonalData = new()
                 {
-                    _context.Update(stPersonalData);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!StPersonalDataExists(stPersonalData.AcademicID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                    AcademicID = model.AcademicID,
+                    StName = model.StName,
+                    IdentificatioNO = model.IdentificatioNO,
+                    Sex = model.Sex,
+                    BirthDate = model.BirthDate,
+                    Birthcountry = birthPlace,
+                    EnrollmentYearH = model.EnrollmentYearH,
+                    EnrollmentYearM = model.EnrollmentYearM,
+                    Nationality = nationality,
+                    BirthGovernorate = governorate,
+                };
+                StPersonalDataRepository.Update(id, stPersonalData);
                 return RedirectToAction(nameof(Index));
             }
-            return View(stPersonalData);
+            catch
+            {
+                return View();
+            }
         }
 
-        // GET: StPersonalData/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // GET: StPersonalDataController/Delete/5
+        public ActionResult Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var stPersonalData = await _context.StPersonalData
-                .FirstOrDefaultAsync(m => m.AcademicID == id);
-            if (stPersonalData == null)
-            {
-                return NotFound();
-            }
-
-            return View(stPersonalData);
+            var  stPersonalData = StPersonalDataRepository.Find(id);
+            
+            return View(stPersonalData);       
         }
 
-        // POST: StPersonalData/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: StPersonalDataController/Delete/5
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public ActionResult Delete(int id,StPersonalData model)
         {
-            var stPersonalData = await _context.StPersonalData.FindAsync(id);
-            _context.StPersonalData.Remove(stPersonalData);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                StPersonalDataRepository.Delete(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return View();
+            }
         }
 
-        private bool StPersonalDataExists(int id)
+        List<Governorate> FillSelectGovernoratesList()
         {
-            return _context.StPersonalData.Any(e => e.AcademicID == id);
+            var Governorates = GovernorateRepository.List().ToList();
+            Governorates.Insert(0, new Governorate { Id = -1,  GovernorateName = "-- أختر --" });
+
+            return Governorates;
         }
+
+        List<StudentBatch> FillSelectStudentBatchsList(string studentBatchName)
+        {
+            var StudentBatchs = StudentBatchRepository.List().ToList();
+            StudentBatchs.Insert(0, new StudentBatch { Id = -1, StudentBatchName = studentBatchName });
+
+            return StudentBatchs;
+        }
+
+        List<Nationality> FillSelectNationalitiesList()
+        {
+            var Nationalities = NationalityRepository.List().ToList();
+            Nationalities.Insert(0, new Nationality { Id = -1, NationalityName = "-- أختر --" , CountryName = "-- أختر --" });
+
+            return Nationalities;
+        }
+        StPersonalDataViewModel GetAllStPersonalDatas()
+        {
+            var vmodel = new StPersonalDataViewModel
+            {
+                Governorates = FillSelectGovernoratesList(),
+                Nationalities = FillSelectNationalitiesList()
+            };
+            return vmodel;
+        }
+        public JsonResult GetGovernorate(int Id)
+        {
+            var GovernoratesList = GovernorateRepository.List().Where(a => a.Nationality.Id == Id);
+            return Json(new SelectList(GovernoratesList, "Id", "GovernorateName"));
+        }
+
+ 
     }
 }

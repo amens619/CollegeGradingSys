@@ -1,4 +1,4 @@
-﻿@model CollegeGradingSys.Models.StPersonalData
+﻿@model CollegeGradingSys.ViewModels.StPersonalDataViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -6,7 +6,7 @@
 
 <h1>Edit</h1>
 
-<h4>StPersonalData</h4>
+<h4>StPersonalDataViewModel</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -25,22 +25,44 @@
             </div>
             <div class="form-group">
                 <label asp-for="Sex" class="control-label"></label>
-                <select asp-for="Sex" class="form-control"></select>
+                <select asp-for="Sex" class="form-control text-center"
+                        asp-items="Html.GetEnumSelectList<Sex>()"></select>
                 <span asp-validation-for="Sex" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="NationalityId" class="control-label"></label>
+                <select asp-for="NationalityId" class="form-control text-center"
+                        asp-items="@(new SelectList(Model.Nationalities,"Id","NationalityName"))"></select>
+                <span asp-validation-for="NationalityId" class="text-danger"></span>
+            </div>
+
+            <div>
+                <div class="form-group col-md-4">
+                    <label asp-for="BirthPlaceId" class="control-label"></label>
+                    <select id="CounteryList" asp-for="BirthPlaceId" class="form-control text-center"
+                            asp-items="@(new SelectList(Model.Nationalities,"Id","CountryName"))"></select>
+                    <span asp-validation-for="BirthPlaceId" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-4">
+                    <label asp-for="GovernorateId" class="control-label"></label>
+                    <select  id="GovernorateList"  asp-for="GovernorateId" class="form-control text-center"
+                            asp-items="@(new SelectList(Model.Governorates,"Id","GovernorateName"))"></select>
+                    <span asp-validation-for="GovernorateId" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
                 <label asp-for="BirthDate" class="control-label"></label>
-                <input asp-for="BirthDate" class="form-control" />
+                <input asp-for="BirthDate" type="date" class="form-control text-center" />
                 <span asp-validation-for="BirthDate" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="EnrollmentYearM" class="control-label"></label>
-                <input asp-for="EnrollmentYearM" class="form-control" />
+                <input asp-for="EnrollmentYearM" class="form-control text-center" />
                 <span asp-validation-for="EnrollmentYearM" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="EnrollmentYearH" class="control-label"></label>
-                <input asp-for="EnrollmentYearH" class="form-control" />
+                <input asp-for="EnrollmentYearH" class="form-control text-center" />
                 <span asp-validation-for="EnrollmentYearH" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -54,3 +76,22 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+<script>
+    $(document).ready(function () {
+        $("#CounteryList").on("change", function () {
+            var url = '@Url.Content("~/")' + "StPersonalData/GetGovernorate";
+            var ddlsource = "#CounteryList";
+            $.getJSON(url, { id: $(ddlsource).val() }, function (data) {
+                var items = '';
+                $("#GovernorateList").empty();
+                $.each(data, function (i, row) {
+                    items += "<option value='" + row.value + "'>" + row.text + "</option>";
+                });
+                $("#GovernorateList").html(items);
+            })
+        })
+    })
+</script>
+}

@@ -10,7 +10,7 @@ namespace CollegeGradingSys.Models
     {
         public int Id { get; set; }
         [Required]
-        [StringLength(15, MinimumLength = 2)]
+        [StringLength(30, MinimumLength = 2)]
         [Display(Name = "اسم الدفعة")]
         public string StudentBatchName { get; set; }
 
@@ -19,6 +19,7 @@ namespace CollegeGradingSys.Models
         [Display(Name = "ملاحظة")]
         public string Note { get; set; }
 
+        public virtual Specialization  Specialization { get; set; }
         public virtual AcademicYear  AcademicYear { get; set; }
         public virtual ICollection<StAcademicData> StAcademicDatas { get; set; }
     }

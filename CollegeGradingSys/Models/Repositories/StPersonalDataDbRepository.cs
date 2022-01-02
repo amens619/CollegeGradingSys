@@ -25,13 +25,13 @@ namespace CollegeGradingSys.Models.Repositories
 
         public StPersonalData Delete(int id)
         {
-            var specialization = Find(id);
-            if (specialization != null)
+            var stPersonalData = Find(id);
+            if (stPersonalData != null)
             {
-                db.StPersonalData.Remove(specialization);
+                db.StPersonalData.Remove(stPersonalData);
                 SaveChange();
             }
-            return specialization;
+            return stPersonalData;
         }
 
         public StPersonalData Find(int id)
@@ -41,7 +41,7 @@ namespace CollegeGradingSys.Models.Repositories
 
         public IList<StPersonalData> List()
         {
-            return db.StPersonalData.ToList();
+            return db.StPersonalData.Include(x => x.StHighSchoolData).ToList();
         }
 
         public StPersonalData Update(int id, StPersonalData newStPersonalData)

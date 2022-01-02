@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Models.Repositories
 {
-    public class StudentBatchDBRepository : ICollegeGradingSysRepository<StudentBatch>
+    public class StudentBatchDbRepository : ICollegeGradingSysRepository<StudentBatch>
     {
         private readonly ApplicationDbContext db;
 
-        public StudentBatchDBRepository(ApplicationDbContext _db)
+        public StudentBatchDbRepository(ApplicationDbContext _db)
         {
             db = _db;
         }
