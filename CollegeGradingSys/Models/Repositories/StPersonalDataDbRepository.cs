@@ -36,7 +36,7 @@ namespace CollegeGradingSys.Models.Repositories
 
         public StPersonalData Find(int id)
         {
-            return db.StPersonalData.SingleOrDefault(a => a.AcademicID == id);
+            return db.StPersonalData.Include(x => x.StHighSchoolData).SingleOrDefault(a => a.AcademicID == id);
         }
 
         public IList<StPersonalData> List()

@@ -1,0 +1,78 @@
+﻿@model CollegeGradingSys.Models.StHighSchoolData
+<!-- Modal -->
+<div class="modal fade " id="add-contact" tabindex="-1" role="dialog" aria-labelledby="addContactLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="addContactLabel">تعديل بيانات الثانوية</h5>
+            </div>
+
+            <hr />
+            <div class="modal-body row">
+                <dl class="row">
+                    <dt class="col-sm-4">
+                        @Html.DisplayNameFor(model => model.CertificateType)
+                    </dt>
+                    <dd class="col-sm-7">
+                        @Html.DisplayFor(model => model.CertificateType)
+                    </dd>
+                    <dt class="col-sm-4">
+                        @Html.DisplayNameFor(model => model.Average)
+                    </dt>
+                    <dd class="col-sm-7">
+                        @Html.DisplayFor(model => model.Average)
+                    </dd>
+                    <dt class="col-sm-4">
+                        @Html.DisplayNameFor(model => model.Source)
+                    </dt>
+                    <dd class="col-sm-7">
+                        @Html.DisplayFor(model => model.Source)
+                    </dd>
+                    <dt class="col-sm-4">
+                        @Html.DisplayNameFor(model => model.SeatNo)
+                    </dt>
+                    <dd class="col-sm-7">
+                        @Html.DisplayFor(model => model.SeatNo)
+                    </dd>
+                    <dt class="col-sm-4">
+                        @Html.DisplayNameFor(model => model.CertificateYear)
+                    </dt>
+                    <dd class="col-sm-7">
+                        @Html.DisplayFor(model => model.CertificateYear)
+                    </dd>
+                    <dt class="col-sm-4">
+                        @Html.DisplayNameFor(model => model.HighSchoolName)
+                    </dt>
+                    <dd class="col-sm-7">
+                        @Html.DisplayFor(model => model.HighSchoolName)
+                    </dd>
+                    <dt class="col-sm-4">
+                        @Html.DisplayNameFor(model => model.Note)
+                    </dt>
+                    <dd class="col-sm-7">
+                        @Html.DisplayFor(model => model.Note)
+                    </dd>
+                    <dt class="col-sm-4">
+                        @Html.DisplayNameFor(model => model.StPersonalData)
+                    </dt>
+                    <dd class="col-sm-7">
+                        @Html.DisplayFor(model => model.StPersonalData.EnrollmentYearH)
+                    </dd>
+                </dl>
+                <form asp-action="Delete">
+                    <div class="modal-footer">
+                        <input type="hidden" asp-for="AcademicID" />
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء الأمر</button>
+                        <input type="submit" value="Delete" class="btn btn-danger" />
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

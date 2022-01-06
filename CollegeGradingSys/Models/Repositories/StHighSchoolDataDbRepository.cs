@@ -35,12 +35,14 @@ namespace CollegeGradingSys.Models.Repositories
 
         public StHighSchoolData Find(int id)
         {
-            return db.StHighSchoolData.SingleOrDefault(a => a.AcademicID == id);
+            return db.StHighSchoolData
+                .Include(s => s.StPersonalData)
+                .SingleOrDefault(a => a.AcademicID == id);
         }
 
         public IList<StHighSchoolData> List()
         {
-            return db.StHighSchoolData.ToList();
+            return db.StHighSchoolData.Include(s => s.StPersonalData).ToList();
         }
 
         public StHighSchoolData Update(int id, StHighSchoolData newStHighSchoolData)
