@@ -19,6 +19,6 @@ namespace CollegeGradingSys.Models
 
         public virtual Department Department { get; set; }
         public virtual ICollection<Course> Courses  { get; set; }
-        public virtual ICollection<StudentBatch>  StudentBatches { get; set; }
+        public virtual ICollection<Batch>  Batches { get; set; }
     }
 }

@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace CollegeGradingSys.ViewModels
 {
-    public class StudentBatchIndexData
+    public class BatchIndexData
     {
         [Display(Name = "العام الدراسي")]
         public int? AcademicYearId { get; set; }          
 
         public ICollection<AcademicYear> AcademicYears { get; set; }
-        public ICollection<StudentBatch> StudentBatches { get; set; }
+        public ICollection<Batch> Batches { get; set; }
     }
 }

@@ -18,23 +18,23 @@ namespace CollegeGradingSys.Controllers
         private readonly ICollegeGradingSysRepository<Governorate> GovernorateRepository;
         private readonly ICollegeGradingSysRepository<Nationality> NationalityRepository;
         private readonly ICollegeGradingSysRepository<StHighSchoolData> StHighSchoolDataRepository;
-        private readonly ICollegeGradingSysRepository<StudentBatch> StudentBatchRepository;
+        private readonly ICollegeGradingSysRepository<Batch> BatchRepository;
 
         public StPersonalDataController(ICollegeGradingSysRepository<StPersonalData> StPersonalDataRepository,
             ICollegeGradingSysRepository<Governorate> GovernorateRepository ,
             ICollegeGradingSysRepository<Nationality> NationalityRepository, 
             ICollegeGradingSysRepository<StHighSchoolData> StHighSchoolDataRepository,
-            ICollegeGradingSysRepository<StudentBatch> StudentBatchRepository
+            ICollegeGradingSysRepository<Batch> BatchRepository
             )
         {
             this.StPersonalDataRepository = StPersonalDataRepository;
             this.GovernorateRepository = GovernorateRepository;
             this.NationalityRepository =  NationalityRepository;
             this.StHighSchoolDataRepository = StHighSchoolDataRepository;
-            this.StudentBatchRepository = StudentBatchRepository;
+            this.BatchRepository = BatchRepository;
         }
         // GET: StPersonalDataController
-        public ActionResult Index(string sortOrder, string currentFilter, string searchString, string StudentBatchName, int? id, StStatus? StStatus, int? SearchAcademicID, int pageNumber = 1, int pageSize = 5)
+        public ActionResult Index(string sortOrder, string currentFilter, string searchString, string BatchName, int? id, StStatus? StStatus, int? SearchAcademicID, int pageNumber = 1, int pageSize = 5)
         {
 
             ViewBag.CurrentSort = sortOrder;
@@ -102,8 +102,8 @@ namespace CollegeGradingSys.Controllers
 
             var model = new StPersonalDataFilteringIndexData
             {
-                StudentBatchId=-1,
-                StudentBatches = FillSelectStudentBatchsList("-- الكل --"),
+                BatchId=-1,
+                Batches = FillSelectBatchsList("-- الكل --"),
                 //StPersonalDatas = StPersonalDatas.ToList()
                 pagedResult = result
             };
@@ -113,11 +113,11 @@ namespace CollegeGradingSys.Controllers
                 model.StHighSchoolData = StHighSchoolDataRepository.Find(id ?? 0);
                 ViewData["AcademicID"] = id;
             }
-            //StudentBatchNamelist
+            //BatchNamelist
             //int pageSize = 3;
             //int pageNumber = (page ?? 1);
 
-            ViewData["StudentBatchId"] = new SelectList(FillSelectStudentBatchsList("-- الكل --"), "Id", "studentBatchName",-1);
+            ViewData["BatchId"] = new SelectList(FillSelectBatchsList("-- الكل --"), "Id", "studentBatchName",-1);
             return View(model);
             
            
@@ -285,12 +285,12 @@ namespace CollegeGradingSys.Controllers
             return Governorates;
         }
 
-        List<StudentBatch> FillSelectStudentBatchsList(string studentBatchName)
+        List<Batch> FillSelectBatchsList(string studentBatchName)
         {
-            var StudentBatchs = StudentBatchRepository.List().ToList();
-            StudentBatchs.Insert(0, new StudentBatch { Id = -1, StudentBatchName = studentBatchName });
+            var Batchs = BatchRepository.List().ToList();
+            Batchs.Insert(0, new Batch { Id = -1, BatchName = studentBatchName });
 
-            return StudentBatchs;
+            return Batchs;
         }
 
         List<Nationality> FillSelectNationalitiesList()

@@ -7,49 +7,49 @@ using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Models.Repositories
 {
-    public class StudentBatchDbRepository : ICollegeGradingSysRepository<StudentBatch>
+    public class BatchDbRepository : ICollegeGradingSysRepository<Batch>
     {
         private readonly ApplicationDbContext db;
 
-        public StudentBatchDbRepository(ApplicationDbContext _db)
+        public BatchDbRepository(ApplicationDbContext _db)
         {
             db = _db;
         }
-        public StudentBatch Add(StudentBatch entity)
+        public Batch Add(Batch entity)
         {
-            db.StudentBatch.Add(entity);
+            db.Batch.Add(entity);
             SaveChange();
             return entity;
         }
 
-        public StudentBatch Delete(int id)
+        public Batch Delete(int id)
         {
-            StudentBatch studentBatch = Find(id);
+            Batch studentBatch = Find(id);
             if (studentBatch != null)
             {
-                db.StudentBatch.Remove(studentBatch);
+                db.Batch.Remove(studentBatch);
                 SaveChange();
             }
             return studentBatch;
         }
 
-        public StudentBatch Find(int id)
+        public Batch Find(int id)
         {
-            return db.StudentBatch.Include(a => a.AcademicYear).SingleOrDefault(a => a.Id == id);
+            return db.Batch.SingleOrDefault(a => a.Id == id);
         }
 
-        public IList<StudentBatch> List()
+        public IList<Batch> List()
         {
-            return db.StudentBatch.Include(a=> a.AcademicYear).ToList();
+            return db.Batch.ToList();
         }
 
-        public StudentBatch Update(int id, StudentBatch newStudentBatch)
+        public Batch Update(int id, Batch newBatch)
         {
             
-            var college = db.StudentBatch.Attach(newStudentBatch);
+            var college = db.Batch.Attach(newBatch);
             college.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
             SaveChange();
-            return newStudentBatch;
+            return newBatch;
         }
 
         private void SaveChange()

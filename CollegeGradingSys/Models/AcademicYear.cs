@@ -24,18 +24,15 @@ namespace CollegeGradingSys.Models
         public DateTime AcademicYearEnd { get; set; }
         [Required]
         [StringLength(30, MinimumLength = 3)]
-        [Display(Name = "اسم العام")]
-        public string AcademicYearName { get; set; }
-
-
-       
+        [Display(Name = "العام الدراسي")]
+        public string AcademicYearName { get; set; }       
       
         [MaxLength(200)]
         [Display(Name = "ملاحظة")]
         [DisplayFormat(NullDisplayText = "لا توجد ملاحظات")]
         public string Note { get; set; }
 
-        public virtual ICollection<StudentBatch>  StudentBatches { get; set; }
+        public virtual ICollection<StsBatchForTheYear>  StsBatchForTheYears { get; set; }
 
     }
 }

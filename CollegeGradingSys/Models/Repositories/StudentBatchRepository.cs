@@ -5,19 +5,19 @@ using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Models.Repositories
 {
-    public class StudentBatchRepository : ICollegeGradingSysRepository<StudentBatch>
+    public class BatchRepository : ICollegeGradingSysRepository<Batch>
     {
-        IList<StudentBatch> studentBatches;
-        public StudentBatchRepository()
+        IList<Batch> studentBatches;
+        public BatchRepository()
         {
-            studentBatches = new List<StudentBatch>()
+            studentBatches = new List<Batch>()
             {
-                new StudentBatch { Id=1, StudentBatchName="2021-2022 فقه" , Note ="" , AcademicYear= new AcademicYear{Id=1 } },
-                new StudentBatch { Id=2, StudentBatchName="2022-2023 فقه" , Note ="" ,AcademicYear= new AcademicYear{Id=2 } }
+                new Batch { Id=1, BatchName="2021-2022 فقه" , Note =""  },
+                new Batch { Id=2, BatchName="2022-2023 فقه" , Note ="" }
 
             };
         }
-        public StudentBatch Add(StudentBatch newBatch)
+        public Batch Add(Batch newBatch)
         {
             var batch = studentBatches.FirstOrDefault();
             newBatch.Id = batch != null ? studentBatches.Max(b => b.Id) + 1 : 1;
@@ -25,7 +25,7 @@ namespace CollegeGradingSys.Models.Repositories
             return newBatch;
         }
 
-        public StudentBatch Delete(int id)
+        public Batch Delete(int id)
         {
             var batch = Find(id);
             if (batch != null)
@@ -35,24 +35,24 @@ namespace CollegeGradingSys.Models.Repositories
             return batch;
         }
 
-        public StudentBatch Find(int id)
+        public Batch Find(int id)
         {
             return studentBatches.SingleOrDefault(a => a.Id == id);
         }
 
-        public IList<StudentBatch> List()
+        public IList<Batch> List()
         {
             return studentBatches;
         }
 
-        public StudentBatch Update(int id, StudentBatch newBatch)
+        public Batch Update(int id, Batch newBatch)
         {
             var oldBatch = Find(id);
             if (oldBatch != null)
             {
-                oldBatch.StudentBatchName = newBatch.StudentBatchName;
+                oldBatch.BatchName = newBatch.BatchName;
                 oldBatch.Note = newBatch.Note;
-                oldBatch.AcademicYear = newBatch.AcademicYear;
+                //oldBatch.AcademicYear = newBatch.AcademicYear;
             }
             return newBatch;
         }

@@ -1,19 +1,18 @@
-﻿using System;
+﻿using CollegeGradingSys.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CollegeGradingSys.Models
+namespace CollegeGradingSys.ViewModels
 {
-    public enum Valuation
+
+    public class CreateStAcademicDataDataViewModel
     {
-        غير_محدد,
-        ممتاز ,جيدجدا ,جيد ,مقبول, ضعيف
-    }
-    public class StAcademicData
-    {
-        [Key]
+        [Display(Name = "رقم القيد")]
+        public int AcademicID { get; set; }
+
         public int Id { get; set; }
 
 
@@ -21,7 +20,7 @@ namespace CollegeGradingSys.Models
         public Level StLevel { get; set; }
 
         [Display(Name = "الفصل الدراسي")]
-        public Term?  Term { get; set; }
+        public Term? Term { get; set; }
 
         [Display(Name = "حالة الطالب")]
         public StStatus StStatus { get; set; }
@@ -34,9 +33,12 @@ namespace CollegeGradingSys.Models
         public Valuation Valuation { get; set; }
         [Display(Name = "الفصل الحالي")]
         public bool IsCurrentYear { get; set; }
+        [Display(Name = "الدفعة")]
+        public int BatchId { get; set; }
+        [Display(Name = "العام الدراسي")]
+        public int AcademicYearId { get; set; }
+        public ICollection<Batch>  Batches { get; set; }
+        public ICollection<AcademicYear>  AcademicYears { get; set; }
 
-        public virtual StsBatchForTheYear  StsBatchForTheYear { get; set; }        
-       
-        public virtual StPersonalData StPersonalData { get; set; }
     }
 }

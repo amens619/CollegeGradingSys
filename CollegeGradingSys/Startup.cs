@@ -52,7 +52,7 @@ namespace CollegeGradingSys
             //services.AddSingleton<ICollegeGradingSysRepository<Specialization>, SpecializationRepository>();
             //services.AddSingleton<ICollegeGradingSysRepository<StPersonalData>, StPersonalDataRepository>();
             // services.AddSingleton<ICollegeGradingSysRepository<AcademicYear>, AcademicYearRepository>();
-            //services.AddSingleton<ICollegeGradingSysRepository<StudentBatch>, StudentBatchRepository>();
+            //services.AddSingleton<ICollegeGradingSysRepository<Batch>, BatchRepository>();
 
             //============================================================================================
             services.AddTransient<ICollegeGradingSysRepository<College>, CollegeDbRepository>();
@@ -64,8 +64,9 @@ namespace CollegeGradingSys
             services.AddTransient<ICollegeGradingSysRepository<Specialization>, SpecializationDbRepository>();
             services.AddTransient<ICollegeGradingSysRepository<StPersonalData>, StPersonalDataDbRepository>();
             services.AddTransient<ICollegeGradingSysRepository<AcademicYear>, AcademicYearDbRepository>();
-            services.AddTransient<ICollegeGradingSysRepository<StudentBatch>, StudentBatchDbRepository>();
+            services.AddTransient<ICollegeGradingSysRepository<Batch>, BatchDbRepository>();
             services.AddTransient<ICollegeGradingSysRepository<StHighSchoolData>, StHighSchoolDataDbRepository>();
+            services.AddTransient<ICollegeGradingSysRepository<StAcademicData>, StAcademicDataDbRepository>();
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(

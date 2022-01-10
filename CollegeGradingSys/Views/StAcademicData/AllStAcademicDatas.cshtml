@@ -1,0 +1,116 @@
+﻿@model CollegeGradingSys.ViewModels.StAcademicDataDataViewModel
+
+@{
+    ViewData["Title"] = "AllStAcademicDatas";
+}
+
+<h1>السجل الاكاديمي التفصيلي للطالب</h1>
+
+<p>
+    <a asp-action="Create" asp-route-id="@Model.AcademicID">إضافة جديد</a>    
+</p>
+<hr class="my-4">
+<div class="row">
+    <div class="form-group col-md-6">
+        <label asp-for="AcademicID" class="control-label"></label>
+        <input asp-for="AcademicID" readonly class="form-control" />
+    </div>
+    <div class="form-group col-md-6">
+        <label asp-for="StName" class="control-label"></label>
+        <input asp-for="StName" readonly class="form-control" />
+    </div>
+</div>
+<hr class="my-4">
+<div class=" container">
+    <span class="badge bg-primary  "> مقيد</span>
+    <span class="badge bg-secondary  ">منحسب</span>   
+    <span class="badge bg-warning  ">موقف قيد</span>    
+    <span class="badge bg-success  ">متخرج</span>
+</div>
+<hr class="my-4">
+<div class="table-responsive">
+    <table class="table  table-bordered">
+        <thead class="table-light">
+            <tr>
+                @*<th>
+                    العام الدراسي
+                </th>
+                <th>
+                    الدفعة
+                </th>*@
+                <th>
+                    المستوى
+                </th>
+                <th>
+                    الفصل الدراسي
+                </th>
+                <th>
+                    النسبة
+                </th>
+                <th>
+                    التقدير
+                </th>
+                <th>
+                    المعدل التراكمي
+                </th>
+                <th>
+                    حالة الطالب
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.StAcademicDatas)
+            {
+            <tr>
+                @*<td>
+                    @Html.DisplayFor(modelItem => item.AcademicYear.AcademicYearName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Batch.BatchName)
+                </td>*@
+                <td>
+                    @Html.DisplayFor(modelItem => item.StLevel)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Term)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Average)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Valuation)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.GPA)
+                </td>
+                <td>
+                    @switch (item.StStatus)
+                    {
+                        case StStatus.مقيد:
+                            <span class="badge bg-primary">@item.StStatus</span>
+                            break;
+                        case StStatus.منحسب:
+                            <span class="badge bg-secondary">@item.StStatus</span>
+                            break;
+                        case StStatus.موقف_قيد:
+                            <span class="badge bg-warning ">@item.StStatus</span>
+                            break;
+                        case StStatus.متخرج:
+                            <span class="badge bg-success">@item.StStatus</span>
+                            break;
+                    }
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-controller="StAcademicData" class="btn btn-secondary btn-sm" asp-route-id="@item.Id">الدرجات</a>
+                    <a asp-action="Edit" class="btn btn-primary btn-sm" asp-route-id="@item.Id">تعديل</a>
+                    <a asp-action="Details" class="btn btn-warning btn-sm" asp-route-id="@item.Id">تفاصيل</a>
+                    <a asp-action="Delete" class="btn btn-danger btn-sm" asp-route-id="@item.Id">حذف</a>
+                </td>
+
+
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>

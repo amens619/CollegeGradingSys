@@ -12,40 +12,40 @@ using CollegeGradingSys.ViewModels;
 
 namespace CollegeGradingSys.Controllers
 {
-    public class StudentBatchController : Controller
+    public class BatchController : Controller
     {
        
-        private readonly ICollegeGradingSysRepository<StudentBatch> _studentBatchRepository;
+        private readonly ICollegeGradingSysRepository<Batch> _studentBatchRepository;
         private readonly ICollegeGradingSysRepository<AcademicYear> _academicYearRepository;
 
-        public StudentBatchController(ICollegeGradingSysRepository<StudentBatch> studentBatchRepository, ICollegeGradingSysRepository<AcademicYear> AcademicYearRepository)
+        public BatchController(ICollegeGradingSysRepository<Batch> studentBatchRepository, ICollegeGradingSysRepository<AcademicYear> AcademicYearRepository)
         {
             _studentBatchRepository = studentBatchRepository;
             _academicYearRepository = AcademicYearRepository;
         }
 
-        // GET: StudentBatche
+        // GET: Batche
         public async Task<IActionResult> Index(int? id , int? AcademicYearId)
         {
             if (id != null)
             {
                 AcademicYearId = id;
             }
-            var viewModel = new StudentBatchIndexData();
-            IList<StudentBatch> studentBatches = _studentBatchRepository.List();              
+            var viewModel = new BatchIndexData();
+            IList<Batch> studentBatches = _studentBatchRepository.List();              
             
             if (AcademicYearId is not null and not (-1))
             {
                 viewModel.AcademicYearId = AcademicYearId;
-                studentBatches = studentBatches.Where(a => a.AcademicYear.Id == AcademicYearId).ToList();
+                //studentBatches = studentBatches.Where(a => a.AcademicYear.Id == AcademicYearId).ToList();
                
             }
-            viewModel.StudentBatches = studentBatches;
+            viewModel.Batches = studentBatches;
             ViewData["AcademicYearId"] = new SelectList(FillSelectAcademicYearsList("-- الكل --"), "Id", "AcademicYearName", AcademicYearId ?? -1 );
             return View(viewModel);
         }
 
-        // GET: StudentBatche/Details/5
+        // GET: Batche/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -62,7 +62,7 @@ namespace CollegeGradingSys.Controllers
             return View(studentBatch);
         }
 
-        // GET: StudentBatche/Create
+        // GET: Batche/Create
         public IActionResult Create()
         {
             
@@ -70,12 +70,12 @@ namespace CollegeGradingSys.Controllers
             return View();
         }
 
-        // POST: StudentBatche/Create
+        // POST: Batche/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,StudentBatchName,AcademicYearId,Note")] StudentBatchCreateData studentBatchVM)
+        public async Task<IActionResult> Create([Bind("Id,BatchName,AcademicYearId,Note")] BatchCreateData studentBatchVM)
         {
             if (ModelState.IsValid)
             {
@@ -86,12 +86,12 @@ namespace CollegeGradingSys.Controllers
                     return View(studentBatchVM);
                 }
                 var academicYear = _academicYearRepository.Find(studentBatchVM.AcademicYearId);
-                StudentBatch studentBatch = new StudentBatch
+                Batch studentBatch = new Batch
                 {
                     Id = studentBatchVM.Id,
-                     StudentBatchName = studentBatchVM.StudentBatchName,
+                     BatchName = studentBatchVM.BatchName,
                       Note= studentBatchVM.Note,
-                    AcademicYear = academicYear
+                    //AcademicYear = academicYear
                 };
                 _studentBatchRepository.Add(studentBatch);
                 return RedirectToAction(nameof(Index));
@@ -99,7 +99,7 @@ namespace CollegeGradingSys.Controllers
             return View(studentBatchVM);
         }
 
-        // GET: StudentBatche/Edit/5
+        // GET: Batche/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -114,23 +114,23 @@ namespace CollegeGradingSys.Controllers
                 return NotFound();
             }
             
-            var model = new StudentBatchCreateData
+            var model = new BatchCreateData
             {
                 Id = studentBatch.Id,
-                StudentBatchName = studentBatch.StudentBatchName,
-                Note = studentBatch.Note,
-                AcademicYear = studentBatch.AcademicYear
+                BatchName = studentBatch.BatchName,
+                Note = studentBatch.Note
+                
             };
-            ViewData["AcademicYearId"] = new SelectList(_academicYearRepository.List().ToList(), "Id", "AcademicYearName", studentBatch.AcademicYear.Id);
+            //ViewData["AcademicYearId"] = new SelectList(_academicYearRepository.List().ToList(), "Id", "AcademicYearName", studentBatch.Id);
             return View(model);
         }
 
-        // POST: StudentBatche/Edit/5
+        // POST: Batche/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,StudentBatchName,AcademicYearId,Note")] StudentBatchCreateData studentBatchVM)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,BatchName,AcademicYearId,Note")] BatchCreateData studentBatchVM)
         {
             if (id != studentBatchVM.Id)
             {
@@ -142,18 +142,18 @@ namespace CollegeGradingSys.Controllers
                 try
                 {
                     var academicYear = _academicYearRepository.Find(studentBatchVM.AcademicYearId);
-                    StudentBatch studentBatch = new()
+                    Batch studentBatch = new()
                     {
                         Id = studentBatchVM.Id,
-                        StudentBatchName = studentBatchVM.StudentBatchName,
+                        BatchName = studentBatchVM.BatchName,
                         Note = studentBatchVM.Note,
-                        AcademicYear = academicYear
+                        
                     };
                     _studentBatchRepository.Update(id, studentBatch);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    //if (!StudentBatchExists(studentBatch.Id))
+                    //if (!BatchExists(studentBatch.Id))
                     //{
                     //    return NotFound();
                     //}
@@ -167,7 +167,7 @@ namespace CollegeGradingSys.Controllers
             return View(studentBatchVM);
         }
 
-        // GET: StudentBatche/Delete/5
+        // GET: Batche/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -184,7 +184,7 @@ namespace CollegeGradingSys.Controllers
             return View(studentBatch);
         }
 
-        // POST: StudentBatche/Delete/5
+        // POST: Batche/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -201,9 +201,9 @@ namespace CollegeGradingSys.Controllers
           
         }
 
-        //private bool StudentBatchExists(int id)
+        //private bool BatchExists(int id)
         //{
-        //    return _context.StudentBatch.Any(e => e.Id == id);
+        //    return _context.Batch.Any(e => e.Id == id);
         //}
 
         List<AcademicYear> FillSelectAcademicYearsList(string academicYearName)

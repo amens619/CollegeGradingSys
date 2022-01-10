@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CollegeGradingSys.ViewModels
 {
-    public class StPersonalDataFilteringIndexData
+    public class StAcademicDataFilteringIndexData
     {
         [Display(Name = "رقم القيد")]
         public int? AcademicID { get; set; }
@@ -27,6 +27,6 @@ namespace CollegeGradingSys.ViewModels
         //public ICollection<StPersonalData>  StPersonalDatas { get; set; }
         [DisplayFormat(NullDisplayText = "لا توجد بيانات")]
         public virtual StHighSchoolData StHighSchoolData { get; set; }
-        public PagedResult<StPersonalData> pagedResult { get; set; }
+        public PagedResult<StAcademicData> pagedResult { get; set; }
     }
 }

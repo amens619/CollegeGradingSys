@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace CollegeGradingSys.Models
 {
     public enum Term
-    {
+    {       
         الأول,
         الثاني
     }

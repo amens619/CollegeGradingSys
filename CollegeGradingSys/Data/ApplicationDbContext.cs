@@ -29,7 +29,8 @@ namespace CollegeGradingSys.Data
         public DbSet<StHighSchoolData> StHighSchoolData { get; set; }
         public DbSet<AcademicYear> AcademicYear { get; set; }
         public DbSet<StAcademicData> StAcademicData { get; set; }
-        public DbSet<StudentBatch> StudentBatch { get; set; }
+        public DbSet<Batch> Batch { get; set; }
+        public DbSet<StsBatchForTheYear> StsBatchForTheYear { get; set; }        
         public DbSet<Course> Course { get; set; }
         public DbSet<SubCourse> SubCourse { get; set; }
         public DbSet<CourseGrade> CourseGrade { get; set; }

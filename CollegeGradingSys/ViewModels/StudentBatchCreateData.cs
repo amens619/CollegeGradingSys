@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace CollegeGradingSys.ViewModels
 {
-    public class StudentBatchCreateData
+    public class BatchCreateData
     {
         public int Id { get; set; }
         [Required]
         [StringLength(30, MinimumLength = 2)]
         [Display(Name = "اسم الدفعة")]
-        public string StudentBatchName { get; set; }
+        public string BatchName { get; set; }
 
         [Display(Name = "العام الدراسي")]
         public int AcademicYearId { get; set; }

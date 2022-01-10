@@ -1,4 +1,4 @@
-﻿@model CollegeGradingSys.Models.StudentBatch
+﻿@model CollegeGradingSys.Models.Batch
 
 @{
     ViewData["Title"] = "Details";
@@ -7,14 +7,14 @@
 <h1>Details</h1>
 
 <div>
-    <h4>StudentBatch</h4>
+    <h4>Batch</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.StudentBatchName)
+            @Html.DisplayNameFor(model => model.BatchName)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.StudentBatchName)
+            @Html.DisplayFor(model => model.BatchName)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Note)
