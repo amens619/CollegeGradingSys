@@ -35,12 +35,12 @@ namespace CollegeGradingSys.Models.Repositories
 
         public Batch Find(int id)
         {
-            return db.Batch.SingleOrDefault(a => a.Id == id);
+            return db.Batch.Include(x => x.Specialization).SingleOrDefault(a => a.Id == id);
         }
 
         public IList<Batch> List()
         {
-            return db.Batch.ToList();
+            return db.Batch.Include(x => x.Specialization).ToList();
         }
 
         public Batch Update(int id, Batch newBatch)

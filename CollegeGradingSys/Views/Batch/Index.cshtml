@@ -7,17 +7,16 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">إضافة جديد</a>
 </p>
-
 <div class="card">
     <div class="card-body col-md-8">
         @using (Html.BeginForm("Index", "Batch", FormMethod.Get))
         {
             <p>
                 <div class="form-group">
-                    <label asp-for="AcademicYearId" class="control-label"></label>
-                    <select asp-for="AcademicYearId" class="form-control" asp-items="ViewBag.AcademicYearId"></select>
+                    <label asp-for="SpecializationId" class="control-label"></label>
+                    <select asp-for="SpecializationId" class="form-control" asp-items="ViewBag.SpecializationId"></select>
                 </div>
 
 
@@ -33,10 +32,10 @@
     <thead>
         <tr>
             <th>
-                العام الدراسي
+                اسم الدفعة
             </th>
             <th>
-                اسم الدفعة
+                التخصص
             </th>
             <th>
                 ملاحظات
@@ -47,11 +46,11 @@
     <tbody>
 @foreach (var item in Model.Batches) {
         <tr>
-            @*<td>
-                @Html.DisplayFor(modelItem => item.AcademicYear.AcademicYearName)
-            </td>*@
             <td>
                 @Html.DisplayFor(modelItem => item.BatchName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Specialization.SpecializationName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Note)

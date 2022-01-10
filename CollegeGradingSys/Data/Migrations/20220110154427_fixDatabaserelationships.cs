@@ -2,14 +2,10 @@
 
 namespace CollegeGradingSys.Data.Migrations
 {
-    public partial class AddStsBatchForTheYearAndfixDatabase : Migration
+    public partial class fixDatabaserelationships : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_StAcademicData_AcademicYear_AcademicYearId",
-                table: "StAcademicData");
-
             migrationBuilder.DropForeignKey(
                 name: "FK_StAcademicData_StudentBatch_StudentBatchId",
                 table: "StAcademicData");
@@ -17,23 +13,15 @@ namespace CollegeGradingSys.Data.Migrations
             migrationBuilder.DropTable(
                 name: "StudentBatch");
 
-            migrationBuilder.DropIndex(
-                name: "IX_StAcademicData_AcademicYearId",
-                table: "StAcademicData");
-
-            migrationBuilder.DropColumn(
-                name: "AcademicYearId",
-                table: "StAcademicData");
-
             migrationBuilder.RenameColumn(
                 name: "StudentBatchId",
                 table: "StAcademicData",
-                newName: "StsBatchForTheYearId");
+                newName: "BatchId");
 
             migrationBuilder.RenameIndex(
                 name: "IX_StAcademicData_StudentBatchId",
                 table: "StAcademicData",
-                newName: "IX_StAcademicData_StsBatchForTheYearId");
+                newName: "IX_StAcademicData_BatchId");
 
             migrationBuilder.CreateTable(
                 name: "Batch",
@@ -56,52 +44,16 @@ namespace CollegeGradingSys.Data.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "StsBatchForTheYear",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    BatchId = table.Column<int>(type: "int", nullable: true),
-                    AcademicYearId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_StsBatchForTheYear", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_StsBatchForTheYear_AcademicYear_AcademicYearId",
-                        column: x => x.AcademicYearId,
-                        principalTable: "AcademicYear",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_StsBatchForTheYear_Batch_BatchId",
-                        column: x => x.BatchId,
-                        principalTable: "Batch",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_Batch_SpecializationId",
                 table: "Batch",
                 column: "SpecializationId");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_StsBatchForTheYear_AcademicYearId",
-                table: "StsBatchForTheYear",
-                column: "AcademicYearId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_StsBatchForTheYear_BatchId",
-                table: "StsBatchForTheYear",
-                column: "BatchId");
-
             migrationBuilder.AddForeignKey(
-                name: "FK_StAcademicData_StsBatchForTheYear_StsBatchForTheYearId",
+                name: "FK_StAcademicData_Batch_BatchId",
                 table: "StAcademicData",
-                column: "StsBatchForTheYearId",
-                principalTable: "StsBatchForTheYear",
+                column: "BatchId",
+                principalTable: "Batch",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
         }
@@ -109,30 +61,21 @@ namespace CollegeGradingSys.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_StAcademicData_StsBatchForTheYear_StsBatchForTheYearId",
+                name: "FK_StAcademicData_Batch_BatchId",
                 table: "StAcademicData");
-
-            migrationBuilder.DropTable(
-                name: "StsBatchForTheYear");
 
             migrationBuilder.DropTable(
                 name: "Batch");
 
             migrationBuilder.RenameColumn(
-                name: "StsBatchForTheYearId",
+                name: "BatchId",
                 table: "StAcademicData",
                 newName: "StudentBatchId");
 
             migrationBuilder.RenameIndex(
-                name: "IX_StAcademicData_StsBatchForTheYearId",
+                name: "IX_StAcademicData_BatchId",
                 table: "StAcademicData",
                 newName: "IX_StAcademicData_StudentBatchId");
-
-            migrationBuilder.AddColumn<int>(
-                name: "AcademicYearId",
-                table: "StAcademicData",
-                type: "int",
-                nullable: true);
 
             migrationBuilder.CreateTable(
                 name: "StudentBatch",
@@ -163,11 +106,6 @@ namespace CollegeGradingSys.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_StAcademicData_AcademicYearId",
-                table: "StAcademicData",
-                column: "AcademicYearId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_StudentBatch_AcademicYearId",
                 table: "StudentBatch",
                 column: "AcademicYearId");
@@ -176,14 +114,6 @@ namespace CollegeGradingSys.Data.Migrations
                 name: "IX_StudentBatch_SpecializationId",
                 table: "StudentBatch",
                 column: "SpecializationId");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_StAcademicData_AcademicYear_AcademicYearId",
-                table: "StAcademicData",
-                column: "AcademicYearId",
-                principalTable: "AcademicYear",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_StAcademicData_StudentBatch_StudentBatchId",

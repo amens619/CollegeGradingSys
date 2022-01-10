@@ -15,14 +15,14 @@ namespace CollegeGradingSys.ViewModels
         [Display(Name = "اسم الدفعة")]
         public string BatchName { get; set; }
 
-        [Display(Name = "العام الدراسي")]
-        public int AcademicYearId { get; set; }
+        [Display(Name = "التخصص")]
+        public int SpecializationId { get; set; }
 
         [StringLength(60)]
         [Display(Name = "ملاحظة")]
         public string Note { get; set; }
 
-        public virtual AcademicYear AcademicYear { get; set; }
+        public virtual Specialization  Specialization { get; set; }
 
        
 

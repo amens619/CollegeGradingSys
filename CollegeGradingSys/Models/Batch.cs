@@ -20,7 +20,7 @@ namespace CollegeGradingSys.Models
         public string Note { get; set; }
 
         public virtual Specialization  Specialization { get; set; }
-        public virtual ICollection<StsBatchForTheYear>  StsBatchForTheYears  { get; set; }
+        public virtual ICollection<StAcademicData>   StAcademicDatas  { get; set; }
        
     }
 }

@@ -32,7 +32,7 @@ namespace CollegeGradingSys.Models
         [DisplayFormat(NullDisplayText = "لا توجد ملاحظات")]
         public string Note { get; set; }
 
-        public virtual ICollection<StsBatchForTheYear>  StsBatchForTheYears { get; set; }
+        public virtual ICollection<StAcademicData>  StAcademicDatas { get; set; }
 
     }
 }

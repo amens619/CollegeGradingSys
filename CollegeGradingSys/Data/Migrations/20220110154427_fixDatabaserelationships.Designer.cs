@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CollegeGradingSys.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220110101505_AddStsBatchForTheYearAndfixDatabase")]
-    partial class AddStsBatchForTheYearAndfixDatabase
+    [Migration("20220110154427_fixDatabaserelationships")]
+    partial class fixDatabaserelationships
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -299,8 +299,14 @@ namespace CollegeGradingSys.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int?>("AcademicYearId")
+                        .HasColumnType("int");
+
                     b.Property<float?>("Average")
                         .HasColumnType("real");
+
+                    b.Property<int?>("BatchId")
+                        .HasColumnType("int");
 
                     b.Property<float?>("GPA")
                         .HasColumnType("real");
@@ -317,9 +323,6 @@ namespace CollegeGradingSys.Data.Migrations
                     b.Property<int>("StStatus")
                         .HasColumnType("int");
 
-                    b.Property<int?>("StsBatchForTheYearId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("Term")
                         .HasColumnType("int");
 
@@ -328,9 +331,11 @@ namespace CollegeGradingSys.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("StPersonalDataAcademicID");
+                    b.HasIndex("AcademicYearId");
 
-                    b.HasIndex("StsBatchForTheYearId");
+                    b.HasIndex("BatchId");
+
+                    b.HasIndex("StPersonalDataAcademicID");
 
                     b.ToTable("StAcademicData");
                 });
@@ -420,28 +425,6 @@ namespace CollegeGradingSys.Data.Migrations
                     b.HasIndex("NationalityID");
 
                     b.ToTable("StPersonalData");
-                });
-
-            modelBuilder.Entity("CollegeGradingSys.Models.StsBatchForTheYear", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("AcademicYearId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("BatchId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AcademicYearId");
-
-                    b.HasIndex("BatchId");
-
-                    b.ToTable("StsBatchForTheYear");
                 });
 
             modelBuilder.Entity("CollegeGradingSys.Models.SubCourse", b =>
@@ -755,17 +738,23 @@ namespace CollegeGradingSys.Data.Migrations
 
             modelBuilder.Entity("CollegeGradingSys.Models.StAcademicData", b =>
                 {
+                    b.HasOne("CollegeGradingSys.Models.AcademicYear", "AcademicYear")
+                        .WithMany("StAcademicDatas")
+                        .HasForeignKey("AcademicYearId");
+
+                    b.HasOne("CollegeGradingSys.Models.Batch", "Batch")
+                        .WithMany("StAcademicDatas")
+                        .HasForeignKey("BatchId");
+
                     b.HasOne("CollegeGradingSys.Models.StPersonalData", "StPersonalData")
                         .WithMany("StAcademicDatas")
                         .HasForeignKey("StPersonalDataAcademicID");
 
-                    b.HasOne("CollegeGradingSys.Models.StsBatchForTheYear", "StsBatchForTheYear")
-                        .WithMany("StAcademicDatas")
-                        .HasForeignKey("StsBatchForTheYearId");
+                    b.Navigation("AcademicYear");
+
+                    b.Navigation("Batch");
 
                     b.Navigation("StPersonalData");
-
-                    b.Navigation("StsBatchForTheYear");
                 });
 
             modelBuilder.Entity("CollegeGradingSys.Models.StHighSchoolData", b =>
@@ -802,21 +791,6 @@ namespace CollegeGradingSys.Data.Migrations
                     b.Navigation("BirthGovernorate");
 
                     b.Navigation("Nationality");
-                });
-
-            modelBuilder.Entity("CollegeGradingSys.Models.StsBatchForTheYear", b =>
-                {
-                    b.HasOne("CollegeGradingSys.Models.AcademicYear", "AcademicYear")
-                        .WithMany("StsBatchForTheYears")
-                        .HasForeignKey("AcademicYearId");
-
-                    b.HasOne("CollegeGradingSys.Models.Batch", "Batch")
-                        .WithMany("StudentsBatchForTheYears")
-                        .HasForeignKey("BatchId");
-
-                    b.Navigation("AcademicYear");
-
-                    b.Navigation("Batch");
                 });
 
             modelBuilder.Entity("CollegeGradingSys.Models.SubCourse", b =>
@@ -881,12 +855,12 @@ namespace CollegeGradingSys.Data.Migrations
 
             modelBuilder.Entity("CollegeGradingSys.Models.AcademicYear", b =>
                 {
-                    b.Navigation("StsBatchForTheYears");
+                    b.Navigation("StAcademicDatas");
                 });
 
             modelBuilder.Entity("CollegeGradingSys.Models.Batch", b =>
                 {
-                    b.Navigation("StudentsBatchForTheYears");
+                    b.Navigation("StAcademicDatas");
                 });
 
             modelBuilder.Entity("CollegeGradingSys.Models.College", b =>
@@ -937,11 +911,6 @@ namespace CollegeGradingSys.Data.Migrations
                     b.Navigation("StAcademicDatas");
 
                     b.Navigation("StHighSchoolData");
-                });
-
-            modelBuilder.Entity("CollegeGradingSys.Models.StsBatchForTheYear", b =>
-                {
-                    b.Navigation("StAcademicDatas");
                 });
 #pragma warning restore 612, 618
         }

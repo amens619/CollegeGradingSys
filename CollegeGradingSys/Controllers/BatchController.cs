@@ -16,32 +16,32 @@ namespace CollegeGradingSys.Controllers
     {
        
         private readonly ICollegeGradingSysRepository<Batch> _studentBatchRepository;
-        private readonly ICollegeGradingSysRepository<AcademicYear> _academicYearRepository;
+        private readonly ICollegeGradingSysRepository<Specialization> _specializationRepository;
 
-        public BatchController(ICollegeGradingSysRepository<Batch> studentBatchRepository, ICollegeGradingSysRepository<AcademicYear> AcademicYearRepository)
+        public BatchController(ICollegeGradingSysRepository<Batch> studentBatchRepository, ICollegeGradingSysRepository<Specialization> specializationRepository)
         {
             _studentBatchRepository = studentBatchRepository;
-            _academicYearRepository = AcademicYearRepository;
+            _specializationRepository = specializationRepository;
         }
 
         // GET: Batche
-        public async Task<IActionResult> Index(int? id , int? AcademicYearId)
+        public async Task<IActionResult> Index(int? id , int? SpecializationId)
         {
-            if (id != null)
-            {
-                AcademicYearId = id;
-            }
+            //if (id != null)
+            //{
+            //    AcademicYearId = id;
+            //}
             var viewModel = new BatchIndexData();
-            IList<Batch> studentBatches = _studentBatchRepository.List();              
-            
-            if (AcademicYearId is not null and not (-1))
+            IList<Batch> Batches = _studentBatchRepository.List().OrderBy(x => x.BatchName).ToList();
+
+            if (SpecializationId is not null and not (-1))
             {
-                viewModel.AcademicYearId = AcademicYearId;
-                //studentBatches = studentBatches.Where(a => a.AcademicYear.Id == AcademicYearId).ToList();
-               
+                viewModel.SpecializationId = SpecializationId;
+                Batches = Batches.Where(a => a.Specialization.Id == SpecializationId).ToList();
+
             }
-            viewModel.Batches = studentBatches;
-            ViewData["AcademicYearId"] = new SelectList(FillSelectAcademicYearsList("-- الكل --"), "Id", "AcademicYearName", AcademicYearId ?? -1 );
+            viewModel.Batches = Batches;
+            ViewData["SpecializationId"] = new SelectList(FillSelectSpecializationsList("-- الكل --"), "Id", "SpecializationName", SpecializationId ?? -1);
             return View(viewModel);
         }
 
@@ -65,8 +65,8 @@ namespace CollegeGradingSys.Controllers
         // GET: Batche/Create
         public IActionResult Create()
         {
-            
-            ViewData["AcademicYearId"] = new SelectList(FillSelectAcademicYearsList("-- اختر --"), "Id", "AcademicYearName");
+
+            ViewData["SpecializationId"] = new SelectList(FillSelectSpecializationsList("-- اختر --"), "Id", "SpecializationName");
             return View();
         }
 
@@ -75,28 +75,28 @@ namespace CollegeGradingSys.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,BatchName,AcademicYearId,Note")] BatchCreateData studentBatchVM)
+        public  IActionResult Create([Bind("Id,BatchName,SpecializationId,Note")] BatchCreateData  batchCreateData)
         {
             if (ModelState.IsValid)
             {
-                if (studentBatchVM.AcademicYearId == -1)
+                if (batchCreateData.SpecializationId == -1)
                 {
                     ViewBag.Message = "الرجاء اختيار  العام الدراسي من القائمة";
-                    ViewData["AcademicYearId"] = new SelectList(FillSelectAcademicYearsList("-- اختر --"), "Id", "AcademicYearName");
-                    return View(studentBatchVM);
+                    ViewData["SpecializationId"] = new SelectList(FillSelectSpecializationsList("-- اختر --"), "Id", "SpecializationName");
+                    return View(batchCreateData);
                 }
-                var academicYear = _academicYearRepository.Find(studentBatchVM.AcademicYearId);
-                Batch studentBatch = new Batch
+                var specialization = _specializationRepository.Find(batchCreateData.SpecializationId);
+                Batch batch = new Batch
                 {
-                    Id = studentBatchVM.Id,
-                     BatchName = studentBatchVM.BatchName,
-                      Note= studentBatchVM.Note,
-                    //AcademicYear = academicYear
+                    Id = batchCreateData.Id,
+                    BatchName = batchCreateData.BatchName,
+                    Note = batchCreateData.Note,
+                    Specialization = specialization
                 };
-                _studentBatchRepository.Add(studentBatch);
+                _studentBatchRepository.Add(batch);
                 return RedirectToAction(nameof(Index));
             }
-            return View(studentBatchVM);
+            return View(batchCreateData);
         }
 
         // GET: Batche/Edit/5
@@ -141,7 +141,7 @@ namespace CollegeGradingSys.Controllers
             {
                 try
                 {
-                    var academicYear = _academicYearRepository.Find(studentBatchVM.AcademicYearId);
+                    var academicYear = _specializationRepository.Find(studentBatchVM.SpecializationId);
                     Batch studentBatch = new()
                     {
                         Id = studentBatchVM.Id,
@@ -206,12 +206,12 @@ namespace CollegeGradingSys.Controllers
         //    return _context.Batch.Any(e => e.Id == id);
         //}
 
-        List<AcademicYear> FillSelectAcademicYearsList(string academicYearName)
+        List<Specialization> FillSelectSpecializationsList(string specializationName)
         {
-            var academicYears = _academicYearRepository.List().ToList();
-            academicYears.Insert(0, new AcademicYear { Id = -1, AcademicYearName = academicYearName });
+            var specializations = _specializationRepository.List().ToList();
+            specializations.Insert(0, new Specialization { Id = -1,  SpecializationName  = specializationName });
 
-            return academicYears;
+            return specializations;
         }
 
        

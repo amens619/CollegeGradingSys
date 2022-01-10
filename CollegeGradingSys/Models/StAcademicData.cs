@@ -35,8 +35,9 @@ namespace CollegeGradingSys.Models
         [Display(Name = "الفصل الحالي")]
         public bool IsCurrentYear { get; set; }
 
-        public virtual StsBatchForTheYear  StsBatchForTheYear { get; set; }        
-       
+        public virtual AcademicYear   AcademicYear { get; set; }
+        public virtual Batch  Batch { get; set; }
+
         public virtual StPersonalData StPersonalData { get; set; }
     }
 }
