@@ -36,12 +36,18 @@ namespace CollegeGradingSys.Models.Repositories
 
         public StPersonalData Find(int id)
         {
-            return db.StPersonalData.Include(x => x.StHighSchoolData).SingleOrDefault(a => a.AcademicID == id);
+            return db.StPersonalData.Include(x => x.StHighSchoolData)
+                .Include(x => x.StAcademicDatas)
+                .ThenInclude(x => x.Batch)
+                .SingleOrDefault(a => a.AcademicID == id);
         }
 
         public IList<StPersonalData> List()
         {
-            return db.StPersonalData.Include(x => x.StHighSchoolData).ToList();
+            return db.StPersonalData.Include(x => x.StHighSchoolData)
+                .Include(x => x.StAcademicDatas)
+                .ThenInclude(x => x.Batch)
+                .ToList();
         }
 
         public StPersonalData Update(int id, StPersonalData newStPersonalData)

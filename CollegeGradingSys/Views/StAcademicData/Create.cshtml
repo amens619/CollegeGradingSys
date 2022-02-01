@@ -94,19 +94,7 @@
             $("#Valuationlist").attr("disabled", "disabled");
             $("#AverageInput").attr("disabled", "disabled");
             $("#GPAInput").attr("disabled", "disabled");
-        }
-        $("#AcademicYearList").on("change", function () {
-            var url = '@Url.Content("~/")' + "StAcademicData/GetBatchs";
-            var ddlsource = "#AcademicYearList";
-            $.getJSON(url, { id: $(ddlsource).val() }, function (data) {
-                var items = '';
-                $("#BatchList").empty();
-                $.each(data, function (i, row) {
-                    items += "<option value='" + row.value + "'>" + row.text + "</option>";
-                });
-                $("#BatchList").html(items);
-            })
-        })
+        }      
         $("#StStatusList").on("change", function () {
             if ($(StStatusList).val() == 0) {             
                 $("#Valuationlist").removeAttr("disabled");

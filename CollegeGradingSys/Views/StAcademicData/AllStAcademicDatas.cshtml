@@ -32,12 +32,12 @@
     <table class="table  table-bordered">
         <thead class="table-light">
             <tr>
-                @*<th>
+                <th>
                     العام الدراسي
                 </th>
                 <th>
                     الدفعة
-                </th>*@
+                </th>
                 <th>
                     المستوى
                 </th>
@@ -63,12 +63,12 @@
             @foreach (var item in Model.StAcademicDatas)
             {
             <tr>
-                @*<td>
+                <td>
                     @Html.DisplayFor(modelItem => item.AcademicYear.AcademicYearName)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Batch.BatchName)
-                </td>*@
+                </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.StLevel)
                 </td>

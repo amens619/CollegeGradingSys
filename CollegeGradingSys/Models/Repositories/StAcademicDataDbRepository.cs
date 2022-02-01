@@ -37,18 +37,19 @@ namespace CollegeGradingSys.Models.Repositories
         public StAcademicData Find(int id)
         {
             return db.StAcademicData
-                 //.Include(x => x.Batch)
-                //.Include(x => x.AcademicYear)
-                .Include(x => x.StPersonalData)
+                 .Include(x => x.Batch)
+                .Include(x => x.AcademicYear)
+                .ThenInclude(x => x.AcademicYearStart)
+                .Include(x => x.StPersonalData)                
                 .SingleOrDefault(a => a.Id == id);
         }
 
         public IList<StAcademicData> List()
         {
             return db.StAcademicData
-                //.Include(x => x.Batch)                
-                //.Include(x => x.AcademicYear)
-                .Include(x => x.StPersonalData)
+                .Include(x => x.Batch)
+                .Include(x => x.AcademicYear)                    
+                .Include(x => x.StPersonalData)                
                 .ToList();
         }
 

@@ -149,50 +149,55 @@ namespace CollegeGradingSys.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(StPersonalDataViewModel model)
         {
-            try
+            if (ModelState.IsValid)
             {
-
-                if (model.GovernorateId == -1)
+                try
                 {
-                    ViewBag.Message = "الرجاء اختيار المحافظة من القائمة";
 
-                    return View(GetAllStPersonalDatas());
+                    if (model.GovernorateId == -1)
+                    {
+                        ViewBag.Message = "الرجاء اختيار المحافظة من القائمة";
+
+                        return View(GetAllStPersonalDatas(model));
+                    }
+                    if (model.NationalityId == -1)
+                    {
+                        ViewBag.Message = "الرجاء اختيار الدولة من القائمة";
+
+                        return View(GetAllStPersonalDatas(model));
+                    }
+                    if (model.BirthPlaceId == -1)
+                    {
+                        ViewBag.Message = "الرجاء اختيار الدولة من القائمة";
+
+                        return View(GetAllStPersonalDatas(model));
+                    }
+                    var governorate = GovernorateRepository.Find(model.GovernorateId);
+                    var nationality = NationalityRepository.Find(model.NationalityId);
+                    var birthPlace = NationalityRepository.Find(model.BirthPlaceId);
+                    StPersonalData stPersonalData = new()
+                    {
+                        AcademicID = model.AcademicID,
+                        StName = model.StName,
+                        IdentificatioNO = model.IdentificatioNO,
+                        Sex = model.Sex,
+                        BirthDate = model.BirthDate,
+                        Birthcountry = birthPlace,
+                        EnrollmentYearH = model.EnrollmentYearH,
+                        EnrollmentYearM = model.EnrollmentYearM,
+                        Nationality = nationality,
+                        BirthGovernorate = governorate,
+                    };
+                    StPersonalDataRepository.Add(stPersonalData);
+                    return RedirectToAction(nameof(Index));
                 }
-                if (model.NationalityId == -1)
+                catch
                 {
-                    ViewBag.Message = "الرجاء اختيار الدولة من القائمة";
-
-                    return View(GetAllStPersonalDatas());
+                    return View();
                 }
-                if (model.BirthPlaceId == -1)
-                {
-                    ViewBag.Message = "الرجاء اختيار الدولة من القائمة";
-
-                    return View(GetAllStPersonalDatas());
-                }
-                var governorate = GovernorateRepository.Find(model.GovernorateId);
-                var nationality = NationalityRepository.Find(model.NationalityId);
-                var birthPlace = NationalityRepository.Find(model.BirthPlaceId);
-                StPersonalData stPersonalData = new()
-                {
-                    AcademicID = model.AcademicID,
-                    StName = model.StName,
-                    IdentificatioNO =model.IdentificatioNO,
-                    Sex =model.Sex,
-                    BirthDate = model.BirthDate,
-                    Birthcountry = birthPlace,
-                    EnrollmentYearH= model.EnrollmentYearH,
-                    EnrollmentYearM=model.EnrollmentYearM,                         
-                    Nationality= nationality,
-                    BirthGovernorate = governorate,
-                };
-                StPersonalDataRepository.Add(stPersonalData);
-                return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+            return View(GetAllStPersonalDatas(model));
+           
         }
 
         // GET: StPersonalDataController/Edit/5
@@ -300,14 +305,11 @@ namespace CollegeGradingSys.Controllers
 
             return Nationalities;
         }
-        StPersonalDataViewModel GetAllStPersonalDatas()
+        StPersonalDataViewModel GetAllStPersonalDatas(StPersonalDataViewModel  Model)
         {
-            var vmodel = new StPersonalDataViewModel
-            {
-                Governorates = FillSelectGovernoratesList(),
-                Nationalities = FillSelectNationalitiesList()
-            };
-            return vmodel;
+            Model.Governorates = FillSelectGovernoratesList();
+            Model.Nationalities = FillSelectNationalitiesList();            
+            return Model;
         }
         public JsonResult GetGovernorate(int Id)
         {
