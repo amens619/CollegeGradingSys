@@ -32,7 +32,7 @@ namespace CollegeGradingSys.Data
         public DbSet<Batch> Batch { get; set; }
         
         public DbSet<Course> Course { get; set; }
-        public DbSet<SubCourse> SubCourse { get; set; }
+        //public DbSet<SubCourse> SubCourse { get; set; }
         public DbSet<CourseGrade> CourseGrade { get; set; }
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{

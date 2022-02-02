@@ -20,12 +20,13 @@ namespace CollegeGradingSys.Models
         [Display(Name = "ملاحظة")]
         public string Note { get; set; }
 
+        public int? ParentId { get; set; }
         public bool IsTwoCourse { get; set; }
 
         
         public virtual Specialization Specialization { get; set; }
 
-        public virtual ICollection<SubCourse> SubCourses { get; set; }
+        //public virtual ICollection<SubCourse> SubCourses { get; set; }
         public virtual ICollection<CourseGrade> CourseGrades  { get; set; }
 
 

@@ -239,23 +239,23 @@ namespace CollegeGradingSys.Data
             }
             context.SaveChanges();
 
-            var SubCourses = new SubCourse[]
-            {
-             new SubCourse{  SubCourseName="الحلية" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName == "تزكية (101)")},
-             new SubCourse{  SubCourseName="المستخلص" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName == "تزكية (101)")},
-             new SubCourse{  SubCourseName="الحلية" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName == "تزكية (102)")},
-             new SubCourse{  SubCourseName="المستخلص" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName == "تزكية (102)")},
-            new SubCourse{  SubCourseName="التذكرة" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName == "التزكية (201)")},
-             new SubCourse{  SubCourseName="المستخلص" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName =="التزكية (201)")},
-             new SubCourse{  SubCourseName="التذكرة" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName == "تزكية (202)")},
-             new SubCourse{  SubCourseName="المستخلص" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName =="تزكية (202)")},
+            //var SubCourses = new SubCourse[]
+            //{
+            // new SubCourse{  SubCourseName="الحلية" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName == "تزكية (101)")},
+            // new SubCourse{  SubCourseName="المستخلص" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName == "تزكية (101)")},
+            // new SubCourse{  SubCourseName="الحلية" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName == "تزكية (102)")},
+            // new SubCourse{  SubCourseName="المستخلص" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName == "تزكية (102)")},
+            //new SubCourse{  SubCourseName="التذكرة" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName == "التزكية (201)")},
+            // new SubCourse{  SubCourseName="المستخلص" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName =="التزكية (201)")},
+            // new SubCourse{  SubCourseName="التذكرة" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName == "تزكية (202)")},
+            // new SubCourse{  SubCourseName="المستخلص" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName =="تزكية (202)")},
 
-            };
-            foreach (SubCourse subCourse in SubCourses)
-            {
-                context.SubCourse.Add(subCourse);
-            }
-            context.SaveChanges();
+            //};
+            //foreach (SubCourse subCourse in SubCourses)
+            //{
+            //    context.SubCourse.Add(subCourse);
+            //}
+            //context.SaveChanges();
 
             //    var enrollments = new Enrollment[]
             //    {

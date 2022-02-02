@@ -15,8 +15,8 @@ namespace CollegeGradingSys.Models
 
         [Display(Name = "العلامة")]
         [DisplayFormat(NullDisplayText = "لم يتم ادخال العلامة")]
-        public int? Grade { get; set; }
-
+        public float? Grade { get; set; }
+       
         [Display(Name = "حالة الطالب للمادة")]
         public  StStatusForCourse StStatusForCourse { get; set; }
 
