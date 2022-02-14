@@ -4,14 +4,16 @@ using CollegeGradingSys.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CollegeGradingSys.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220205195725_modifyCourseEntityInDatabase")]
+    partial class modifyCourseEntityInDatabase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -149,8 +151,6 @@ namespace CollegeGradingSys.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ParentId");
 
                     b.HasIndex("SpecializationId");
 
@@ -653,15 +653,9 @@ namespace CollegeGradingSys.Data.Migrations
 
             modelBuilder.Entity("CollegeGradingSys.Models.Course", b =>
                 {
-                    b.HasOne("CollegeGradingSys.Models.Course", "Parent")
-                        .WithMany()
-                        .HasForeignKey("ParentId");
-
                     b.HasOne("CollegeGradingSys.Models.Specialization", "Specialization")
                         .WithMany("Courses")
                         .HasForeignKey("SpecializationId");
-
-                    b.Navigation("Parent");
 
                     b.Navigation("Specialization");
                 });

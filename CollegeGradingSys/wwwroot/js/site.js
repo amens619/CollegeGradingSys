@@ -1,17 +1,16 @@
 ﻿$(function () {
-    var placeholderElement = $('#modal-placeholder');
-
+    var placeholderElement = $('#modal-placeholder');    
     $('button[data-toggle="ajax-modal"]').click(function (event) {
-        var url = $(this).data('url');
+        var url = $(this).data('url');        
         $.get(url).done(function (data) {
             placeholderElement.html(data);
-            placeholderElement.find('.modal').modal('show');
+            placeholderElement.find('.modal').modal('show');           
+            $("#CreateCourseParentId").attr("disabled", "disabled");           
         });
     });
 
     placeholderElement.on('click', '[data-save="modal"]', function (event) {
-        event.preventDefault();
-
+        event.preventDefault();       
         var form = $(this).parents('.modal').find('form');
         var actionUrl = form.attr('action');
         var dataToSend = form.serialize();
@@ -26,4 +25,17 @@
             }
         });
     });
+    placeholderElement.on('change', '#CreateCourseIsSubCourse', function () {       
+       
+        if ($("#CreateCourseIsSubCourse").val() == 'False') {            
+            $("#CreateCourseParentId").prop('selectedIndex', 0);
+            $("#CreateCourseParentId").attr("disabled", "disabled");            
+        }
+        else {
+            $("#CreateCourseParentId").removeAttr("disabled");                     
+        }
+    });
+    
+        
+    
 });

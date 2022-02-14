@@ -1,0 +1,39 @@
+﻿@model CollegeGradingSys.Models.Course
+<!-- Modal -->
+<div class="modal fade " id="add-contact" tabindex="-1" role="dialog" aria-labelledby="addContactLabel" aria-hidden="true">
+    <form asp-action="Delete">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="addContactLabel">حذف المادة </h5>
+                </div>
+
+                
+                <div class="modal-body row">
+                    <input name="IsValid" type="hidden" value="True" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    <h6>هل تريد بالفعل حذف المادة ؟</h6>
+                    <hr />
+
+                    <div class="form-group col-md-12">
+                        <label asp-for="CourseName" class="control-label"></label>
+                        <input asp-for="CourseName" readonly class="form-control" />
+
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء الأمر</button>
+                    <button type="button" data-save="modal"  class="btn btn-danger">حذف</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

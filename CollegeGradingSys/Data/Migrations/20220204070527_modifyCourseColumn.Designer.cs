@@ -4,14 +4,16 @@ using CollegeGradingSys.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CollegeGradingSys.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220204070527_modifyCourseColumn")]
+    partial class modifyCourseColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -122,9 +124,7 @@ namespace CollegeGradingSys.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("CourseName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsSubCourse")
                         .HasColumnType("bit");
@@ -133,8 +133,7 @@ namespace CollegeGradingSys.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Note")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("ParentId")
                         .HasColumnType("int");
@@ -149,8 +148,6 @@ namespace CollegeGradingSys.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ParentId");
 
                     b.HasIndex("SpecializationId");
 
@@ -653,15 +650,9 @@ namespace CollegeGradingSys.Data.Migrations
 
             modelBuilder.Entity("CollegeGradingSys.Models.Course", b =>
                 {
-                    b.HasOne("CollegeGradingSys.Models.Course", "Parent")
-                        .WithMany()
-                        .HasForeignKey("ParentId");
-
                     b.HasOne("CollegeGradingSys.Models.Specialization", "Specialization")
                         .WithMany("Courses")
                         .HasForeignKey("SpecializationId");
-
-                    b.Navigation("Parent");
 
                     b.Navigation("Specialization");
                 });

@@ -86,7 +86,7 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
 <script>
-    $(document).ready(function () {
+    $(document).ready(function () {       
         if ($(StStatusList).val() != 0) {        
             $("#Valuationlist").val(0);
             $("#AverageInput").val("");

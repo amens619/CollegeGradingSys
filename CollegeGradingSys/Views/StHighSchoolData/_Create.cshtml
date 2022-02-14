@@ -70,4 +70,35 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+<script>
+    $(document).ready(function () {
+        alert("I am an alert box!");
+        if ($(StStatusList).val() != 0) {
+            $("#Valuationlist").val(0);
+            $("#AverageInput").val("");
+            $("#GPAInput").val("");
+            $("#Valuationlist").attr("disabled", "disabled");
+            $("#AverageInput").attr("disabled", "disabled");
+            $("#GPAInput").attr("disabled", "disabled");
+        }
+        $("#StStatusList").on("change", function () {
+            if ($(StStatusList).val() == 0) {
+                $("#Valuationlist").removeAttr("disabled");
+                $("#AverageInput").removeAttr("disabled");
+                $("#GPAInput").removeAttr("disabled");
+            }
+            else {
+                $("#Valuationlist").val(0);
+                $("#AverageInput").val("");
+                $("#GPAInput").val("");
+                $("#Valuationlist").attr("disabled", "disabled");
+                $("#AverageInput").attr("disabled", "disabled");
+                $("#GPAInput").attr("disabled", "disabled");
+            }
+
+
+        })
+
+    })
+</script>
 }

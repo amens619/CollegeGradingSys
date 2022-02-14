@@ -54,5 +54,10 @@ namespace CollegeGradingSys.Data
                         .HasForeignKey(m => m.BirthcountryID)
                         .OnDelete(DeleteBehavior.Restrict);
         }
+        //protected override void OnModelCreating(ModelBuilder modelBuilder)
+        //{
+        //    base.OnModelCreating(modelBuilder);
+        //}
+       
     }
 }
