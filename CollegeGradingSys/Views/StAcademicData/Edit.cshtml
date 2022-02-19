@@ -1,55 +1,78 @@
-﻿@model CollegeGradingSys.Models.StAcademicData
+﻿@model CollegeGradingSys.ViewModels.CreateStAcademicDataDataViewModel
 
 @{
     ViewData["Title"] = "Edit";
 }
 
-<h1>Edit</h1>
-
-<h4>StAcademicData</h4>
+<h4>تعديل فصل دراسي </h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
+    <div class="col-md-8">
+        <form asp-action="Edit" class="row g-3">
+            @if (ViewBag.Message != null)
+            {
+                <h5 class="alert alert-danger">@ViewBag.Message</h5>
+            }
+            <input asp-for="AcademicID" hidden class="form-control" />
+            <input asp-for="Id" hidden class="form-control" />
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
+            <div class="form-group col-md-6">
+                <label asp-for="AcademicYearId" class="control-label"></label>
+                <select id="AcademicYearList" asp-for="AcademicYearId" class="form-control text-center"
+                        asp-items="ViewBag.AcademicYearId"></select>
+
+            </div>
+            <div class="form-group col-md-6">
+                <label asp-for="BatchId" class="control-label"></label>
+                <select id="BatchList" asp-for="BatchId" class="form-control text-center"
+                        asp-items="ViewBag.BatchId"></select>
+            </div>
+            <div class="form-group col-md-3">
                 <label asp-for="StLevel" class="control-label"></label>
-                <select asp-for="StLevel" class="form-control"></select>
+                <select asp-for="StLevel" class="form-control text-center"
+                        asp-items="Html.GetEnumSelectList<Level>()"></select>
                 <span asp-validation-for="StLevel" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group col-md-3">
                 <label asp-for="Term" class="control-label"></label>
-                <input asp-for="Term" class="form-control" />
+                <select asp-for="Term" class="form-control text-center"
+                        asp-items="Html.GetEnumSelectList<Term>()"></select>
                 <span asp-validation-for="Term" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group col-md-4">
                 <label asp-for="StStatus" class="control-label"></label>
-                <select asp-for="StStatus" class="form-control"></select>
+                <select id="StStatusList" asp-for="StStatus" class="form-control text-center"
+                        asp-items="Html.GetEnumSelectList<StStatus>()"></select>
                 <span asp-validation-for="StStatus" class="text-danger"></span>
             </div>
-            <div class="form-group">
+
+            <div class="form-group col-md-3">
                 <label asp-for="Average" class="control-label"></label>
-                <input asp-for="Average" class="form-control" />
+                <input id="AverageInput" asp-for="Average" class="form-control" />
                 <span asp-validation-for="Average" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="GPA" class="control-label"></label>
-                <input asp-for="GPA" class="form-control" />
-                <span asp-validation-for="GPA" class="text-danger"></span>
-            </div>
-            <div class="form-group">
+            <div class="form-group col-md-4">
                 <label asp-for="Valuation" class="control-label"></label>
-                <select asp-for="Valuation" class="form-control"></select>
+                <select id="Valuationlist" asp-for="Valuation" class="form-control text-center"
+                        asp-items="Html.GetEnumSelectList<Valuation>()"></select>
                 <span asp-validation-for="Valuation" class="text-danger"></span>
             </div>
+            <div class="form-group col-md-3">
+                <label asp-for="GPA" class="control-label"></label>
+                <input id="GPAInput" asp-for="GPA" class="form-control" />
+                <span asp-validation-for="GPA" class="text-danger"></span>
+            </div>
+
+
+            <hr class="my-4">
             <div class="form-group form-check">
                 <label class="form-check-label">
                     <input class="form-check-input" asp-for="IsCurrentYear" /> @Html.DisplayNameFor(model => model.IsCurrentYear)
                 </label>
             </div>
+            <hr class="my-4">
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>
     </div>
@@ -61,4 +84,35 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+<script>
+    $(document).ready(function () {       
+        if ($(StStatusList).val() != 0) {        
+            $("#Valuationlist").val(0);
+            $("#AverageInput").val("");
+            $("#GPAInput").val("");
+            $("#Valuationlist").attr("disabled", "disabled");
+            $("#AverageInput").attr("disabled", "disabled");
+            $("#GPAInput").attr("disabled", "disabled");
+        }      
+        $("#StStatusList").on("change", function () {
+            if ($(StStatusList).val() == 0) {             
+                $("#Valuationlist").removeAttr("disabled");
+                $("#AverageInput").removeAttr("disabled");
+                $("#GPAInput").removeAttr("disabled");
+            }
+            else {
+                $("#Valuationlist").val(0);
+                $("#AverageInput").val("");
+                $("#GPAInput").val("");
+                $("#Valuationlist").attr("disabled", "disabled");
+                $("#AverageInput").attr("disabled", "disabled");
+                $("#GPAInput").attr("disabled", "disabled");
+            }
+           
+            
+        })
+       
+    })
+</script>
 }

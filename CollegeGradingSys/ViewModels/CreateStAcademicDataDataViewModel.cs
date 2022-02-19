@@ -37,8 +37,8 @@ namespace CollegeGradingSys.ViewModels
         public int BatchId { get; set; }
         [Display(Name = "العام الدراسي")]
         public int AcademicYearId { get; set; }
-        public ICollection<Batch>  Batches { get; set; }
-        public ICollection<AcademicYear>  AcademicYears { get; set; }
+        //public ICollection<Batch>  Batches { get; set; }
+        //public ICollection<AcademicYear>  AcademicYears { get; set; }
 
     }
 }

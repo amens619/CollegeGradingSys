@@ -204,10 +204,11 @@
                             <td>
                             </td>
                         }
-                        <td>
-                            <a asp-action="AllStAcademicDatas" asp-controller="StAcademicData" class="btn btn-secondary btn-sm" asp-route-id="@Model.StPersonalDataVMs[i].AcademicID">السجل كامل</a>
+                    <td>
+                        <a asp-action="AllStCourseGrade" asp-controller="CourseGrade" class="btn btn-secondary btn-sm" asp-route-id="@Model.StPersonalDataVMs[i].StAcademicData.Id">الدرجات</a>
+                        <a asp-action="AllStAcademicDatas" asp-controller="StAcademicData" class="btn btn-secondary btn-sm" asp-route-id="@Model.StPersonalDataVMs[i].AcademicID">السجل كامل</a>
 
-                        </td>
+                    </td>
                     </tr>
                 }
             </tbody>

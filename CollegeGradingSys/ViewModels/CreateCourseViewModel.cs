@@ -1,4 +1,5 @@
-﻿using CollegeGradingSys.Models;
+﻿
+using CollegeGradingSys.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

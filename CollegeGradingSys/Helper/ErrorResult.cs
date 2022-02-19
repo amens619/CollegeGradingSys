@@ -5,12 +5,9 @@ using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Models
 {
-    public enum StStatusForCourse
+    public class ErrorResult
     {
-        غائب,
-        محروم,
-        ناجح,
-        راسب,
-        غير_محدد
+        public bool IshasError { get; set; }
+        public string ErrorMsg { get; set; }
     }
 }

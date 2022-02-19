@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using cloudscribe.Pagination.Models;
 
+
 namespace CollegeGradingSys.Controllers
 {
     public class StPersonalDataController : Controller

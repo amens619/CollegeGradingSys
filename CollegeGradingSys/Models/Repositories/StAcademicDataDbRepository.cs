@@ -38,9 +38,9 @@ namespace CollegeGradingSys.Models.Repositories
         {
             return db.StAcademicData
                  .Include(x => x.Batch)
-                .Include(x => x.AcademicYear)
-                .ThenInclude(x => x.AcademicYearStart)
-                .Include(x => x.StPersonalData)                
+                .Include(x => x.AcademicYear)                
+                .Include(x => x.StPersonalData) 
+                .AsNoTracking()
                 .SingleOrDefault(a => a.Id == id);
         }
 
@@ -49,12 +49,24 @@ namespace CollegeGradingSys.Models.Repositories
             return db.StAcademicData
                 .Include(x => x.Batch)
                 .Include(x => x.AcademicYear)                    
-                .Include(x => x.StPersonalData)                
+                .Include(x => x.StPersonalData)
+                .AsNoTracking()
                 .ToList();
         }
 
         public StAcademicData Update(int id, StAcademicData newStAcademicData)
-        {            
+        {
+            var local = db.Set<StAcademicData>()
+                .Local
+                .FirstOrDefault(entry => entry.Id.Equals(id));
+
+            // check if local is not null 
+            if (local != null)
+            {
+                // detach
+                db.Entry(local).State = EntityState.Detached;
+            }
+                     
             var college = db.StAcademicData.Attach(newStAcademicData);
             college.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
             SaveChange();
@@ -65,6 +77,20 @@ namespace CollegeGradingSys.Models.Repositories
         {
             db.SaveChanges();
         }
+
+
+    //    public static void DetachLocal<T>(this DbContext context, T t, string entryId)
+    //where T : class, IIdentifier
+    //    {
+    //        var local = context.Set<T>()
+    //            .Local
+    //            .FirstOrDefault(entry => entry.Id.Equals(entryId));
+    //        if (!local.IsNull())
+    //        {
+    //            context.Entry(local).State = EntityState.Detached;
+    //        }
+    //        context.Entry(t).State = EntityState.Modified;
+    //    }
     }
 }
 

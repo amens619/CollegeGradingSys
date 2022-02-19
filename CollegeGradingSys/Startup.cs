@@ -65,6 +65,7 @@ namespace CollegeGradingSys
             services.AddTransient<ICollegeGradingSysRepository<StPersonalData>, StPersonalDataDbRepository>();
             services.AddTransient<ICollegeGradingSysRepository<AcademicYear>, AcademicYearDbRepository>();
             services.AddTransient<ICollegeGradingSysRepository<Course>, CourseDbRepository>();
+            services.AddTransient<ICollegeGradingSysRepository<CourseGrade>, CourseGradeDbRepository>();
             services.AddTransient<ICollegeGradingSysRepository<Batch>, BatchDbRepository>();
             services.AddTransient<ICollegeGradingSysRepository<StHighSchoolData>, StHighSchoolDataDbRepository>();
             services.AddTransient<ICollegeGradingSysRepository<StAcademicData>, StAcademicDataDbRepository>();
