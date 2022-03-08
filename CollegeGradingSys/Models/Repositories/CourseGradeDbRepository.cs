@@ -38,12 +38,28 @@ namespace CollegeGradingSys.Models.Repositories
 
         public CourseGrade Find(int id)
         {
-            return db.CourseGrade.SingleOrDefault(a => a.Id == id);
+            return db.CourseGrade
+                .Include(x => x.StAcademicData)
+                    .ThenInclude(y => y.AcademicYear)
+                .Include(y => y.StAcademicData)
+                    .ThenInclude(y => y.Batch)
+                .Include(y => y.StAcademicData)
+                    .ThenInclude(y => y.StPersonalData)
+                .Include(x => x.Course)
+                .SingleOrDefault(a => a.Id == id);
         }
 
         public IList<CourseGrade> List()
         {
-            return db.CourseGrade.ToList();
+            return db.CourseGrade
+               .Include(x => x.StAcademicData)
+                    .ThenInclude(y => y.AcademicYear)
+                .Include(y => y.StAcademicData)
+                    .ThenInclude(y => y.Batch)
+                 .Include(y => y.StAcademicData)
+                    .ThenInclude(y => y.StPersonalData)
+                .Include(x => x.Course)                
+                .ToList();
         }
 
         public CourseGrade Update(int id, CourseGrade newCourseGrade)

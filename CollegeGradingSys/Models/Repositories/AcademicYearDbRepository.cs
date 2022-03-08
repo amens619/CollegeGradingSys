@@ -35,12 +35,16 @@ namespace CollegeGradingSys.Models.Repositories
 
         public AcademicYear Find(int id)
         {
-            return db.AcademicYear.SingleOrDefault(a => a.Id == id);
+            return db.AcademicYear.Include(x => x.StAcademicDatas)
+                .ThenInclude(y => y.Batch)
+                .SingleOrDefault(a => a.Id == id);
         }
 
         public IList<AcademicYear> List()
         {
-            return db.AcademicYear.ToList();
+            return db.AcademicYear.Include(x => x.StAcademicDatas)
+                .ThenInclude(y => y.Batch)
+                .ToList();
         }
 
         public AcademicYear Update(int id, AcademicYear newAcademicYear)

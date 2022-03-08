@@ -39,5 +39,6 @@ namespace CollegeGradingSys.Models
         public virtual Batch  Batch { get; set; }
 
         public virtual StPersonalData StPersonalData { get; set; }
+        public virtual ICollection<CourseGrade> CourseGrades  { get; set; }
     }
 }

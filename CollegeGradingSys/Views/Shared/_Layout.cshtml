@@ -7,8 +7,9 @@
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Hugo 0.84.0">
     <title>@ViewData["Title"] - CollegeGradingSys</title>
+    <link href="~/css/sidebars.css" rel="stylesheet" />
     <link href="~/lib/twitter-bootstrap/css/bootstrap.css" rel="stylesheet" />
-    <script src="https://unpkg.com/feather-icons"></script>
+    @*<script src="https://unpkg.com/feather-icons"></script>*@
     <link rel="stylesheet" href="~/css/site.css" />
     <!-- Custom styles for this template -->
     <link href="~/css/dashboard.rtl.css" rel="stylesheet" />
@@ -42,15 +43,8 @@
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                    </li>
-                </ul>
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
+
                 <partial name="_LoginPartial" />
             </div>
 
@@ -62,13 +56,13 @@
             <div class="position-sticky pt-3">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link active" asp-area="" asp-controller="Home" asp-action="Index">                        
+                        <a class="nav-link active" asp-area="" asp-controller="Home" asp-action="Index">
                             <span data-feather="home"></span>
                             الصفحة الرئيسية
                         </a>
                     </li>
                     <li class="nav-item">
-                        <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse" data-bs-target="#dashboard-collapse" aria-expanded="true">
+                        <button class="btn btn-toggle align-items-center  collapsed mainmenu" data-bs-toggle="collapse" data-bs-target="#dashboard-collapse" aria-expanded="true">
                             <span data-feather="settings"></span>
                             الاعدادات العامة
                         </button>
@@ -88,106 +82,86 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse" data-bs-target="#St-collapse" aria-expanded="true">
+                        <button class="btn btn-toggle align-items-center rounded collapsed mainmenu" data-bs-toggle="collapse" data-bs-target="#St-collapse" aria-expanded="true">
                             <span data-feather="users"></span>
                             ادارة الطلاب
                         </button>
                         <div class="collapse" id="St-collapse">
                             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                                <li><a href="~/StPersonalData" class="link-dark rounded">البيانات الشخصية</a></li>                                
-                                <li><a href="~/StAcademicData" class="link-dark rounded">البيانات الأكاديمية</a></li>                               
+                                <li><a href="~/StPersonalData" class="link-dark rounded">البيانات الشخصية</a></li>
+                                <li><a href="~/StAcademicData" class="link-dark rounded">البيانات الأكاديمية</a></li>
                             </ul>
                         </div>
                     </li>
                     <li class="nav-item">
-                        <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse" data-bs-target="#Grading-collapse" aria-expanded="true">
+                        <button class="btn btn-toggle align-items-center rounded collapsed mainmenu" data-bs-toggle="collapse" data-bs-target="#Grading-collapse" aria-expanded="true">
                             <span data-feather="edit"></span>
                             ادارةالدرجات
                         </button>
                         <div class="collapse" id="Grading-collapse">
                             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
                                 <li><a href="~/CourseGrade" class="link-dark rounded">درجات الطالب</a></li>
-                                <li><a href="~/Department" class="link-dark rounded">البيانات من واقع الثانوية</a></li>
-                                <li><a href="~/Specialization" class="link-dark rounded">إدارة التخصصات</a></li>
-                                <li><a href="~/Nationality" class="link-dark rounded">إدارة الدول والجنسيان</a></li>
-                                <li><a href="~/Governorate" class="link-dark rounded">إدارة المحافظات</a></li>
-                                <li><a href="~/District" class="link-dark rounded">إدارة المديريات</a></li>
-                                <li><a href="~/City" class="link-dark rounded">إدارة المدن</a></li>
-                                <li><a href="#" class="link-dark rounded">إدارة المواد العليمية</a></li>
-                                <li><a href="#" class="link-dark rounded">إدارة العام الجامعي</a></li>
+                                <li><a href="~/CourseGrade/AllbatchCourseGrade" class="link-dark rounded">درجات لمادة دراسية للدفعة</a></li>
+
                             </ul>
                         </div>
-                       
+
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link mainmenu" href="#">
                             <span data-feather="bar-chart-2"></span>
                             التقارير
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <span data-feather="layers"></span>
-                            التكاملات
-                        </a>
-                    </li>
-                </ul>
-
-                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                    <span>التقارير المحفوظة</span>
-                    <a class="link-secondary" href="#" aria-label="إضافة تقرير جديد">
-                        <span data-feather="plus-circle"></span>
-                    </a>
-                </h6>
-                <ul class="nav flex-column mb-2">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <span data-feather="file-text"></span>
-                            الشهر الحالي
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <span data-feather="file-text"></span>
-                            الربع الأخير
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <span data-feather="file-text"></span>
-                            التفاعل الإجتماعي
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <span data-feather="file-text"></span>
-                            مبيعات نهاية العام
                         </a>
                     </li>
                 </ul>
             </div>
         </nav>
-        <main role="main" class="col-md-9 me-sm-auto bg-light col-lg-10 px-md-4">
-            <div class="container-fluid m-3 bg-white  px-4">
+        <main role="main" class="col-md-9 me-sm-auto bg-light mainDiv col-lg-10 px-md-4">
+            <div class="container-fluid m-3   px-4">
                 @RenderBody()
             </div>
-           
+
 
         </main>
+        @*<footer class="border-top footer col-md-9 text-muted">
+                <div class="container">
+                    &copy; 2021 - CollegeGradingSys - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                </div>
+            </footer>*@
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2021 - CollegeGradingSys - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
+
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/twitter-bootstrap/js/bootstrap.js"></script>
     <script src="~/js/dashboard.js"></script>
+    <script src="~/js/sidebars.js"></script>
+    <script src="~/lib/feather-icons/feather.js"></script>
+    <script>
+        feather.replace()
+    </script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        $(document).ready(function () {
+            $(".mainmenu").click(function () {
 
+                var gggg = $(this).attr('aria-expanded');
+                alert(gggg);
+                //var sss = $(this).find('[aria-expanded]').attr('aria-expanded');
+                //alert(sss);
+                if ($(this).attr('aria-expanded') == "true") {
+                    alert("display");
+                    document.getElementsByClassName('mainmenu').setAttribute("aria-expanded", "true");
+                    $(this).setAttribute("aria-expanded", "true");
+                } else {
+                    alert("display none");
+                    document.getElementsByClassName('mainmenu').setAttribute("aria-expanded", "false");
+                    //$(this).setAttribute("aria-expanded", "true");
+                }
+            });
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

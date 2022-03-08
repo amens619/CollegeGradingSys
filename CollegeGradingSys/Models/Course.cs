@@ -38,7 +38,7 @@ namespace CollegeGradingSys.Models
 
         public virtual Course Parent { get; set; }
         public virtual Specialization Specialization { get; set; }
-       
+        public virtual ICollection<Course> SubCourses { get; set; }
         public virtual ICollection<CourseGrade> CourseGrades  { get; set; }
 
 

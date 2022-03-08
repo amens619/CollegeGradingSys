@@ -1,14 +1,14 @@
 ﻿@model CollegeGradingSys.ViewModels.StAcademicDataIndexViewModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "البيانات الاكاديمية للطلاب";
 }
 
 <h1>البيانات الاكاديمية للطلاب</h1>
 
-<p>
+@*<p>
     <a asp-action="Create">إضافة جديد</a>
-</p>
+</p>*@
 <div class="card mb-4">
 
     <div class="card-body">
@@ -205,7 +205,15 @@
                             </td>
                         }
                     <td>
-                        <a asp-action="AllStCourseGrade" asp-controller="CourseGrade" class="btn btn-secondary btn-sm" asp-route-id="@Model.StPersonalDataVMs[i].StAcademicData.Id">الدرجات</a>
+                        @if (Model.StPersonalDataVMs[i].StAcademicData != null)
+                        {
+                            <a asp-action="AllStCourseGrade" asp-controller="CourseGrade" class="btn btn-secondary btn-sm" asp-route-id="@Model.StPersonalDataVMs[i].StAcademicData.Id">الدرجات</a>
+                        }
+                        else
+                        {
+                            <a href="#" aria-disabled="true"  style="pointer-events: none" class="btn btn-secondary disabled btn-sm" >الدرجات</a>
+
+                        }
                         <a asp-action="AllStAcademicDatas" asp-controller="StAcademicData" class="btn btn-secondary btn-sm" asp-route-id="@Model.StPersonalDataVMs[i].AcademicID">السجل كامل</a>
 
                     </td>

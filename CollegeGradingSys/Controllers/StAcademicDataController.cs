@@ -284,12 +284,16 @@ namespace CollegeGradingSys.Controllers
         public IActionResult Create(int id)
         {
             var stPersonalData = _StPersonalDataRepository.Find(id);
+            if (stPersonalData == null)
+            {
+                return NotFound();
+            }
             var model = new CreateStAcademicDataDataViewModel()
             {
                 AcademicID = stPersonalData.AcademicID
             };
 
-            FullAllListes("-- أختر --");            
+            FullAllListes("-- أختر --");
             return View(model);
         }
 

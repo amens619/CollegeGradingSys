@@ -38,9 +38,9 @@ namespace CollegeGradingSys.Models.Repositories
         {
             return db.StAcademicData
                  .Include(x => x.Batch)
+                    .ThenInclude(y => y.Specialization)                 
                 .Include(x => x.AcademicYear)                
-                .Include(x => x.StPersonalData) 
-                .AsNoTracking()
+                .Include(x => x.StPersonalData)                
                 .SingleOrDefault(a => a.Id == id);
         }
 
@@ -48,9 +48,9 @@ namespace CollegeGradingSys.Models.Repositories
         {
             return db.StAcademicData
                 .Include(x => x.Batch)
+                    .ThenInclude(y => y.Specialization)
                 .Include(x => x.AcademicYear)                    
-                .Include(x => x.StPersonalData)
-                .AsNoTracking()
+                .Include(x => x.StPersonalData)               
                 .ToList();
         }
 
