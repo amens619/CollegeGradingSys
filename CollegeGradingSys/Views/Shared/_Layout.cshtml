@@ -6,7 +6,7 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Hugo 0.84.0">
-    <title>@ViewData["Title"] - CollegeGradingSys</title>
+    <title>@ViewData["Title"] - نظام إدارة الدرجات</title>
     <link href="~/css/sidebars.css" rel="stylesheet" />
     <link href="~/lib/twitter-bootstrap/css/bootstrap.css" rel="stylesheet" />
     @*<script src="https://unpkg.com/feather-icons"></script>*@
@@ -116,8 +116,8 @@
                 </ul>
             </div>
         </nav>
-        <main role="main" class="col-md-9 me-sm-auto bg-light mainDiv col-lg-10 px-md-4">
-            <div class="container-fluid m-3   px-4">
+        <main role="main" class="col-md-9 me-sm-auto bg-light mainDiv col-lg-10 ">
+            <div class="container-fluid mt-3 mb-3 p-0   ">
                 @RenderBody()
             </div>
 
@@ -146,12 +146,12 @@
         $(document).ready(function () {
             $(".mainmenu").click(function () {
 
-                var gggg = $(this).attr('aria-expanded');
-                alert(gggg);
+                //var gggg = $(this).attr('aria-expanded');
+                //alert(gggg);
                 //var sss = $(this).find('[aria-expanded]').attr('aria-expanded');
                 //alert(sss);
                 if ($(this).attr('aria-expanded') == "true") {
-                    alert("display");
+                    //alert("display");
                     document.getElementsByClassName('mainmenu').setAttribute("aria-expanded", "true");
                     $(this).setAttribute("aria-expanded", "true");
                 } else {

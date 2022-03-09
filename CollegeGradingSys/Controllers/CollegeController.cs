@@ -12,10 +12,13 @@ namespace CollegeGradingSys.Controllers
     public class CollegeController : Controller
     {
         private readonly ICollegeGradingSysRepository<College> CollegeRepository;
+        private readonly ICollegeGradingSysRepository<Department> DepartmentRepository;
 
-        public CollegeController(ICollegeGradingSysRepository<College> CollegeRepository)
+        public CollegeController(ICollegeGradingSysRepository<College> CollegeRepository
+            ,ICollegeGradingSysRepository<Department> DepartmentRepository)
         {
             this.CollegeRepository = CollegeRepository;
+            this.DepartmentRepository = DepartmentRepository;
         }
         // GET: CollegeController
         public ActionResult Index()
@@ -45,6 +48,18 @@ namespace CollegeGradingSys.Controllers
         {
             try
             {
+                if(college.CollegeName == null)
+                {
+                    ModelState.Clear();
+                    ModelState.AddModelError(nameof(college.CollegeName), " الرجاء كتابة اسم الكلية");
+                    return View(college);
+                }
+
+                if (CollegeExistsByName((college.CollegeName).Trim()))
+                {
+                    ModelState.AddModelError(nameof(college.CollegeName), "لقد تم إيجاد كلية سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
+                    return View(college);
+                }
                 CollegeRepository.Add(college);
                 return RedirectToAction(nameof(Index));
             }
@@ -68,7 +83,19 @@ namespace CollegeGradingSys.Controllers
         {
             try
             {
-
+                if (college.CollegeName == null)
+                {
+                    ModelState.Clear();
+                    ModelState.AddModelError(nameof(college.CollegeName), " الرجاء كتابة اسم الكلية");
+                    return View(college);
+                }
+                
+                var college1 = CollegeRepository.List().SingleOrDefault(x => x.CollegeName == college.CollegeName);
+                if (college1.Id != college.Id)
+                {
+                    ModelState.AddModelError(nameof(college.CollegeName), "لقد تم إيجاد كلية سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
+                    return View(college);
+                }
                 CollegeRepository.Update(id, college);
                 return RedirectToAction(nameof(Index));
             }
@@ -86,12 +113,20 @@ namespace CollegeGradingSys.Controllers
         }
 
         // POST: CollegeController/Delete/5
-        [HttpPost]
+        // POST: StAcademicData/Delete/5
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, College  college)
-        {
+        public IActionResult DeleteConfirmed(int id)
+        {        
             try
             {
+                var DepartmentsOfCollege = DepartmentRepository.List().Where(x => x.College.Id == id).ToList();
+                if(DepartmentsOfCollege !=null && DepartmentsOfCollege.Count > 0)
+                {
+                    var college = CollegeRepository.Find(id);
+                    ViewBag.Message =  "لا يمكن حذف الكلية بسبب وجود اقسام تابعة لها.. الرجاء حذف الاقسام التابعة لها أولا ";
+                    return View(college);
+                }
                 CollegeRepository.Delete(id);
                 return RedirectToAction(nameof(Index));
             }
@@ -99,6 +134,11 @@ namespace CollegeGradingSys.Controllers
             {
                 return View();
             }
+        }
+
+        private bool CollegeExistsByName(string CollegeName)
+        {
+            return CollegeRepository.List().Any(e => e.CollegeName == CollegeName);
         }
     }
 }

@@ -1,27 +1,39 @@
 ﻿@model CollegeGradingSys.Models.College
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "حذف كلية";
 }
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="bg-white">
+            <h5 class="mb-4">  <span data-feather="list"></span>إدارة الكليات</h5>
+            <h6 class="m-1">حذف كلية</h6>
+            <hr class="mb-4 mt-0">
+            <div class="row">                
+                    <h4>هل تريد بالفعل حذف الكلية ؟!!</h4>
+                    <div>
+                        <hr />
+                        @if (ViewBag.Message != null)
+                        {
+                            <h5 class="alert alert-danger">@ViewBag.Message</h5>
+                        }
+                        <div class="row my-5">
+                            <div class="col-sm-2">
+                                <label asp-for="CollegeName" class="control-label"></label>
+                            </div>
+                            <div class="col-sm-10">
+                                @Html.DisplayFor(model => model.CollegeName)
+                            </div>
+                        </div>
 
-<h1>Delete</h1>
-
-<h3>هل تريد بالفعل حذف الكلية</h3>
-<div>
-   
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            <label asp-for="CollegeName" class="control-label"></label>
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CollegeName)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="حذف" class="btn btn-danger" /> |
-        <a asp-action="Index">إلغاء الامر</a>
-    </form>
+                        <form asp-action="Delete">
+                            <input type="hidden" asp-for="Id" />
+                            <input type="submit" value="حذف" class="btn btn-danger btn-sm " />
+                            <a class="btn btn-secondary  btn-sm" asp-action="Index">إلغاء الامر</a>
+                        </form>
+                    </div>
+               
+            </div>
+        </div>
+    </div>
 </div>

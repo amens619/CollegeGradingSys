@@ -1,37 +1,43 @@
 ﻿@model IEnumerable<CollegeGradingSys.Models.College>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "إدارة الكليات";
 }
-<div class="bg-white">
-    <h1>إدارة الكليات</h1>
+<div class="card mb-4" >
 
-    <p>
-        <a asp-action="Create">جديد</a>
-    </p>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.CollegeName)
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.CollegeName)
-                    </td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="card-body">
+        <div class="bg-white">
+            <h5 class="mb-4">  <span data-feather="list"></span>إدارة الكليات</h5>
+            <h6 class="m-1">القائمة الرئسية</h6>
+            <hr class="mb-4 mt-0">
+            <p>
+                <a class="btn btn-secondary col-2 btn-sm" asp-action="Create">جديد</a>
+            </p>
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.CollegeName)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.CollegeName)
+                            </td>
+                            <td>
+                                <a asp-action="Edit" class="btn btn-primary btn-sm align-self-center" asp-route-id="@item.Id">تعديل</a>
+                                <a asp-action="Delete" class="btn btn-danger btn-sm align-self-center" asp-route-id="@item.Id">حذف</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
 
+        </div>
+    </div>
 </div>
