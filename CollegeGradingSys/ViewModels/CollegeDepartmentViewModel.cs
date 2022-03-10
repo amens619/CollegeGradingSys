@@ -12,8 +12,7 @@ namespace CollegeGradingSys.ViewModels
         [Key]
         public int Id { get; set; }
 
-        [Required]
-        [StringLength(30, MinimumLength = 3)]
+        [StringLength(30, MinimumLength = 3, ErrorMessage = "يجب أن يكون طول اسم القسم  من 3 - 30 حرفًا.")]
         [Display(Name = "القسم")]
         public string DepartmentName { get; set; }
 

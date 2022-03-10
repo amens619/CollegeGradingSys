@@ -14,11 +14,15 @@ namespace CollegeGradingSys.Controllers
     {
         private readonly ICollegeGradingSysRepository<Department> DepartmentRepository;
         private readonly ICollegeGradingSysRepository<College> CollegeRepository;
+        private readonly ICollegeGradingSysRepository<Specialization> SpecializationRepository;
 
-        public DepartmentController(ICollegeGradingSysRepository<Department> DepartmentRepository, ICollegeGradingSysRepository<College> CollegeRepository)
+        public DepartmentController(ICollegeGradingSysRepository<Department> DepartmentRepository,
+            ICollegeGradingSysRepository<College> CollegeRepository,
+            ICollegeGradingSysRepository<Specialization> SpecializationRepository)
         {
             this.DepartmentRepository = DepartmentRepository;
             this.CollegeRepository = CollegeRepository;
+            this.SpecializationRepository = SpecializationRepository;
         }
         // GET: DepartmentController
         public ActionResult Index()
@@ -29,11 +33,11 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: DepartmentController/Details/5
-        public ActionResult Details(int id)
-        {
-            var department = DepartmentRepository.Find(id);
-            return View(department);
-        }
+        //public ActionResult Details(int id)
+        //{
+        //    var department = DepartmentRepository.Find(id);
+        //    return View(department);
+        //}
 
         // GET: DepartmentController/Create
         public ActionResult Create()
@@ -54,7 +58,21 @@ namespace CollegeGradingSys.Controllers
         {
             try
             {
+                model.Colleges = FillSelectList();
+                if (model.DepartmentName == null)
+                {
 
+                    ModelState.Clear();
+                    ModelState.AddModelError(nameof(model.DepartmentName), " الرجاء كتابة اسم القسم");
+
+                    return View(model);
+                }
+
+                if (isDepartmentExistsByName((model.DepartmentName).Trim()))
+                {
+                    ModelState.AddModelError(nameof(model.DepartmentName), "لقد تم إيجاد قسم سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
+                    return View(model);
+                }
                 if (model.CollegeId == -1)
                 {
                     ViewBag.Message = "الرجاء اختيار الكلية من القائمة";
@@ -89,7 +107,7 @@ namespace CollegeGradingSys.Controllers
             {
                 return NotFound();
             }
-            var collegeId = department.College == null ? department.College.Id = 0 : department.College.Id;
+            var collegeId = department.College.Id ;
             var model = new CollegeDepartmentViewModel
             { 
                 Id = department.Id,
@@ -107,13 +125,27 @@ namespace CollegeGradingSys.Controllers
         {
             try
             {
-                var college = CollegeRepository.Find(model.CollegeId);
-                Department department = new()
+                if (model.DepartmentName == null)
                 {
-                    Id = model.Id,
-                    DepartmentName = model.DepartmentName,
-                    College = college,
-                };                
+
+                    ModelState.Clear();
+                    ModelState.AddModelError(nameof(model.DepartmentName), " الرجاء كتابة اسم القسم");
+
+                    return View(model);
+                }
+
+                var department1 = DepartmentRepository.List().SingleOrDefault(x => x.DepartmentName == model.DepartmentName);
+                if (department1 !=null && department1.Id != model.Id)
+                {
+                    ModelState.AddModelError(nameof(model.DepartmentName), "لقد تم إيجاد قسم سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
+                    return View(model);
+                }
+                var college = CollegeRepository.Find(model.CollegeId);
+                var department = DepartmentRepository.Find(model.Id);
+
+                department.DepartmentName = model.DepartmentName;
+                department.College = college;
+                              
                 DepartmentRepository.Update(id, department);
                 return RedirectToAction(nameof(Index));
             }
@@ -140,12 +172,19 @@ namespace CollegeGradingSys.Controllers
         }
 
         // POST: DepartmentController/Delete/5
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, CollegeDepartmentViewModel model)
+        public IActionResult DeleteConfirmed(int id)
         {
             try
             {
+                var SpecializationsOFDepartment = SpecializationRepository.List().Where(x => x.Department.Id == id).ToList();
+                if (SpecializationsOFDepartment != null && SpecializationsOFDepartment.Count > 0)
+                {
+                    var department = DepartmentRepository.Find(id);
+                    ViewBag.Message = "لا يمكن حذف القسم بسبب وجود تخصصات تابعة له.. الرجاء حذف التخصصات التابعة له أولا ";
+                    return View(department);
+                }
                 DepartmentRepository.Delete(id);
                 return RedirectToAction(nameof(Index));
             }
@@ -170,6 +209,11 @@ namespace CollegeGradingSys.Controllers
                  Colleges  = FillSelectList()
             };
             return vmodel;
+        }
+
+        private bool isDepartmentExistsByName(string DepartmentName)
+        {
+            return DepartmentRepository.List().Any(e => e.DepartmentName == DepartmentName);
         }
     }
 }

@@ -72,30 +72,46 @@ namespace CollegeGradingSys.Controllers
         // GET: CollegeController/Edit/5
         public ActionResult Edit(int id)
         {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
             var college = CollegeRepository.Find(id);
+            if (college is null)
+            {
+                return NotFound();
+            }
             return View(college);
         }
 
         // POST: CollegeController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id,College college)
+        public ActionResult Edit(int id,College model)
         {
             try
             {
-                if (college.CollegeName == null)
+                if (id == null || id == 0)
+                {
+                    return NotFound();
+                }
+                if (model.CollegeName == null)
                 {
                     ModelState.Clear();
-                    ModelState.AddModelError(nameof(college.CollegeName), " الرجاء كتابة اسم الكلية");
-                    return View(college);
+                    ModelState.AddModelError(nameof(model.CollegeName), " الرجاء كتابة اسم الكلية");
+                    return View(model);
                 }
                 
-                var college1 = CollegeRepository.List().SingleOrDefault(x => x.CollegeName == college.CollegeName);
-                if (college1.Id != college.Id)
+                var college1 = CollegeRepository.List().SingleOrDefault(x => x.CollegeName == model.CollegeName);
+                if (college1 != null && college1.Id != model.Id)
                 {
-                    ModelState.AddModelError(nameof(college.CollegeName), "لقد تم إيجاد كلية سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
-                    return View(college);
+                    ModelState.AddModelError(nameof(model.CollegeName), "لقد تم إيجاد كلية سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
+                    return View(model);
                 }
+                var college = CollegeRepository.Find(id);
+                college.CollegeName = model.CollegeName;              
+                
+
                 CollegeRepository.Update(id, college);
                 return RedirectToAction(nameof(Index));
             }
