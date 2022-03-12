@@ -1,41 +1,51 @@
 ﻿@model IEnumerable<CollegeGradingSys.Models.Specialization>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "إدارة التخصصات";
 }
+<div class="card mb-4">
 
-<h1>Index</h1>
+    <div class="card-body">
+        <div class="bg-white">
+            <h5 class="mb-4">  <span style="margin-left:6px;" data-feather="list"></span>إدارة التخصصات</h5>
+            <h6 class="m-1">القائمة الرئسية</h6>
+            <hr class="mb-4 mt-0">
+            <p>
+                <a class="btn btn-secondary col-2 btn-sm" asp-action="Create">جديد</a>
+            </p>
+            <table class="table table-bordered">
+                <thead class="table-light table-borderless">
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.SpecializationName)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Department.DepartmentName)
+                        </th>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Department.DepartmentName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SpecializationName)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Department.DepartmentName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SpecializationName)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.SpecializationName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Department.DepartmentName)
+                            </td>
+
+                            <td>
+                                <a asp-action="Edit" class="btn btn-primary btn-sm align-self-center" asp-route-id="@item.Id">تعديل</a>
+                                <a asp-action="Delete" class="btn btn-danger btn-sm align-self-center" asp-route-id="@item.Id">حذف</a>
+                             </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>

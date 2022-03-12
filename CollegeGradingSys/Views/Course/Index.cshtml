@@ -1,150 +1,158 @@
 ﻿@model CollegeGradingSys.ViewModels.CourseIndexViewModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "إدارة الكليات";
 }
-
-<h1>Index</h1>
-
-<p>
-    <!-- Modal placeholder -->
-    <div id="modal-placeholder"></div>
-
-    <!-- Button trigger modal -->
-    <button type="button" class="btn btn-primary align-self-center btn-sm" data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Create","Course")">
-        جديد
-    </button>
-    @*<a asp-action="Create">Create New</a>*@
-</p>
-<div class="card mb-4">
+<div class="card col-12  mb-4">
 
     <div class="card-body">
-        @using (Html.BeginForm("Index", "Course", FormMethod.Get))
-        {
+        <div class="bg-white">
+            <h5 class="mb-4">  <span style="margin-left:6px;" data-feather="list"></span>إدارة الكليات</h5>
+            <h6 class="m-1">القائمة الرئسية</h6>
+            <hr class="mb-4 mt-0">
+            <p>
+                <!-- Modal placeholder -->
+                <div id="modal-placeholder"></div>
 
-        <div class="row">
-            <div class="form-group col-md-4">
-                <label asp-for="SpecializationId" class="control-label"></label>
-                <select asp-for="SpecializationId" name="SpecializationId" class="form-control text-center" 
-                        asp-items="ViewBag.Specializations">
-                    <option value="-1">-- الكل --</option>
-                </select>
-                
-            </div>
-            <div class="form-group col-md-4">
-                <label class="control-label">المستوى</label>
-                <select id="Level" asp-for="Level" name="Level" class="form-control text-center"
-                        asp-items="Html.GetEnumSelectList<Level>()">
-                    <option value="-1">-- الكل --</option>
-                </select>
-            </div>
-            <div class="form-group col-md-4">
-                <label class="control-label">الفصل الدراسي</label>
-                <select id="Term" asp-for="Term" name="Term" class="form-control text-center"
-                        asp-items="Html.GetEnumSelectList<Term>()">
-                    <option value="-1">-- الكل --</option>
-                </select>
-            </div>
-        </div>
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-primary align-self-center btn-sm" data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Create","Course")">
+                    جديد
+                </button>
+                @*<a asp-action="Create">Create New</a>*@
+            </p>
+            <div class="card mb-4">
 
-            <hr class="my-4">
-            <div class="container">
-                <input type="submit" value="تصفية" class="btn btn-secondary btn-sm" />
-                <a asp-action="Index" class="btn btn-secondary btn-sm" asp-route-id=-1>إلغاء التصفية</a>
+                <div class="card-body">
+                    @using (Html.BeginForm("Index", "Course", FormMethod.Get))
+                    {
+
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <label asp-for="SpecializationId" class="control-label"></label>
+                                <select asp-for="SpecializationId" name="SpecializationId" class="form-control text-center"
+                                        asp-items="ViewBag.Specializations">
+                                    <option value="-1">-- الكل --</option>
+                                </select>
+
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label class="control-label">المستوى</label>
+                                <select id="Level" asp-for="Level" name="Level" class="form-control text-center"
+                                        asp-items="Html.GetEnumSelectList<Level>()">
+                                    <option value="-1">-- الكل --</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label class="control-label">الفصل الدراسي</label>
+                                <select id="Term" asp-for="Term" name="Term" class="form-control text-center"
+                                        asp-items="Html.GetEnumSelectList<Term>()">
+                                    <option value="-1">-- الكل --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        <div class="container">
+                            <input type="submit" value="تصفية" class="btn btn-secondary btn-sm" />
+                            <a asp-action="Index" class="btn btn-secondary btn-sm" asp-route-id=-1>إلغاء التصفية</a>
+                        </div>
+
+
+                    }
+                </div>
             </div>
-
-
-        }
-    </div>
-</div>
-<div class="card mb-4">
-    <div class="card-body">
-        <div class=" container">           
-            <span class="badge bg-warning  ">مادة فرعية</span>
-            <span class="badge bg-success  ">مادة أساسية</span>
-        </div>
-        <hr class="my-4">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">
-                        التخصص
-                    </th>
-                    <th scope="col">
-                        المستوى
-                    </th>
-                    <th scope="col">
-                        الفصل
-                    </th>
-                    <th class="col-2" scope="col">
-                        اسم المادة
-                    </th>
-                    <th scope="col">
-                        الدرجة الكبرى
-                    </th>
-                    <th scope="col">
-                        الدرجة الصغرى
-                    </th>
-                    <th scope="col">
-                        نوع المادة  ( فرعية/أساسية)
-                    </th>
-                    <th class="col-2" scope="col">
-                        اسم المادة الاساسية
-                    </th>
-                    <th class="col-3" scope="col"></th>                   
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.Courses)
-                {
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Specialization.SpecializationName)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Level)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Term)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.CourseName)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.BigGrade)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.SmallGrade)
-                        </td>
-                        <td>
-                            @if (item.IsSubCourse)
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class=" container">
+                        <span class="badge bg-warning  ">مادة فرعية</span>
+                        <span class="badge bg-success  ">مادة أساسية</span>
+                    </div>
+                    <hr class="my-4">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">
+                                    التخصص
+                                </th>
+                                <th scope="col">
+                                    المستوى
+                                </th>
+                                <th scope="col">
+                                    الفصل
+                                </th>
+                                <th class="col-2" scope="col">
+                                    اسم المادة
+                                </th>
+                                <th scope="col">
+                                    الدرجة الكبرى
+                                </th>
+                                <th scope="col">
+                                    الدرجة الصغرى
+                                </th>
+                                <th scope="col">
+                                    نوع المادة  ( فرعية/أساسية)
+                                </th>
+                                <th class="col-2" scope="col">
+                                    اسم المادة الاساسية
+                                </th>
+                                <th class="col-3" scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Courses)
                             {
-                                <span class="badge bg-warning">مادة فرعية</span>
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Specialization.SpecializationName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Level)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Term)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.CourseName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.BigGrade)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.SmallGrade)
+                                    </td>
+                                    <td>
+                                        @if (item.IsSubCourse)
+                                        {
+                                            <span class="badge bg-warning">مادة فرعية</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">مادة أساسية</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Parent.CourseName)
+                                    </td>
+                                    <td>
+                                        <!-- Modal placeholder -->
+                                        <div id="modal-placeholder"></div>
+                                        <button type="button" class="btn btn-primary btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Edit","Course",new { id = item.Id })">
+                                            تعديل
+                                        </button>
+                                        @*<a asp-action="Edit" class="btn btn-primary btn-sm" asp-route-id="@item.Id">تعديل</a>*@
+                                        <a asp-action="Details" class="btn btn-warning btn-sm" asp-route-id="@item.Id">تفاصيل</a>
+                                        <button type="button" class="btn btn-danger btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Delete","Course",new { id = item.Id })">
+                                            حذف
+                                        </button>
+                                        @* <a asp-action="Delete" class="btn btn-danger btn-sm" asp-route-id="@item.Id">حذف</a>*@
+                                    </td>
+                                </tr>
                             }
-                            else
-                            {
-                                <span class="badge bg-success">مادة أساسية</span>
-                            }
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Parent.CourseName)
-                        </td>
-                        <td>
-                            <!-- Modal placeholder -->
-                            <div id="modal-placeholder"></div>
-                            <button type="button" class="btn btn-primary btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Edit","Course",new { id = item.Id })">
-                                تعديل
-                            </button>
-                            @*<a asp-action="Edit" class="btn btn-primary btn-sm" asp-route-id="@item.Id">تعديل</a>*@
-                            <a asp-action="Details" class="btn btn-warning btn-sm" asp-route-id="@item.Id">تفاصيل</a>
-                            <button type="button" class="btn btn-danger btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Delete","Course",new { id = item.Id })">
-                                حذف
-                            </button>
-                           @* <a asp-action="Delete" class="btn btn-danger btn-sm" asp-route-id="@item.Id">حذف</a>*@
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
     </div>
 </div>

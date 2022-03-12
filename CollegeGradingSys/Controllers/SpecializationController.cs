@@ -14,11 +14,18 @@ namespace CollegeGradingSys.Controllers
     {
         private readonly ICollegeGradingSysRepository<Specialization> SpecializationRepository;
         private readonly ICollegeGradingSysRepository<Department> DepartmentRepository;
+        private readonly ICollegeGradingSysRepository<Course> CourseRepository;
+        private readonly ICollegeGradingSysRepository<Batch> BatchRepository;
 
-        public SpecializationController(ICollegeGradingSysRepository<Specialization> SpecializationRepository, ICollegeGradingSysRepository<Department> DepartmentRepository)
+        public SpecializationController(ICollegeGradingSysRepository<Specialization> SpecializationRepository,
+            ICollegeGradingSysRepository<Department> DepartmentRepository
+            ,ICollegeGradingSysRepository<Course> CourseRepository
+            ,ICollegeGradingSysRepository<Batch> BatchRepository)
         {
             this.SpecializationRepository = SpecializationRepository;
             this.DepartmentRepository = DepartmentRepository;
+            this.CourseRepository = CourseRepository;
+            this.BatchRepository = BatchRepository;
         }
         // GET: SpecializationController
         public ActionResult Index()
@@ -54,12 +61,24 @@ namespace CollegeGradingSys.Controllers
         {
             try
             {
+                if (model.SpecializationName == null)
+                {
+                    ModelState.Clear();
+                    ModelState.AddModelError(nameof(model.SpecializationName), " الرجاء كتابة اسم التخصص");
+                    return View(GetAllDepartments(model));
+                }
+
+                if (SpecializationExistsByName((model.SpecializationName).Trim()))
+                {
+                    ModelState.AddModelError(nameof(model.SpecializationName), "لقد تم إيجاد تخصص سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
+                    return View(GetAllDepartments(model));
+                }
 
                 if (model.DepartmentId == -1)
                 {
                     ViewBag.Message = "الرجاء اختيار القسم من القائمة";
 
-                    return View(GetAllDepartments());
+                    return View(GetAllDepartments(model));
                 }
                 var department = DepartmentRepository.Find(model.DepartmentId);
                 Specialization specialization = new()
@@ -80,12 +99,20 @@ namespace CollegeGradingSys.Controllers
         // GET: SpecializationController/Edit/5
         public ActionResult Edit(int id)
         {
-            var department = SpecializationRepository.Find(id);
-            var departmentId = department.Department == null ? department.Department.Id = 0 : department.Department.Id;
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
+            var specialization = SpecializationRepository.Find(id);
+            if (specialization is null)
+            {
+                return NotFound();
+            }           
+            var departmentId =  specialization.Department.Id;
             var model = new DepartmentSpecializationViewModel
             { 
-                Id = department.Id,
-                SpecializationName = department.SpecializationName,
+                Id = specialization.Id,
+                SpecializationName = specialization.SpecializationName,
                  DepartmentId= departmentId,
                 Departments = DepartmentRepository.List().ToList()
         };
@@ -99,13 +126,28 @@ namespace CollegeGradingSys.Controllers
         {
             try
             {
-                var department = DepartmentRepository.Find(model.DepartmentId);
-                Specialization specialization = new()
+                if (model.SpecializationName == null)
                 {
-                    Id = model.Id,
-                    SpecializationName = model.SpecializationName,
-                    Department = department,
-                };                
+
+                    ModelState.Clear();
+                    ModelState.AddModelError(nameof(model.SpecializationName), " الرجاء كتابة اسم التخصص");
+
+                    return View(GetAllDepartments(model));
+                }
+
+                var Specialization1 = SpecializationRepository.List().SingleOrDefault(x => x.SpecializationName == model.SpecializationName);
+                if (Specialization1 != null && Specialization1.Id != model.Id)
+                {
+                    ModelState.AddModelError(nameof(model.SpecializationName), "لقد تم إيجاد تخصص سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
+                    return View(GetAllDepartments(model));
+                }
+                
+                var department = DepartmentRepository.Find(model.DepartmentId);
+                var specialization = SpecializationRepository.Find(model.Id);
+
+                specialization.SpecializationName = model.SpecializationName;
+                specialization.Department = department;
+                                
                 SpecializationRepository.Update(id, specialization);
                 return RedirectToAction(nameof(Index));
             }
@@ -123,13 +165,27 @@ namespace CollegeGradingSys.Controllers
             return View(specialization);       
         }
 
-        // POST: SpecializationController/Delete/5
-        [HttpPost]
+        // POST: SpecializationController/Delete/5       
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, DepartmentSpecializationViewModel model)
+        public IActionResult DeleteConfirmed(int id)
         {
             try
             {
+                var CoursesOFSpecialization = CourseRepository.List().Where(x => x.Specialization.Id == id).ToList();
+                if (CoursesOFSpecialization != null && CoursesOFSpecialization.Count > 0)
+                {
+                    var specialization = SpecializationRepository.Find(id);
+                    ViewBag.Message = "لا يمكن حذف التخصص بسبب وجود مواد تابعة له.. الرجاء حذف المواد التابعة له أولا ";
+                    return View(specialization);
+                }
+                var BatchsOFSpecialization = BatchRepository.List().Where(x => x.Specialization.Id == id).ToList();
+                if (BatchsOFSpecialization != null && BatchsOFSpecialization.Count > 0)
+                {
+                    var specialization = SpecializationRepository.Find(id);
+                    ViewBag.Message = "لا يمكن حذف التخصص بسبب وجود دفعات تابعة له.. الرجاء حذف الدفعات التابعة له أولا ";
+                    return View(specialization);
+                }
                 SpecializationRepository.Delete(id);
                 return RedirectToAction(nameof(Index));
             }
@@ -147,13 +203,21 @@ namespace CollegeGradingSys.Controllers
             return Departments;
         }
 
-        DepartmentSpecializationViewModel GetAllDepartments()
+        DepartmentSpecializationViewModel GetAllDepartments(DepartmentSpecializationViewModel model)
         {
             var vmodel = new DepartmentSpecializationViewModel
             {
-                 Departments  = FillSelectList()
+                Id=model.Id,
+                DepartmentId = model.DepartmentId,
+                SpecializationName = model.SpecializationName,
+                Departments  = FillSelectList()
             };
             return vmodel;
+        }
+
+        private bool SpecializationExistsByName(string specializationName)
+        {
+            return SpecializationRepository.List().Any(e => e.SpecializationName == specializationName);
         }
     }
 }

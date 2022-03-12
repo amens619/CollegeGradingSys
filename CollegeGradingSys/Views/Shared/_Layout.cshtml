@@ -38,7 +38,7 @@
     <heade>
 
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow border-bottom      box-shadow ">
-            <a class="navbar-brand  col-md-3 col-lg-2 me-0 px-3" asp-area="" asp-controller="Home" asp-action="Index">نظام إدارة الدرجات</a>
+            <a class="navbar-brand navbarbrand col-md-3 col-lg-2 me-0 px-3" asp-area="" asp-controller="Home" asp-action="Index">نظام إدارة الدرجات</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -51,7 +51,7 @@
         </nav>
 
     </heade>
-    <div class="row">
+    <div>
         <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
             <div class="position-sticky pt-3">
                 <ul class="nav flex-column">
@@ -116,8 +116,8 @@
                 </ul>
             </div>
         </nav>
-        <main role="main" class="col-md-9 me-sm-auto bg-light mainDiv col-lg-10 ">
-            <div class="container-fluid mt-3 mb-3 p-0   ">
+        <main role="main" class=" me-sm-auto p-3 bg-light mainDiv  ">
+            <div class="container-fluid  mb-3 p-0 justify-content-md-end">
                 @RenderBody()
             </div>
 

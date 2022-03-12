@@ -1,33 +1,46 @@
 ﻿@model CollegeGradingSys.Models.Specialization
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "حذف تخصص";
 }
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="bg-white">
+            <h5 class="mb-4">  <span style="margin-left:6px;" data-feather="delete"></span>إدارة التخصصات</h5>
+            <h6 class="m-1">حذف تخصص</h6>
+            <hr class="mb-4 mt-0">
+            <div class="row">
+                <h4>هل تريد بالفعل حذف التخصص ؟!!</h4>
+                <div>
+                    <hr />
+                    @if (ViewBag.Message != null)
+                    {
+                        <h5 class="alert alert-danger">@ViewBag.Message</h5>
+                    }
+                <div class="row  my-5">
 
-<h1>Delete</h1>
+                    <div class="col-sm-2 my-2">
+                        @Html.DisplayNameFor(model => model.SpecializationName)
+                    </div>
+                    <div class="col-sm-10 my-2">
+                        @Html.DisplayFor(model => model.SpecializationName)
+                    </div>
+                    <div class="col-sm-2 my-2">
+                        @Html.DisplayNameFor(model => model.Department.DepartmentName)
+                    </div>
+                    <div class="col-sm-10 my-2">
+                        @Html.DisplayFor(model => model.Department.DepartmentName)
+                    </div>
+                </div>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Specialization</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Department.DepartmentName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Department.DepartmentName)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.SpecializationName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.SpecializationName)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
-</div>
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="submit" value="حذف" class="btn btn-danger btn-sm " />
+                        <a class="btn btn-secondary  btn-sm" asp-action="Index">إلغاء الامر</a>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    </d

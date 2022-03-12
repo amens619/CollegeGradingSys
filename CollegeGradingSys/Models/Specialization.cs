@@ -12,8 +12,8 @@ namespace CollegeGradingSys.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
-        [StringLength(30, MinimumLength = 3)]
+        
+        [StringLength(30, MinimumLength = 3, ErrorMessage = "يجب أن يكون طول اسم التخصص  من 3 - 30 حرفًا.")]
         [Display(Name = "التخصص")]
         public string SpecializationName { get; set; }
 

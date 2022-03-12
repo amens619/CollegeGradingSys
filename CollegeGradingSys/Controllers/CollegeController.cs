@@ -28,11 +28,11 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: CollegeController/Details/5
-        public ActionResult Details(int id)
-        {
-            var college = CollegeRepository.Find(id);
-            return View(college);
-        }
+        //public ActionResult Details(int id)
+        //{
+        //    var college = CollegeRepository.Find(id);
+        //    return View(college);
+        //}
 
         // GET: CollegeController/Create
         public ActionResult Create()

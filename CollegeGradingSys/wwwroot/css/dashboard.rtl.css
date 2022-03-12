@@ -13,13 +13,15 @@ body {
  */
 
 .sidebar {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 100; /* Behind the navbar */
-  padding: 48px 0 0; /* Height of navbar */
-  box-shadow: inset 1px 0 0 rgba(0, 0, 0, .1);
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    float: right;
+    width: 18%;
+    z-index: 1015; /* Behind the navbar */
+    padding: 48px 0 0; /* Height of navbar */
+    box-shadow: inset 1px 0 0 rgba(0, 0, 0, .1);
 }
 
 @media (max-width: 767.98px) {
