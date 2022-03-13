@@ -1,33 +1,46 @@
 ﻿@model CollegeGradingSys.Models.Nationality
 
+
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "حذف دولة";
 }
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="bg-white">
+            <h5 class="mb-4">  <span style="margin-left:6px;" data-feather="delete"></span>إدارة الدول والجنسيات</h5>
+            <h6 class="m-1">حذف دولة</h6>
+            <hr class="mb-4 mt-0">
+            <div class="row">
+                <h4>هل تريد بالفعل حذف الدولة ؟!!</h4>
+                <div>
+                    <hr />
+                    @if (ViewBag.Message != null)
+                    {
+                        <h5 class="alert alert-danger">@ViewBag.Message</h5>
+                    }
+                    <div class="row  my-5">
+                        <div class="col-sm-2  my-2">
+                            @Html.DisplayNameFor(model => model.CountryName)
+                        </div>
+                        <div class="col-sm-10  my-2">
+                            @Html.DisplayFor(model => model.CountryName)
+                        </div>
+                        <div class="col-sm-2  my-2">
+                            @Html.DisplayNameFor(model => model.NationalityName)
+                        </div>
+                        <div class="col-sm-10  my-2">
+                            @Html.DisplayFor(model => model.NationalityName)
+                        </div>
+                    </div>
 
-<h1>حذف</h1>
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="submit" value="حذف" class="btn btn-danger btn-sm " />
+                        <a class="btn btn-secondary  btn-sm" asp-action="Index">إلغاء الامر</a>
+                    </form>
+                </div>
 
-<h3>هل تريد بالفعل حذف  الدولة؟</h3>
-<div>
-    <h4>الدولة</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CountryName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CountryName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NationalityName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NationalityName)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+            </div>
+        </div>
+    </div>
 </div>

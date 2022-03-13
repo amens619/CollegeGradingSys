@@ -71,7 +71,7 @@
                                 <li><a href="~/College" class="link-dark rounded">إدارة الكليات</a></li>
                                 <li><a href="~/Department" class="link-dark rounded">إدارة الاقسام</a></li>
                                 <li><a href="~/Specialization" class="link-dark rounded">إدارة التخصصات</a></li>
-                                <li><a href="~/Nationality" class="link-dark rounded">إدارة الدول والجنسيان</a></li>
+                                <li><a href="~/Nationality" class="link-dark rounded">إدارة الدول والجنسيات</a></li>
                                 <li><a href="~/Governorate" class="link-dark rounded">إدارة المحافظات</a></li>
                                 <li><a href="~/District" class="link-dark rounded">إدارة المديريات</a></li>
                                 <li><a href="~/City" class="link-dark rounded">إدارة المدن</a></li>
@@ -116,18 +116,18 @@
                 </ul>
             </div>
         </nav>
-        <main role="main" class=" me-sm-auto p-3 bg-light mainDiv  ">
-            <div class="container-fluid  mb-3 p-0 justify-content-md-end">
+        <main role="main" class=" me-sm-auto   p-3 bg-light mainDiv  ">
+            <div class="container-fluid   p-0 justify-content-md-end">
                 @RenderBody()
             </div>
 
 
         </main>
-        @*<footer class="border-top footer col-md-9 text-muted">
-                <div class="container">
-                    &copy; 2021 - CollegeGradingSys - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                </div>
-            </footer>*@
+        <footer class="border-top footer col-md-9 text-muted ">
+            <div class="container">
+                &copy; 2022 - نظام إدارة الدرجات  @*<a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>*@
+            </div>
+            </footer>
     </div>
 
 
@@ -155,7 +155,7 @@
                     document.getElementsByClassName('mainmenu').setAttribute("aria-expanded", "true");
                     $(this).setAttribute("aria-expanded", "true");
                 } else {
-                    alert("display none");
+                    //alert("display none");
                     document.getElementsByClassName('mainmenu').setAttribute("aria-expanded", "false");
                     //$(this).setAttribute("aria-expanded", "true");
                 }

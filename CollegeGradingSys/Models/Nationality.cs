@@ -11,13 +11,13 @@ namespace CollegeGradingSys.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
-        [StringLength(60, MinimumLength = 3)]
+       
+        [StringLength(60, MinimumLength = 3, ErrorMessage = "يجب أن يكون طول اسم الكلية  من 3 - 60 حرفًا.")]
         [Display(Name = "الدولة")]
         public string CountryName { get; set; }
 
-        [Required]
-        [StringLength(60, MinimumLength = 3)]
+        
+        [StringLength(60, MinimumLength = 3, ErrorMessage = "يجب أن يكون طول اسم الكلية  من 3 - 60 حرفًا.")]
         [Display(Name = "الجنسية")]
         public string NationalityName { get; set; }
 
