@@ -12,8 +12,8 @@ namespace CollegeGradingSys.ViewModels
         [Key]
         public int Id { get; set; }
 
-        [Required]
-        [StringLength(60, MinimumLength = 2)]
+        
+        [StringLength(60, MinimumLength = 2, ErrorMessage = "يجب أن يكون طول اسم المحافظة/المنطقة  من 2 - 60 حرفًا.")]
         [Display(Name = "المحافظة/المنطقة")]
         public string GovernorateName { get; set; }
 

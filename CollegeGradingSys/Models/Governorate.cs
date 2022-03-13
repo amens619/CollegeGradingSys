@@ -11,7 +11,7 @@ namespace CollegeGradingSys.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
+        
         [StringLength(60, MinimumLength = 2)]
         [Display(Name = "المحافظة/المنطقة")]
         public string GovernorateName { get; set; }

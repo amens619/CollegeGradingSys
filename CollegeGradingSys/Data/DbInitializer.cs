@@ -78,52 +78,52 @@ namespace CollegeGradingSys.Data
             }
             context.SaveChanges();
 
-            var Districts = new District[]
-           {
-            new District{DistrictName="الريدة وقصيعر", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="السوم", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="الديس", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="الشحر", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="الضليعه", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-             new District{DistrictName="العبر", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="القطن", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="القف", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="المكلا", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="بروم ميفع", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-             new District{DistrictName="تريم", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="ثمود", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="حجر", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="حجر الصيعر", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="حديبو", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-             new District{DistrictName="حريضة", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="دوعن", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="رخيه", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="رماه", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="زمنخ ومنوخ", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-             new District{DistrictName="ساه", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="سيئون", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="شبام", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="غيل باوزير", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="غيل بن يمين", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-             new District{DistrictName="قلنسية وعبد الكوري", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="مدينة المكلا", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="وادي العين", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-             new District{DistrictName="يبعث", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
-            new District{DistrictName="عرماء", Governorate=Governorates.Single(g => g.GovernorateName == "شبوة")},
-            new District{DistrictName="مرخة", Governorate=Governorates.Single(g => g.GovernorateName == "شبوة")},
-            new District{DistrictName="دهر", Governorate=Governorates.Single(g => g.GovernorateName == "شبوة")},
-            new District{DistrictName="جردان", Governorate=Governorates.Single(g => g.GovernorateName == "شبوة")},
-            new District{DistrictName="عسيلان", Governorate=Governorates.Single(g => g.GovernorateName == "شبوة")},
-            new District{DistrictName="مرخة", Governorate=Governorates.Single(g => g.GovernorateName == "شبوة")},
-            new District{DistrictName="عتق", Governorate=Governorates.Single(g => g.GovernorateName == "شبوة")},
-            new District{DistrictName="نصاب", Governorate=Governorates.Single(g => g.GovernorateName == "شبوة")},
-            new District{DistrictName="بيحان", Governorate=Governorates.Single(g => g.GovernorateName == "شبوة")}
-           };
-            foreach (District district in Districts)
-            {
-                context.District.Add(district);
-            }
-            context.SaveChanges();
+           // var Districts = new District[]
+           //{
+           // new District{DistrictName="الريدة وقصيعر", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="السوم", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="الديس", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="الشحر", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="الضليعه", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           //  new District{DistrictName="العبر", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="القطن", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="القف", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="المكلا", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="بروم ميفع", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           //  new District{DistrictName="تريم", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="ثمود", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="حجر", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="حجر الصيعر", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="حديبو", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           //  new District{DistrictName="حريضة", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="دوعن", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="رخيه", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="رماه", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="زمنخ ومنوخ", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           //  new District{DistrictName="ساه", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="سيئون", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="شبام", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="غيل باوزير", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="غيل بن يمين", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           //  new District{DistrictName="قلنسية وعبد الكوري", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="مدينة المكلا", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="وادي العين", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           //  new District{DistrictName="يبعث", Governorate=Governorates.Single(g => g.GovernorateName == "حضرموت")},
+           // new District{DistrictName="عرماء", Governorate=Governorates.Single(g => g.GovernorateName == "شبوة")},
+           // new District{DistrictName="مرخة", Governorate=Governorates.Single(g => g.GovernorateName == "شبوة")},
+           // new District{DistrictName="دهر", Governorate=Governorates.Single(g => g.GovernorateName == "شبوة")},
+           // new District{DistrictName="جردان", Governorate=Governorates.Single(g => g.GovernorateName == "شبوة")},
+           // new District{DistrictName="عسيلان", Governorate=Governorates.Single(g => g.GovernorateName == "شبوة")},
+           // new District{DistrictName="مرخة", Governorate=Governorates.Single(g => g.GovernorateName == "شبوة")},
+           // new District{DistrictName="عتق", Governorate=Governorates.Single(g => g.GovernorateName == "شبوة")},
+           // new District{DistrictName="نصاب", Governorate=Governorates.Single(g => g.GovernorateName == "شبوة")},
+           // new District{DistrictName="بيحان", Governorate=Governorates.Single(g => g.GovernorateName == "شبوة")}
+           //};
+           // foreach (District district in Districts)
+           // {
+           //     context.District.Add(district);
+           // }
+           // context.SaveChanges();
 
 
             var College = new College { CollegeName = "الشريعة" };

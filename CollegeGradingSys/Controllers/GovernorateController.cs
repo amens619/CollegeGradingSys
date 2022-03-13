@@ -14,11 +14,18 @@ namespace CollegeGradingSys.Controllers
     {
         private readonly ICollegeGradingSysRepository<Governorate> GovernorateRepository;
         private readonly ICollegeGradingSysRepository<Nationality> NationalityRepository;
+        private readonly ICollegeGradingSysRepository<StPersonalData> StPersonalDataRepository;
+        private readonly ICollegeGradingSysRepository<District> DistrictRepository;
 
-        public GovernorateController(ICollegeGradingSysRepository<Governorate> GovernorateRepository, ICollegeGradingSysRepository<Nationality> NationalityRepository)
+        public GovernorateController(ICollegeGradingSysRepository<Governorate> GovernorateRepository,
+            ICollegeGradingSysRepository<Nationality> NationalityRepository,
+            ICollegeGradingSysRepository<StPersonalData> StPersonalDataRepository,
+            ICollegeGradingSysRepository<District> DistrictRepository)
         {
             this.GovernorateRepository = GovernorateRepository;
             this.NationalityRepository = NationalityRepository;
+            this.StPersonalDataRepository = StPersonalDataRepository;
+            this.DistrictRepository = DistrictRepository;
         }
         // GET: GovernorateController
         public ActionResult Index2()
@@ -28,7 +35,7 @@ namespace CollegeGradingSys.Controllers
             return View(governorates);
         }
 
-        public ActionResult Index(int pageNumber =1,int pageSize=3)
+        public ActionResult Index(int pageNumber =1,int pageSize=5)
         {
             int ExcludeRecords = (pageSize * pageNumber) - pageSize;
             var governoratesR = GovernorateRepository.List();
@@ -75,6 +82,23 @@ namespace CollegeGradingSys.Controllers
         {
             try
             {
+               
+                if (model.GovernorateName == null)
+                {
+
+                    ModelState.Clear();
+                    ModelState.AddModelError(nameof(model.GovernorateName), " الرجاء كتابة اسم المحافظة/المنطقة");
+
+                    return View(GetAllNationalities());
+                }
+
+                if (isGovernorateNameExists((model.GovernorateName).Trim()))
+                {
+                    ModelState.AddModelError(nameof(model.GovernorateName), "لقد تم إيجاد محافظة/منطقة سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
+                    return View(GetAllNationalities());
+                }
+               
+               
 
                 if (model.NationalityId == -1)
                 {
@@ -110,14 +134,14 @@ namespace CollegeGradingSys.Controllers
             {
                 return NotFound();
             }
-            var collegeId = governorate.Nationality == null ? governorate.Nationality.Id = 0 : governorate.Nationality.Id;
+            var nationalityId =  governorate.Nationality.Id;
             var model = new NationalityGovernorateViewModel
             { 
                 Id = governorate.Id,
                 GovernorateName = governorate.GovernorateName,
-                 NationalityId= collegeId,
+                 NationalityId= nationalityId,
                 Nationalities = NationalityRepository.List().ToList()
-        };
+            };
             return View(model);
         }
 
@@ -128,13 +152,28 @@ namespace CollegeGradingSys.Controllers
         {
             try
             {
-                var nationality = NationalityRepository.Find(model.NationalityId);
-                Governorate governorate = new()
+
+                if (model.GovernorateName == null)
                 {
-                    Id = model.Id,
-                    GovernorateName = model.GovernorateName,
-                    Nationality = nationality,
-                };                
+
+                    ModelState.Clear();
+                    ModelState.AddModelError(nameof(model.GovernorateName), " الرجاء كتابة اسم المحافظة/المنطقة");
+
+                    return View(GetAllNationalities(model.NationalityId));
+                }
+
+                var department1 = GovernorateRepository.List().SingleOrDefault(x => x.GovernorateName == model.GovernorateName);
+                if (department1 != null && department1.Id != model.Id)
+                {
+                    ModelState.AddModelError(nameof(model.GovernorateName), "لقد تم إيجاد محافظة/منطقة سابقة بنفس اسم .. الرجاء كتابة اسم آخر");
+                    return View(GetAllNationalities(model.NationalityId));
+                }
+                var nationality = NationalityRepository.Find(model.NationalityId);
+                var governorate = GovernorateRepository.Find(model.Id);
+
+                governorate.GovernorateName = model.GovernorateName;
+                governorate.Nationality = nationality;
+                             
                 GovernorateRepository.Update(id, governorate);
                 return RedirectToAction(nameof(Index));
             }
@@ -161,12 +200,26 @@ namespace CollegeGradingSys.Controllers
         }
 
         // POST: GovernorateController/Delete/5
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, NationalityGovernorateViewModel model)
+        public IActionResult DeleteConfirmed(int id)
         {
             try
             {
+                var StPersonalDatasOFBirthGovernorate = StPersonalDataRepository.List().Where(x => x.BirthGovernorate.Id == id).ToList();
+                if (StPersonalDatasOFBirthGovernorate != null && StPersonalDatasOFBirthGovernorate.Count > 0)
+                {
+                    var governorate = GovernorateRepository.Find(id);
+                    ViewBag.Message = "لا يمكن حذف المحافظة بسبب وجود بيانات طلاب تابعة لها.. الرجاء حذف البيانات التابعة لها أولا ";
+                    return View(governorate);
+                }
+                //var DistrictsOFGovernorate = DistrictRepository.List().Where(x => x.Governorate.Id == id).ToList();
+                //if (DistrictsOFGovernorate != null && DistrictsOFGovernorate.Count > 0)
+                //{
+                //    var governorate = GovernorateRepository.Find(id);
+                //    ViewBag.Message = "لا يمكن حذف المحافظة بسبب وجود مديرية تابعة لها.. الرجاء حذف المديرية التابعة له أولا ";
+                //    return View(governorate);
+                //}
                 GovernorateRepository.Delete(id);
                 return RedirectToAction(nameof(Index));
             }
@@ -191,6 +244,21 @@ namespace CollegeGradingSys.Controllers
                 Nationalities = FillSelectList()
             };
             return vmodel;
+        }
+
+        NationalityGovernorateViewModel GetAllNationalities(int nationalityId)
+        {
+            var vmodel = new NationalityGovernorateViewModel
+            {
+                 NationalityId = nationalityId,
+                Nationalities = FillSelectList()
+            };
+            return vmodel;
+        }
+
+        private bool isGovernorateNameExists(string governorateName)
+        {
+            return GovernorateRepository.List().Any(e => e.GovernorateName == governorateName);
         }
     }
 }
