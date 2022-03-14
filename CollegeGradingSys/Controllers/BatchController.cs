@@ -17,11 +17,15 @@ namespace CollegeGradingSys.Controllers
        
         private readonly ICollegeGradingSysRepository<Batch> _studentBatchRepository;
         private readonly ICollegeGradingSysRepository<Specialization> _specializationRepository;
+        private readonly ICollegeGradingSysRepository<StAcademicData> StAcademicDataRepository;
 
-        public BatchController(ICollegeGradingSysRepository<Batch> studentBatchRepository, ICollegeGradingSysRepository<Specialization> specializationRepository)
+        public BatchController(ICollegeGradingSysRepository<Batch> studentBatchRepository,
+            ICollegeGradingSysRepository<Specialization> specializationRepository,
+            ICollegeGradingSysRepository<StAcademicData> StAcademicDataRepository)
         {
             _studentBatchRepository = studentBatchRepository;
             _specializationRepository = specializationRepository;
+            this.StAcademicDataRepository = StAcademicDataRepository;
         }
 
         // GET: Batche
@@ -32,7 +36,7 @@ namespace CollegeGradingSys.Controllers
             //    AcademicYearId = id;
             //}
             var viewModel = new BatchIndexData();
-            IList<Batch> Batches = _studentBatchRepository.List().OrderBy(x => x.BatchName).ToList();
+            IList<Batch> Batches = _studentBatchRepository.List().OrderByDescending(x => x.Id).ToList();
 
             if (SpecializationId is not null and not (-1))
             {
@@ -77,12 +81,28 @@ namespace CollegeGradingSys.Controllers
         [ValidateAntiForgeryToken]
         public  IActionResult Create([Bind("Id,BatchName,SpecializationId,Note")] BatchCreateData  batchCreateData)
         {
+            ViewData["SpecializationId"] = new SelectList(FillSelectSpecializationsList("-- اختر --"), "Id", "SpecializationName");
             if (ModelState.IsValid)
             {
+                if (batchCreateData.BatchName == null)
+                {
+
+                    ModelState.Clear();
+                    ModelState.AddModelError(nameof(batchCreateData.BatchName), "الرجاء ادخال اسم الدفعة");
+
+                    return View(batchCreateData);
+                }
+
+                if (isBatchNameExists((batchCreateData.BatchName).Trim()))
+                {
+                    ModelState.AddModelError(nameof(batchCreateData.BatchName), "لقد تم إيجاد دفعة سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
+                    return View(batchCreateData);
+                }
+
                 if (batchCreateData.SpecializationId == -1)
                 {
                     ViewBag.Message = "الرجاء اختيار  العام الدراسي من القائمة";
-                    ViewData["SpecializationId"] = new SelectList(FillSelectSpecializationsList("-- اختر --"), "Id", "SpecializationName");
+                    
                     return View(batchCreateData);
                 }
                 var specialization = _specializationRepository.Find(batchCreateData.SpecializationId);
@@ -100,14 +120,14 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: Batche/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var studentBatch = _studentBatchRepository.Find(id ?? 0);
+            var studentBatch = _studentBatchRepository.Find(id);
 
             if (studentBatch == null)
             {
@@ -116,12 +136,14 @@ namespace CollegeGradingSys.Controllers
             
             var model = new BatchCreateData
             {
+                
                 Id = studentBatch.Id,
                 BatchName = studentBatch.BatchName,
+                SpecializationId = studentBatch.Specialization.Id,
                 Note = studentBatch.Note
-                
+                 
             };
-            //ViewData["AcademicYearId"] = new SelectList(_academicYearRepository.List().ToList(), "Id", "AcademicYearName", studentBatch.Id);
+            ViewData["SpecializationId"] = new SelectList(_specializationRepository.List().ToList(), "Id", "SpecializationName");
             return View(model);
         }
 
@@ -130,37 +152,50 @@ namespace CollegeGradingSys.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,BatchName,AcademicYearId,Note")] BatchCreateData studentBatchVM)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,BatchName,SpecializationId,Note")] BatchCreateData studentBatchVM)
         {
-            if (id != studentBatchVM.Id)
+            if (id == null)
             {
                 return NotFound();
             }
 
+            if (id != studentBatchVM.Id)
+            {
+                return NotFound();
+            }
+            ViewData["SpecializationId"] = new SelectList(_specializationRepository.List().ToList(), "Id", "SpecializationName");
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var academicYear = _specializationRepository.Find(studentBatchVM.SpecializationId);
-                    Batch studentBatch = new()
+                    if (studentBatchVM.BatchName == null)
                     {
-                        Id = studentBatchVM.Id,
-                        BatchName = studentBatchVM.BatchName,
-                        Note = studentBatchVM.Note,
+
+                        ModelState.Clear();
+                        ModelState.AddModelError(nameof(studentBatchVM.BatchName), "الرجاء ادخال اسم الدفعة");
+
+                        return View(studentBatchVM);
+                    }
+
+                    var department1 = _studentBatchRepository.List().SingleOrDefault(x => x.BatchName == studentBatchVM.BatchName);
+                    if (department1 != null && department1.Id != studentBatchVM.Id)
+                    {
+                        ModelState.AddModelError(nameof(studentBatchVM.BatchName), "لقد تم إيجاد دفعة سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
+                        return View(studentBatchVM);
+                    }
+                    var specialization = _specializationRepository.Find(studentBatchVM.SpecializationId);
+                    var studentBatch = _studentBatchRepository.Find(studentBatchVM.Id);
+
+                    studentBatch.BatchName = studentBatchVM.BatchName;
+                    studentBatch.Specialization = specialization;
+                    studentBatch.Note = studentBatchVM.Note;
                         
-                    };
+                    
                     _studentBatchRepository.Update(id, studentBatch);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    //if (!BatchExists(studentBatch.Id))
-                    //{
-                    //    return NotFound();
-                    //}
-                    //else
-                    //{
-                    //    throw;
-                    //}
+                    return View(studentBatchVM);
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -168,14 +203,14 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: Batche/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var studentBatch = _studentBatchRepository.Delete(id ?? 0);
+            var studentBatch = _studentBatchRepository.Find(id);
             if (studentBatch == null)
             {
                 return NotFound();
@@ -187,10 +222,17 @@ namespace CollegeGradingSys.Controllers
         // POST: Batche/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public IActionResult DeleteConfirmed(int id)
         {
             try
             {
+                var StAcademicDatasOFBatch = StAcademicDataRepository.List().Where(x => x.Batch.Id == id).ToList();
+                if (StAcademicDatasOFBatch != null && StAcademicDatasOFBatch.Count > 0)
+                {
+                    var studentBatch = _studentBatchRepository.Find(id);
+                    ViewBag.Message = "لا يمكن حذف الدفعة بسبب وجود سجل اكاديمي لبعض الطلاب تابعة لها.. الرجاء حذف السجلات التابعة لها أولا ";
+                    return View(studentBatch);
+                }
                 _studentBatchRepository.Delete(id);
                 return RedirectToAction(nameof(Index));
             }
@@ -214,6 +256,9 @@ namespace CollegeGradingSys.Controllers
             return specializations;
         }
 
-       
+        private bool isBatchNameExists(string batchName)
+        {
+            return _studentBatchRepository.List().Any(e => e.BatchName == batchName);
+        }
     }
 }

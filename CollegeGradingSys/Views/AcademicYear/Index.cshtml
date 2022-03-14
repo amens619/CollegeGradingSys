@@ -18,38 +18,40 @@
                 <thead class="table-light">
                     <tr>
                         <th>
+                            @Html.DisplayNameFor(model => model.AcademicYearName)
+                        </th>
+                        <th>
                             @Html.DisplayNameFor(model => model.AcademicYearStart)
                         </th>
                         <th>
                             @Html.DisplayNameFor(model => model.AcademicYearEnd)
                         </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.AcademicYearName)
-                        </th>
+
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.AcademicYearStart)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.AcademicYearEnd)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.AcademicYearName)
-                            </td>
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.AcademicYearName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.AcademicYearStart)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.AcademicYearEnd)
+                        </td>
 
-                            <td>
-                                <a asp-action="Index" class="btn btn-secondary btn-sm" asp-controller="Batch" asp-route-id="@item.Id">الدفعات</a>
-                                <a asp-action="Edit" class="btn btn-primary btn-sm align-self-center" asp-route-id="@item.Id">تعديل</a>
-                                <a asp-action="Details" class="btn btn-warning btn-sm" asp-route-id="@item.Id">تفاصيل</a>                                
-                                <a asp-action="Delete" class="btn btn-danger btn-sm align-self-center" asp-route-id="@item.Id">حذف</a>
-                            </td>
-                        </tr>
+
+                        <td>
+                            <a asp-action="Index" class="btn btn-secondary btn-sm" asp-controller="Batch" asp-route-id="@item.Id">الدفعات</a>
+                            <a asp-action="Edit" class="btn btn-primary btn-sm align-self-center" asp-route-id="@item.Id">تعديل</a>
+                            <a asp-action="Details" class="btn btn-warning btn-sm" asp-route-id="@item.Id">تفاصيل</a>
+                            <a asp-action="Delete" class="btn btn-danger btn-sm align-self-center" asp-route-id="@item.Id">حذف</a>
+                        </td>
+                    </tr>
                     }
                 </tbody>
             </table>

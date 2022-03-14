@@ -11,7 +11,7 @@ namespace CollegeGradingSys.ViewModels
     {
         public int Id { get; set; }
         [Required]
-        [StringLength(30, MinimumLength = 2)]
+        [StringLength(30, MinimumLength = 2, ErrorMessage = "يجب أن يكون طول اسم الدفعة  من 3 - 30 حرفًا.")]
         [Display(Name = "اسم الدفعة")]
         public string BatchName { get; set; }
 

@@ -23,7 +23,7 @@ namespace CollegeGradingSys.Controllers
         // GET: AcademicYearController
         public ActionResult Index()
         {
-            var academicYears = AcademicYearRepository.List();
+            var academicYears = AcademicYearRepository.List().OrderByDescending(x => x.AcademicYearStart);
             return View(academicYears);
         }
 

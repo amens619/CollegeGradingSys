@@ -1,66 +1,75 @@
 ﻿@model CollegeGradingSys.ViewModels.BatchIndexData
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "إدارة الدفعات";
 }
 
-<h1>Index</h1>
+<div class="card mb-4">
 
-<p>
-    <a asp-action="Create">إضافة جديد</a>
-</p>
-<div class="card">
-    <div class="card-body col-md-8">
-        @using (Html.BeginForm("Index", "Batch", FormMethod.Get))
-        {
+    <div class="card-body">
+        <div class="bg-white">
+            <h5 class="mb-4">  <span style="margin-left:6px;" data-feather="list"></span>إدارة الدفعات</h5>
+            <h6 class="m-1">القائمة الرئسية</h6>
+            <hr class="mb-4 mt-0">
             <p>
-                <div class="form-group">
-                    <label asp-for="SpecializationId" class="control-label"></label>
-                    <select asp-for="SpecializationId" class="form-control" asp-items="ViewBag.SpecializationId"></select>
-                </div>
-
-
+                <a class="btn btn-secondary col-2 btn-sm" asp-action="Create">جديد</a>
             </p>
-            <input type="submit" value="تصفية" class="btn btn-primary" />
-            <a asp-action="Index" class="btn btn-primary" asp-route-id=-1>إلغاء التصفية</a>
-        }
 
+            <div class="card mb-4">
+                <div class="card-body col-md-12">
+                    @using (Html.BeginForm("Index", "Batch", FormMethod.Get))
+                    {
+                        
+                            <div class="form-group pb-2 col-md-4">
+                                <label asp-for="SpecializationId" class="control-label"></label>
+                                <select asp-for="SpecializationId" class="form-control text-center" asp-items="ViewBag.SpecializationId"></select>
+                            </div>
+
+
+                        
+                        <input type="submit" value="تصفية" class="btn btn-primary btn-sm" />
+                        <a asp-action="Index" class="btn btn-primary btn-sm" asp-route-id=-1>إلغاء التصفية</a>
+                    }
+
+                </div>
+            </div>
+
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th class="col-2 text-center">
+                            اسم الدفعة
+                        </th>
+                        <th class="col-2 text-center">
+                            التخصص
+                        </th>
+                        <th class="col-6 text-center">
+                            ملاحظات
+                        </th>
+                        <th class="col-2 text-center"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Batches)
+                    {
+                        <tr>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.BatchName)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Specialization.SpecializationName)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Note)
+                            </td>
+                            <td class="text-center">
+                                <a asp-action="Edit" class="btn btn-primary btn-sm align-self-center" asp-route-id="@item.Id">تعديل</a>
+                                <a asp-action="Delete" class="btn btn-danger btn-sm align-self-center" asp-route-id="@item.Id">حذف</a>                                
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                اسم الدفعة
-            </th>
-            <th>
-                التخصص
-            </th>
-            <th>
-                ملاحظات
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model.Batches) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.BatchName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Specialization.SpecializationName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Note)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>

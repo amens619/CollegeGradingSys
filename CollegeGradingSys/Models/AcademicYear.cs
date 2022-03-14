@@ -11,7 +11,7 @@ namespace CollegeGradingSys.Models
         [Key]
         public int Id { get; set; }
 
-        [DataType(DataType.Date, ErrorMessage = "يجب أن يكون طول اسم الكلية  من 3 - 30 حرفًا.")]              
+        [DataType(DataType.Date)]              
         [Display(Name = "تاريخ بداية العام")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime AcademicYearStart { get; set; }
@@ -22,7 +22,7 @@ namespace CollegeGradingSys.Models
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime AcademicYearEnd { get; set; }
         [Required]
-        [StringLength(30, MinimumLength = 3)]
+        [StringLength(30, MinimumLength = 3, ErrorMessage = "يجب أن يكون طول العام الدراسي  من 3 - 30 حرفًا.")]
         [Display(Name = "العام الدراسي")]
         public string AcademicYearName { get; set; }       
       
