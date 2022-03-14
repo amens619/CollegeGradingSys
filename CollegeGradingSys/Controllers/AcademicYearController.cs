@@ -12,10 +12,13 @@ namespace CollegeGradingSys.Controllers
     public class AcademicYearController : Controller
     {
         private readonly ICollegeGradingSysRepository<AcademicYear> AcademicYearRepository;
+        private readonly ICollegeGradingSysRepository<StAcademicData> StAcademicDataRepository;
 
-        public AcademicYearController(ICollegeGradingSysRepository<AcademicYear> AcademicYearRepository)
+        public AcademicYearController(ICollegeGradingSysRepository<AcademicYear> AcademicYearRepository,
+            ICollegeGradingSysRepository<StAcademicData> StAcademicDataRepository)
         {
             this.AcademicYearRepository = AcademicYearRepository;
+            this.StAcademicDataRepository = StAcademicDataRepository;
         }
         // GET: AcademicYearController
         public ActionResult Index()
@@ -43,21 +46,40 @@ namespace CollegeGradingSys.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(AcademicYear academicYear)
         {
-            try
+            if (ModelState.IsValid)
             {
-                AcademicYearRepository.Add(academicYear);
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    if (academicYear.AcademicYearStart >= academicYear.AcademicYearEnd)
+                    {
+                        ModelState.AddModelError(nameof(academicYear.AcademicYearEnd), "يجب ان يكون تاريخ نهاية العام بعد تاريخ بداية العام");
+                        return View(academicYear);
+                    }
+
+                    AcademicYearRepository.Add(academicYear);
+                    return RedirectToAction(nameof(Index));
+                }
+                catch
+                {
+                    return View(academicYear);
+                }
+                
             }
-            catch
-            {
-                return View();
-            }
+            return View(academicYear);
         }
 
         // GET: AcademicYearController/Edit/5
         public ActionResult Edit(int id)
         {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
             var academicYear = AcademicYearRepository.Find(id);
+            if (academicYear is null)
+            {
+                return NotFound();
+            }           
             return View(academicYear);
         }
 
@@ -68,7 +90,11 @@ namespace CollegeGradingSys.Controllers
         {
             try
             {
-
+                if (academicYear.AcademicYearStart >= academicYear.AcademicYearEnd)
+                {
+                    ModelState.AddModelError(nameof(academicYear.AcademicYearEnd), "يجب ان يكون تاريخ نهاية العام بعد تاريخ بداية العام");
+                    return View(academicYear);
+                }
                 AcademicYearRepository.Update(id, academicYear);
                 return RedirectToAction(nameof(Index));
             }
@@ -81,17 +107,34 @@ namespace CollegeGradingSys.Controllers
         // GET: AcademicYearController/Delete/5
         public ActionResult Delete(int id)
         {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
             var academicYear = AcademicYearRepository.Find(id);
+            if (academicYear is null)
+            {
+                return NotFound();
+            }
+           
             return View(academicYear);
         }
 
         // POST: AcademicYearController/Delete/5
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, AcademicYear  academicYear)
+        public IActionResult DeleteConfirmed(int id)
         {
             try
             {
+                var StAcademicDatasOFBirthAcademicYear = StAcademicDataRepository.List().Where(x => x.AcademicYear.Id == id).ToList();
+                if (StAcademicDatasOFBirthAcademicYear != null && StAcademicDatasOFBirthAcademicYear.Count > 0)
+                {
+                    var academicYear = AcademicYearRepository.Find(id);
+                    ViewBag.Message = "لا يمكن حذف العام الجامعي بسبب وجود سجل اكاديمي لبعض الطلاب تابعة له.. الرجاء حذف السجلات التابعة لها أولا ";
+                    return View(academicYear);
+                }
+                
                 AcademicYearRepository.Delete(id);
                 return RedirectToAction(nameof(Index));
             }

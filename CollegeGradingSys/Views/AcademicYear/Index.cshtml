@@ -1,49 +1,58 @@
 ﻿@model IEnumerable<CollegeGradingSys.Models.AcademicYear>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "إدارة العام الجامعي";
 }
 
-<h1>Index</h1>
+<div class="card mb-4">
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.AcademicYearStart)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AcademicYearEnd)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AcademicYearName)
-            </th>           
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.AcademicYearStart)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AcademicYearEnd)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AcademicYearName)
-            </td>
-            
-            <td>
-                <a asp-action="Index" asp-controller="Batch" asp-route-id="@item.Id">الدفعات</a> |
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <div class="card-body">
+        <div class="bg-white">
+            <h5 class="mb-4">  <span style="margin-left:6px;" data-feather="list"></span>إدارة العام الجامعي</h5>
+            <h6 class="m-1">القائمة الرئسية</h6>
+            <hr class="mb-4 mt-0">
+            <p>
+                <a class="btn btn-secondary col-2 btn-sm" asp-action="Create">جديد</a>
+            </p>
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.AcademicYearStart)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.AcademicYearEnd)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.AcademicYearName)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.AcademicYearStart)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.AcademicYearEnd)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.AcademicYearName)
+                            </td>
+
+                            <td>
+                                <a asp-action="Index" class="btn btn-secondary btn-sm" asp-controller="Batch" asp-route-id="@item.Id">الدفعات</a>
+                                <a asp-action="Edit" class="btn btn-primary btn-sm align-self-center" asp-route-id="@item.Id">تعديل</a>
+                                <a asp-action="Details" class="btn btn-warning btn-sm" asp-route-id="@item.Id">تفاصيل</a>                                
+                                <a asp-action="Delete" class="btn btn-danger btn-sm align-self-center" asp-route-id="@item.Id">حذف</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
