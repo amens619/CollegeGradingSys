@@ -38,12 +38,17 @@ namespace CollegeGradingSys.Models.Repositories
 
         public Course Find(int id)
         {
-            return db.Course.Include(x => x.Specialization).SingleOrDefault(a => a.Id == id);
+            return db.Course
+                .Include(x => x.Specialization)
+                .Include(x => x.Parent)
+                .SingleOrDefault(a => a.Id == id);
         }
 
         public IList<Course> List()
         {
-            return db.Course.Include(x => x.Specialization).ToList();
+            return db.Course.Include(x => x.Specialization)
+                 .Include(x => x.Parent)
+                 .ToList();
         }
 
         public Course Update(int id, Course newCourse)

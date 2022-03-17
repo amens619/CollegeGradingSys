@@ -15,7 +15,7 @@
                 <div id="modal-placeholder"></div>
 
                 <!-- Button trigger modal -->
-                <button type="button" class="btn btn-primary align-self-center btn-sm" data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Create","Course")">
+                <button type="button" class="btn btn-secondary col-2 btn-sm" data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Create","Course")">
                     جديد
                 </button>
                 @*<a asp-action="Create">Create New</a>*@
@@ -26,7 +26,7 @@
                     @using (Html.BeginForm("Index", "Course", FormMethod.Get))
                     {
 
-                        <div class="row">
+                        <div class="row  pb-2 ">
                             <div class="form-group col-md-4">
                                 <label asp-for="SpecializationId" class="control-label"></label>
                                 <select asp-for="SpecializationId" name="SpecializationId" class="form-control text-center"
@@ -68,59 +68,71 @@
                         <span class="badge bg-success  ">مادة أساسية</span>
                     </div>
                     <hr class="my-4">
-                    <table class="table">
-                        <thead>
+                    <table class="table table-bordered">
+                        <thead class="table-light">
                             <tr>
-                                <th scope="col">
+                                <th scope="col" rowspan="2" class="text-center" style="vertical-align: middle;">
                                     التخصص
                                 </th>
-                                <th scope="col">
+                                <th scope="col" rowspan="2" class="text-center" style="vertical-align: middle;">
                                     المستوى
                                 </th>
-                                <th scope="col">
+                                <th scope="col" rowspan="2" class="text-center" style="vertical-align: middle;">
                                     الفصل
                                 </th>
-                                <th class="col-2" scope="col">
+                                <th scope="col" rowspan="2"  class="col-2 text-center" style="vertical-align: middle;">
                                     اسم المادة
                                 </th>
-                                <th scope="col">
-                                    الدرجة الكبرى
+                                <th scope="col" colspan="2" class="text-center" style="vertical-align: middle;">
+                                    الدرجة 
+                                </th>                                
+                                <th scope="col" class="col-2 text-center" style="vertical-align: middle;">
+                                    نوع المادة  
                                 </th>
-                                <th scope="col">
-                                    الدرجة الصغرى
-                                </th>
-                                <th scope="col">
-                                    نوع المادة  ( فرعية/أساسية)
-                                </th>
-                                <th class="col-2" scope="col">
+                                <th scope="col"  rowspan="2" class="col-2 text-center" style="vertical-align: middle;">
                                     اسم المادة الاساسية
                                 </th>
-                                <th class="col-3" scope="col"></th>
+                                <th scope="col" rowspan="2" class="col-3"  ></th>
+                            </tr>
+                            <tr>
+                                                         
+                               
+                                <th scope="col" class="col-1 text-center">
+                                     الكبرى
+                                </th>
+                                <th scope="col" class="col-1 text-center">
+                                     الصغرى
+                                </th>
+                                <th scope="col" class="text-center" >
+                                       (فرعية/أساسية)
+                                </th>
+                               
+                               
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var item in Model.Courses)
                             {
                                 <tr>
-                                    <td>
+                                    <td class="text-center">
                                         @Html.DisplayFor(modelItem => item.Specialization.SpecializationName)
                                     </td>
-                                    <td>
+                                    <td class="text-center" >
                                         @Html.DisplayFor(modelItem => item.Level)
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         @Html.DisplayFor(modelItem => item.Term)
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         @Html.DisplayFor(modelItem => item.CourseName)
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         @Html.DisplayFor(modelItem => item.BigGrade)
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         @Html.DisplayFor(modelItem => item.SmallGrade)
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         @if (item.IsSubCourse)
                                         {
                                             <span class="badge bg-warning">مادة فرعية</span>
@@ -130,10 +142,10 @@
                                             <span class="badge bg-success">مادة أساسية</span>
                                         }
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         @Html.DisplayFor(modelItem => item.Parent.CourseName)
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         <!-- Modal placeholder -->
                                         <div id="modal-placeholder"></div>
                                         <button type="button" class="btn btn-primary btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Edit","Course",new { id = item.Id })">

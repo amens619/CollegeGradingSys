@@ -5,7 +5,16 @@
         $.get(url).done(function (data) {
             placeholderElement.html(data);
             placeholderElement.find('.modal').modal('show');           
-            $("#CreateCourseParentId").attr("disabled", "disabled");           
+            $("#CreateCourseParentId").attr("disabled", "disabled");
+
+            //============
+            if ($("#EditCourseIsSubCourse").val() == 'False') {
+                $("#EditCourseParentId").prop('selectedIndex', 0);
+                $("#EditCourseParentId").attr("disabled", "disabled");
+            }
+            else {
+                $("#EditCourseParentId").removeAttr("disabled");
+            }
         });
     });
 
@@ -35,7 +44,16 @@
             $("#CreateCourseParentId").removeAttr("disabled");                     
         }
     });
-    
+    placeholderElement.on('change', '#EditCourseIsSubCourse', function () {
+
+        if ($("#EditCourseIsSubCourse").val() == 'False') {
+            $("#EditCourseParentId").prop('selectedIndex', 0);
+            $("#EditCourseParentId").attr("disabled", "disabled");
+        }
+        else {
+            $("#EditCourseParentId").removeAttr("disabled");
+        }
+    });
         
     
 });

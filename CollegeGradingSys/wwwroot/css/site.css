@@ -111,6 +111,10 @@ body {
    
 }
 
+.multiline {
+    white-space: pre-line;
+}
+
 .modal-backdrop {
     /*position: relative;*/
    /* z-index: -1;*/

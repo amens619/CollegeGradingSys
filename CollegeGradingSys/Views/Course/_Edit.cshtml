@@ -9,7 +9,7 @@
                     <h5 class="modal-title" id="addContactLabel">تعديل المادة </h5>
                 </div>
 
-                
+                <hr />
                 <div class="modal-body row">
 
                     <input name="IsValid" type="hidden" value="@ViewData.ModelState.IsValid.ToString()" />
@@ -50,7 +50,7 @@
                     <div class="form-group col-md-6">
 
                         <label asp-for="IsSubCourse" class="control-label"></label>
-                        <select id="CreateCourseIsSubCourse" asp-for="IsSubCourse" class="form-control text-center">
+                        <select id="EditCourseIsSubCourse" asp-for="IsSubCourse" class="form-control text-center">
                             <option value="False">مادة أساسية</option>
                             <option value="True">مادة فرعية</option>
                         </select>
@@ -58,7 +58,7 @@
 
                     <div class="form-group col-md-6">
                         <label asp-for="ParentId" class="control-label"></label>
-                        <select id="CreateCourseParentId" asp-for="ParentId" class="form-control text-center"
+                        <select id="EditCourseParentId" asp-for="ParentId" class="form-control text-center"
                                 asp-items="ViewBag.ParentsCourses">
                             @*<option value="-1">-- اختر --</option>*@
                         </select>
@@ -72,7 +72,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء الأمر</button>
-                    <button type="button" data-save="modal"  class="btn btn-primary">حفظ</button>
+                    <button type="button" data-save="modal" class="btn btn-primary">حفظ</button>
                 </div>
             </div>
         </div>

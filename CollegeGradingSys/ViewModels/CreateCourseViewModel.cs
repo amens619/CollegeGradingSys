@@ -18,16 +18,18 @@ namespace CollegeGradingSys.ViewModels
         [Display(Name = "الفصل الدراسي")]
         public Term Term { get; set; }
 
-               
+        [Required(ErrorMessage = "يجب إدخال اسم المادة بطول  40 حرفًا على الاكثر.")]
         [StringLength(40, MinimumLength = 3, ErrorMessage = " يجب إدخال اسم المادة بطول  40 حرفًا على الاكثر.")]
         [Display(Name = "اسم المادة")]
         public string CourseName { get; set; }
-        [Display(Name = "الكبرى")]
-        public int BigGrade { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = " الرجاء إدخال  الدرجة الكبرى رقماً صحيحا بين 0 - 100.")]
+        [Display(Name = "الكبرى")]
+        public string BigGrade { get; set; }
+
+        [Required(ErrorMessage = " الرجاء إدخال  الدرجة الكبرى رقماً صحيحا بين 0 - 100.")]            
         [Display(Name = "الصغرى")]
-        public int SmallGrade { get; set; }
+        public string SmallGrade { get; set; }
 
         [Display(Name = "ملاحظة")]
         public string Note { get; set; }

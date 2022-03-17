@@ -20,20 +20,22 @@ namespace CollegeGradingSys.Models
         [Display(Name = "اسم المادة")]
         [StringLength(50, MinimumLength = 2)]
         public string CourseName { get; set; }
-        [Display(Name = "الكبرى")]
+        [Display(Name = "الدرجة الكبرى")]
         public int BigGrade { get; set; }
 
-        [Required]
-        [Display(Name = "الصغرى")]
+        [Required] 
+        [Display(Name = "الدرجة الصغرى")]
         public int SmallGrade { get; set; }
 
         [Display(Name = "ملاحظة")]
         [StringLength(100)]
+        [DisplayFormat(NullDisplayText = "لا توجد ملاحظات")]
         public string Note { get; set; }
         [Display(Name = "المادة الاساسية")]
+
         public int? ParentId { get; set; }
 
-        [Display(Name = "نوع المادة(فرعية/اساسية)")]      
+        [Display(Name = "نوع المادة (فرعية/اساسية)")]      
         public bool IsSubCourse { get; set; }
 
         public virtual Course Parent { get; set; }

@@ -599,7 +599,7 @@ namespace CollegeGradingSys.Controllers
                             NumberStyles.AllowDecimalPoint,
                             cultureInfo, out var modelGrade)) || !(modelGrade >= 0 && modelGrade <= 100))
                         {                            
-                                ModelState.AddModelError(nameof(model.Grade)," يجب إدخال اسم  درجة المادة رقماً بين 0 - 100.");
+                                ModelState.AddModelError(nameof(model.Grade)," يجب إدخال  درجة المادة رقماً بين 0 - 100.");
 
                                 return PartialView("_Edit", model);                           
                         }

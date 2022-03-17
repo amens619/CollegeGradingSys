@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,10 +17,15 @@ namespace CollegeGradingSys.Controllers
     {
         private readonly ICollegeGradingSysRepository<Course> CourseRepository;
         private readonly ICollegeGradingSysRepository<Specialization> _specializationRepository;
-        public CourseController(ICollegeGradingSysRepository<Course> CourseRepository, ICollegeGradingSysRepository<Specialization> specializationRepository)
+        private readonly ICollegeGradingSysRepository<CourseGrade> _CourseGradeRepository;
+
+        public CourseController(ICollegeGradingSysRepository<Course> CourseRepository,
+            ICollegeGradingSysRepository<Specialization> specializationRepository,
+            ICollegeGradingSysRepository<CourseGrade> CourseGradeRepository)
         {
             this.CourseRepository = CourseRepository;
             this._specializationRepository = specializationRepository;
+            _CourseGradeRepository = CourseGradeRepository;
         }
         // GET: CourseController
         public ActionResult Index(Term? term, Level? level,int? SpecializationId)
@@ -62,7 +68,8 @@ namespace CollegeGradingSys.Controllers
 
             var model = new CreateCourseViewModel();
 
-
+            model.BigGrade = "100";
+            model.SmallGrade = "60";
             FullAllLists();
             return PartialView("_Create", model);
         }
@@ -77,35 +84,96 @@ namespace CollegeGradingSys.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(CreateCourseViewModel model)
         {
-            if (ModelState.IsValid)
+            ModelState.ClearValidationState(nameof(model));
+            int newBigGrade = 0;
+            if (model.BigGrade is not null)
             {
-                try
+                var cultureInfo = new CultureInfo("en");
+                if (!(int.TryParse(model.BigGrade.ToString(),
+                    NumberStyles.Integer,
+                    cultureInfo, out var modelBigGrade)) || !(modelBigGrade >= 0 && modelBigGrade <= 100))
+                {
+                    ModelState.AddModelError(nameof(model.BigGrade), " الرجاء إدخال  الدرجة الكبرى رقماً صحيحا بين 0 - 100.");
+
+                    //return PartialView("_Create", model);
+                }else { newBigGrade = modelBigGrade; }
+                
+
+            }
+            else
             {
+                ModelState.AddModelError(nameof(model.BigGrade), "الرجاء إدخال  الدرجة الكبرى رقماً صحيحا بين 0 - 100.");
 
-                    if (model.IsSubCourse)
-                    {
-                        if (model.ParentId == -1 || model.ParentId == null)
-                        {
-                        FullAllLists();
-                        ModelState.AddModelError(nameof(model.ParentId), "الرجاء اختيار المادة الاساسية من القائمة");
-                       
-                            return PartialView("_Create", model);
-                        }
-                    }
-                    if (string.IsNullOrEmpty(model.CourseName))
-                    {
-                        FullAllLists();
-                        ModelState.AddModelError(nameof(model.CourseName), " يجب إدخال اسم المادة بطول  40 حرفًا على الاكثر.");
+                //return PartialView("_Create", model);
 
-                        return PartialView("_Create", model);
-                    }
-                    var specialization = _specializationRepository.Find(model.SpecializationId);
+            }
+
+            int newSmallGrade = 0;
+            if (model.SmallGrade is not null)
+            {
+                var cultureInfo = new CultureInfo("en");
+                if (!(int.TryParse(model.SmallGrade.ToString(),
+                    NumberStyles.Integer,
+                    cultureInfo, out var modelSmallGrade)) || !(modelSmallGrade >= 0 && modelSmallGrade <= 100))
+                {
+                    ModelState.AddModelError(nameof(model.SmallGrade), " الرجاء إدخال  الدرجة الصغرى رقماً صحيحا بين 0 - 100.");
+
+                    //return PartialView("_Create", model);
+                }
+                else { newSmallGrade = modelSmallGrade; }
+                
+
+            }
+            else
+            {
+                ModelState.AddModelError(nameof(model.SmallGrade), "الرجاء إدخال  الدرجة الصغرى رقماً صحيحا بين 0 - 100.");
+
+                return PartialView("_Create", model);
+
+            }
+
+
+
+            if (string.IsNullOrEmpty(model.CourseName))
+            {
+                //FullAllLists();
+                ModelState.AddModelError(nameof(model.CourseName), " الرجاء إدخال اسم المادة بطول  40 حرفًا على الاكثر.");
+
+                //return PartialView("_Create", model);
+            }
+            else if (isCourseNameExists((model.CourseName).Trim()))
+            {
+                ModelState.AddModelError(nameof(model.CourseName), "لقد تم إيجاد مادة بنفس اسم .. الرجاء كتابة اسم آخر ");
+                //return PartialView("_Create", model);
+            }
+            if (model.IsSubCourse)
+            {
+                if (model.ParentId == -1 || model.ParentId == null)
+                {
+                    //FullAllLists();
+                    ModelState.AddModelError(nameof(model.ParentId), "الرجاء اختيار المادة الاساسية من القائمة");
+
+                    //return PartialView("_Create", model);
+                }
+            }
+
+            try
+            {
+               
+                  
+
+                if (!TryValidateModel(model, nameof(model)))
+                {
+                    FullAllLists();
+                    return PartialView("_Create", model);
+                }
+                var specialization = _specializationRepository.Find(model.SpecializationId);
                     Course course = new()
                     {
                         Id = model.Id,
                         CourseName = model.CourseName,
-                        BigGrade = model.BigGrade,
-                        SmallGrade = model.SmallGrade,
+                        BigGrade = newBigGrade,
+                        SmallGrade = newSmallGrade,
                         IsSubCourse = model.IsSubCourse,
                         Level = model.Level,
                         ParentId = model.ParentId,
@@ -125,12 +193,7 @@ namespace CollegeGradingSys.Controllers
                 return PartialView("_Create", model);
                 }
 
-            }
-            else
-            {
-                FullAllLists();
-                return PartialView("_Create", model);
-            }
+           
            
 
         }
@@ -139,14 +202,14 @@ namespace CollegeGradingSys.Controllers
         public ActionResult Edit(int id)
         {
             var course = CourseRepository.Find(id);
-
+            FullAllLists();
             //var governorateId = city.District == null ? city.District.Id = 0 : city.District.Id;
             var model = new EditCourseViewModel
             {
                 Id = course.Id,
                 CourseName = course.CourseName,
-                BigGrade = course.BigGrade,
-                SmallGrade = course.SmallGrade,
+                BigGrade = course.BigGrade.ToString(),
+                SmallGrade = course.SmallGrade.ToString(),
                 Level = course.Level,
                 Term = course.Term,
                 IsSubCourse = course.IsSubCourse,
@@ -155,7 +218,7 @@ namespace CollegeGradingSys.Controllers
                 SpecializationId = course.Specialization.Id,
                 Specialization = course.Specialization
             };
-            FullAllLists();
+           
             return PartialView("_Edit", model);
         }
 
@@ -164,23 +227,107 @@ namespace CollegeGradingSys.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, EditCourseViewModel model)
         {
+            ModelState.ClearValidationState(nameof(model));
+            int newBigGrade = 0;
+            if (model.BigGrade is not null)
+            {
+                var cultureInfo = new CultureInfo("en");
+                if (!(int.TryParse(model.BigGrade.ToString(),
+                    NumberStyles.Integer,
+                    cultureInfo, out var modelBigGrade)) || !(modelBigGrade >= 0 && modelBigGrade <= 100))
+                {
+                    ModelState.AddModelError(nameof(model.BigGrade), " الرجاء إدخال  الدرجة الكبرى رقماً صحيحا بين 0 - 100.");
+
+                    //return PartialView("_Create", model);
+                }
+                else { newBigGrade = modelBigGrade; }
+
+
+            }
+            else
+            {
+                ModelState.AddModelError(nameof(model.BigGrade), "الرجاء إدخال  الدرجة الكبرى رقماً صحيحا بين 0 - 100.");
+
+                //return PartialView("_Create", model);
+
+            }
+
+            int newSmallGrade = 0;
+            if (model.SmallGrade is not null)
+            {
+                var cultureInfo = new CultureInfo("en");
+                if (!(int.TryParse(model.SmallGrade.ToString(),
+                    NumberStyles.Integer,
+                    cultureInfo, out var modelSmallGrade)) || !(modelSmallGrade >= 0 && modelSmallGrade <= 100))
+                {
+                    ModelState.AddModelError(nameof(model.SmallGrade), " الرجاء إدخال  الدرجة الصغرى رقماً صحيحا بين 0 - 100.");
+
+                    //return PartialView("_Create", model);
+                }
+                else { newSmallGrade = modelSmallGrade; }
+
+
+            }
+            else
+            {
+                ModelState.AddModelError(nameof(model.SmallGrade), "الرجاء إدخال  الدرجة الصغرى رقماً صحيحا بين 0 - 100.");
+
+                return PartialView("_Create", model);
+
+            }
+
+            if (string.IsNullOrEmpty(model.CourseName))
+            {
+                //FullAllLists();
+                ModelState.AddModelError(nameof(model.CourseName), " الرجاء إدخال اسم المادة بطول  40 حرفًا على الاكثر.");
+
+                //return PartialView("_Create", model);
+            }
+            else
+            {
+                var course1 = CourseRepository.List().SingleOrDefault(x => x.CourseName == model.CourseName);
+                if (course1 != null && course1.Id != model.Id)
+                {
+                    ModelState.AddModelError(nameof(model.CourseName), "لقد تم إيجاد مادة بنفس اسم .. الرجاء كتابة اسم آخر ");                   
+                }
+            }
+            
+           
+            if (model.IsSubCourse)
+            {
+                if (model.ParentId == -1 || model.ParentId == null)
+                {
+                    //FullAllLists();
+                    ModelState.AddModelError(nameof(model.ParentId), "الرجاء اختيار المادة الاساسية من القائمة");
+
+                    //return PartialView("_Create", model);
+                }
+            }
+
+
+
+            if (!TryValidateModel(model, nameof(model)))
+            {
+                FullAllLists();
+                return PartialView("_Edit", model);
+            }
+
             try
             {
                 var specialization = _specializationRepository.Find(model.SpecializationId);
-                Course course = new()
-                {
-                    Id = model.Id,
-                    CourseName = model.CourseName,
-                    BigGrade = model.BigGrade,
-                    SmallGrade = model.SmallGrade,
-                    Level = model.Level,
-                    Term = model.Term,
-                    IsSubCourse = model.IsSubCourse,
-                    Note = model.Note,
-                    ParentId = model.ParentId,                   
-                    Specialization = specialization,
-                     
-                };
+                Course course = CourseRepository.Find(model.Id);
+
+                course.CourseName = model.CourseName;
+                course.BigGrade = newBigGrade;
+                course.SmallGrade = newSmallGrade;
+                course.Level = model.Level;
+                course.Term = model.Term;
+                course.IsSubCourse = model.IsSubCourse;
+                course.Note = model.Note;
+                course.ParentId = model.ParentId;
+                course.Specialization = specialization;
+
+
                 CourseRepository.Update(id, course);
                 //return RedirectToAction(nameof(Index));
                 return PartialView("_Edit", model);
@@ -194,7 +341,16 @@ namespace CollegeGradingSys.Controllers
         // GET: CourseController/Delete/5
         public ActionResult Delete(int id)
         {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
             var course = CourseRepository.Find(id);
+            if (course is null)
+            {
+                return NotFound();
+            }
+           
 
             return PartialView("_Delete", course);
         }
@@ -204,8 +360,23 @@ namespace CollegeGradingSys.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id,Course course)
         {
+            //ModelState.ClearValidationState(nameof(course));
             try
             {
+                var SubCoursesOFCourse = CourseRepository.List().Where(x => x.ParentId == id).ToList();
+                if (SubCoursesOFCourse != null && SubCoursesOFCourse.Count > 0)
+                {
+                    ModelState.AddModelError(nameof(course.CourseName), "");
+                    ViewBag.Message = "لا يمكن حذف المادة بسبب وجود مواد فرعية تابعة لها";
+                    return PartialView("_Delete", course);
+                }
+                var CourseGradesOFCourse = _CourseGradeRepository.List().Where(x => x.Course.Id == id).ToList();
+                if (CourseGradesOFCourse != null && CourseGradesOFCourse.Count > 0)
+                {
+                    ModelState.AddModelError(nameof(course.CourseName), "");
+                    ViewBag.Message = "لا يمكن حذف المادة بسبب وجود درجات مرصودة للطلاب في هذه المادة";
+                    return PartialView("_Delete", course);
+                }
 
                 CourseRepository.Delete(id);
                 return PartialView("_Delete", course);
@@ -240,6 +411,11 @@ namespace CollegeGradingSys.Controllers
             ViewData["ParentsCourses"] = new SelectList(FillSelectParentsCoursesList(), "Id", "CourseName");
             ViewData["Specializations"] = new SelectList(FillSelectSpecializationsList(), "Id", "SpecializationName");
             
+        }
+
+        private bool isCourseNameExists(string courseName)
+        {
+            return CourseRepository.List().Any(e => e.CourseName == courseName);
         }
     }
 }

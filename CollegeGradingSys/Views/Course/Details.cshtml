@@ -1,66 +1,84 @@
 ﻿@model CollegeGradingSys.Models.Course
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "التفصيل";
 }
 
-<h1>Details</h1>
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="bg-white">
+            <h5 class="mb-4">  <span style="margin-left:6px;" data-feather="edit"></span>إدارة الكليات</h5>
+            <h6 class="m-1">التفصيل</h6>
+            <hr class="mb-2 mt-0">
+            <div class=" row col-md-12">
+                <div class="row my-5">
+                    <div class="col-sm-2 my-2">
+                        @Html.DisplayNameFor(model => model.Level)
+                    </div>
+                    <div class="col-sm-10 my-2">
+                        @Html.DisplayFor(model => model.Level)
+                    </div>
+                    <div class="col-sm-2 my-2">
+                        @Html.DisplayNameFor(model => model.Term)
+                    </div>
+                    <div class="col-sm-10 my-2">
+                        @Html.DisplayFor(model => model.Term)
+                    </div>
+                    <div class="col-sm-2 my-2">
+                        @Html.DisplayNameFor(model => model.CourseName)
+                    </div>
+                    <div class="col-sm-10 my-2">
+                        @Html.DisplayFor(model => model.CourseName)
+                    </div>
+                    <div class="col-sm-2 my-2">
+                        @Html.DisplayNameFor(model => model.BigGrade)
+                    </div>
+                    <div class="col-sm-10 my-2">
+                        @Html.DisplayFor(model => model.BigGrade)
+                    </div>
+                    <div class="col-sm-2 my-2">
+                        @Html.DisplayNameFor(model => model.SmallGrade)
+                    </div>
+                    <div class="col-sm-10 my-2">
+                        @Html.DisplayFor(model => model.SmallGrade)
+                    </div>
 
-<div>
-    <h4>Course</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Level)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Level)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Term)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Term)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CourseName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CourseName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BigGrade)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BigGrade)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SmallGrade)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SmallGrade)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Note)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Note)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ParentId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ParentId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsSubCourse)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsSubCourse)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+                    <div class="col-sm-2  my-2">
+                        @Html.DisplayNameFor(model => model.IsSubCourse)
+                    </div>
+
+                    @if (Model.IsSubCourse)
+                    {
+                        <div class="col-sm-10 my-2">
+                            <span class="badge bg-warning">مادة فرعية</span>
+                        </div>
+                        <div class="col-sm-2 my-2">
+                            @Html.DisplayNameFor(model => model.ParentId)
+                        </div>
+                        <div class="col-sm-10 my-2">
+                            @Html.DisplayFor(model => model.Parent.CourseName)
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-sm-10 my-2">
+                            <span class="badge bg-success">مادة أساسية</span>
+                        </div>
+                    }
+                    <div class="col-sm-2 my-2">
+                        @Html.DisplayNameFor(model => model.Note)
+                    </div>
+                    <div class="col-sm-10 my-2">
+                        @Html.DisplayFor(model => model.Note)
+                    </div>
+
+                </div>
+                <hr class="mb-2 mt-0">
+                <div>
+                    <a asp-action="Edit" class="btn btn-primary btn-sm align-self-center" asp-route-id="@Model.Id">تعديل</a>
+                    <a class="btn btn-secondary  btn-sm" asp-action="Index">القائمة الرئسية</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

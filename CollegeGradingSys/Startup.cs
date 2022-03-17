@@ -42,7 +42,18 @@ namespace CollegeGradingSys
             });
             //=======================================
             services.AddMvc();
-
+            //===============================
+            services.AddRazorPages()
+    .AddMvcOptions(options =>
+    {
+        options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(
+            _ => "The field is required.");
+    });
+            services.AddMvcCore().AddMvcOptions(options =>
+            {
+                options.ModelBindingMessageProvider.SetNonPropertyAttemptedValueIsInvalidAccessor(s => "The provided value is   „«„invalid.");
+            });
+            //=====================================
             //services.AddSingleton<ICollegeGradingSysRepository<College>, CollegeRepository>();
             //services.AddSingleton<ICollegeGradingSysRepository<Nationality>, NationalityRepository>();
             //services.AddSingleton<ICollegeGradingSysRepository<Governorate>, GovernorateRepository>();
@@ -53,7 +64,7 @@ namespace CollegeGradingSys
             //services.AddSingleton<ICollegeGradingSysRepository<StPersonalData>, StPersonalDataRepository>();
             // services.AddSingleton<ICollegeGradingSysRepository<AcademicYear>, AcademicYearRepository>();
             //services.AddSingleton<ICollegeGradingSysRepository<Batch>, BatchRepository>();
-
+            //============================================
             //============================================================================================
             services.AddTransient<ICollegeGradingSysRepository<College>, CollegeDbRepository>();
             services.AddTransient<ICollegeGradingSysRepository<Nationality>, NationalityDbRepository>();
