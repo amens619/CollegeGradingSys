@@ -24,8 +24,16 @@ namespace CollegeGradingSys.Models
         [Required]
         [StringLength(30, MinimumLength = 3, ErrorMessage = "يجب أن يكون طول العام الدراسي  من 3 - 30 حرفًا.")]
         [Display(Name = "العام الدراسي")]
-        public string AcademicYearName { get; set; }       
-      
+        public string AcademicYearName { get; set; }
+
+        [Required]
+        [StringLength(30, MinimumLength = 3, ErrorMessage = "يجب أن يكون طول العام الدراسي بالهجري من 3 - 30 حرفًا.")]
+        [Display(Name = " العام الدراسي بالهجري")]
+        public string AcademicYearNameH { get; set; }
+
+        [Display(Name = "الفصل الحالي")]
+        public bool IsCurrentYear { get; set; }
+
         [MaxLength(200)]
         [Display(Name = "ملاحظة")]
         [DisplayFormat(NullDisplayText = "لا توجد ملاحظات")]

@@ -26,6 +26,9 @@ namespace CollegeGradingSys.Models
         [Display(Name = "حالة الطالب")]
         public StStatus StStatus { get; set; }
 
+        //[Display(Name = "نظام الدراسة")]
+        //public StudyType StudyType { get; set; }
+
         [Display(Name = "المعدل")]
         public float? Average { get; set; }
         [Display(Name = "المعدل التراكمي")]

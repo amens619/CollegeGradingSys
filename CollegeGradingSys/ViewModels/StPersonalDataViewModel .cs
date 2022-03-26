@@ -9,22 +9,22 @@ namespace CollegeGradingSys.ViewModels
 {
     public class StPersonalDataViewModel
     {
-        [Key]
-        [Required]
+        
         [Display(Name = "رقم القيد")]
-        public int AcademicID { get; set; }
+        [StringLength(8, MinimumLength = 2, ErrorMessage = "يجب أن يكون طول رقم القيد من 2 - 8 رقم.")]
+        public string AcademicID { get; set; }
 
-        [Required]
-        [StringLength(100, MinimumLength = 2)]
+       
+        [StringLength(100, MinimumLength = 2, ErrorMessage = "يجب أن يكون طول اسم القسم  من 2 - 100 حرفًا.")]
         [Display(Name = "الاسم الطالب")]
         public string StName { get; set; }
 
-        [Required]
-        [StringLength(15, MinimumLength = 2)]
+       
+        [StringLength(15, MinimumLength = 2, ErrorMessage = "يجب أن يكون طول الرقم الوطني من 2 - 15 رقم.")]
         [Display(Name = "الرقم الوطني (الهوية )")]
         public string IdentificatioNO { get; set; }
 
-        [Required]
+        
         [Display(Name = "الجنس")]
         public Sex Sex { get; set; }
 
@@ -34,7 +34,7 @@ namespace CollegeGradingSys.ViewModels
         public ICollection<Nationality>  Nationalities { get; set; }
 
 
-        [Required]
+        
         [Display(Name = "مكان الميلاد (الدولة ) ")]
         public int BirthPlaceId { get; set; }
        
@@ -43,27 +43,48 @@ namespace CollegeGradingSys.ViewModels
         public int GovernorateId { get; set; }
         public ICollection<Governorate>  Governorates { get; set; }
 
-        [Required]
+       
+       
         [Display(Name = "تاريخ الميلاد")]
         [DataType(DataType.Date)]
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM/dd/yyyy}")]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime BirthDate { get; set; }
-        [Required]
-        [StringLength(15, MinimumLength = 2)]
+
+
+        
+        public int EnrollmentYearId { get; set; }
+
         [Display(Name = "سنة الالتحاق ميلادي")]
         public string EnrollmentYearM { get; set; }
-        [Required]
-        [StringLength(15, MinimumLength = 2)]
+
         [Display(Name = "سنة الالتحاق هجري")]
         public string EnrollmentYearH { get; set; }
 
-
-
-
         public StHighSchoolData StHighSchoolData { get; set; }
-
-
-
         public ICollection<StAcademicData> StAcademicDatas { get; set; }
+
+        [Display(Name = "المستوى")]
+        public Level StLevel { get; set; }
+
+        [Display(Name = "الفصل الدراسي")]
+        public Term? Term { get; set; }
+
+        [Display(Name = "حالة الطالب")]
+        public StStatus StStatus { get; set; }
+
+        [Display(Name = "المعدل")]
+        public float? Average { get; set; }
+        [Display(Name = "المعدل التراكمي")]
+        public float? GPA { get; set; }
+        [Display(Name = "التقدير")]
+        public Valuation Valuation { get; set; }
+        [Display(Name = "الفصل الحالي")]
+        public bool IsCurrentYear { get; set; }
+        [Display(Name = "الدفعة")]
+        public int BatchId { get; set; }
+        [Display(Name = "العام الدراسي")]
+        public int AcademicYearId { get; set; }
+
+       
     }
 }

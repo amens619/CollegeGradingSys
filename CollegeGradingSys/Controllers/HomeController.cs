@@ -1,4 +1,6 @@
 ﻿using CollegeGradingSys.Models;
+using CollegeGradingSys.Models.Repositories;
+using CollegeGradingSys.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -11,16 +13,32 @@ namespace CollegeGradingSys.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        
+        private readonly ICollegeGradingSysRepository<AcademicYear> _AcademicYearRepository;
+        private readonly ICollegeGradingSysRepository<StPersonalData> _StPersonalDataRepository;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ICollegeGradingSysRepository<AcademicYear> AcademicYearRepository,
+            ICollegeGradingSysRepository<StPersonalData> StPersonalDataRepository)
         {
-            _logger = logger;
+            
+            _AcademicYearRepository = AcademicYearRepository;
+            _StPersonalDataRepository = StPersonalDataRepository;
         }
 
         public IActionResult Index()
         {
-            return View();
+            
+            var academicYear = _AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true);
+            var stPersonalData = _StPersonalDataRepository.List().Where(x => x.EnrollmentYear.Id == academicYear.Id).ToList();
+            var homeIndexData = new HomeIndexData();
+            if (academicYear != null)
+            {
+                homeIndexData.StudentsNO = stPersonalData.Count();
+                homeIndexData.AcademicYearName = academicYear.AcademicYearName;                 
+            }
+           
+            
+            return View(homeIndexData);
         }
 
         public IActionResult Privacy()

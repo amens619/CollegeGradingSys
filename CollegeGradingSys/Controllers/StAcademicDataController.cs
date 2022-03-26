@@ -43,17 +43,21 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: StAcademicData
-        public IActionResult Index( string sortOrder, string currentFilter, string StNameSearch, int? BatchId, int? AcademicYearId, StStatus? stStatus, Term? term,Level? level,bool IsCurrentYear, int? SearchAcademicID, int pageNumber = 1, int pageSize = 5)
+        public IActionResult Index( string sortOrder, string currentFilter, bool IsSelectCurrentYear, string StNameSearch, int? BatchId, int? AcademicYearId, StStatus? stStatus, Term? term,Level? level,bool IsCurrentYear, int? SearchAcademicID, int pageNumber = 1, int pageSize = 5)
         {
             FullAllListes("-- الكل --");
             var model = new StAcademicDataIndexViewModel();
             ViewBag.CurrentSort = sortOrder;
             ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewBag.SexSortParm = sortOrder == "SexSortParm" ? "SexSortParm_desc" : "SexSortParm";
-           
-           
 
- 
+            if (IsSelectCurrentYear == true)
+            {
+                var currentYear = _AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true);
+                AcademicYearId = currentYear.Id;
+            }
+
+
             if (StNameSearch != null)
             {
                

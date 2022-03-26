@@ -4,14 +4,16 @@ using CollegeGradingSys.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CollegeGradingSys.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220317075133_AddIsCurrentYearColumnToAcademicYear")]
+    partial class AddIsCurrentYearColumnToAcademicYear
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,11 +32,6 @@ namespace CollegeGradingSys.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("AcademicYearName")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("AcademicYearNameH")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
@@ -398,8 +395,15 @@ namespace CollegeGradingSys.Data.Migrations
                     b.Property<int>("BirthcountryID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("EnrollmentYearId")
-                        .HasColumnType("int");
+                    b.Property<string>("EnrollmentYearH")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("EnrollmentYearM")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
 
                     b.Property<string>("IdentificatioNO")
                         .IsRequired()
@@ -422,8 +426,6 @@ namespace CollegeGradingSys.Data.Migrations
                     b.HasIndex("BirthGovernorateId");
 
                     b.HasIndex("BirthcountryID");
-
-                    b.HasIndex("EnrollmentYearId");
 
                     b.HasIndex("NationalityID");
 
@@ -758,10 +760,6 @@ namespace CollegeGradingSys.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("CollegeGradingSys.Models.AcademicYear", "EnrollmentYear")
-                        .WithMany()
-                        .HasForeignKey("EnrollmentYearId");
-
                     b.HasOne("CollegeGradingSys.Models.Nationality", "Nationality")
                         .WithMany("NationalityStPersonalDatas")
                         .HasForeignKey("NationalityID")
@@ -771,8 +769,6 @@ namespace CollegeGradingSys.Data.Migrations
                     b.Navigation("Birthcountry");
 
                     b.Navigation("BirthGovernorate");
-
-                    b.Navigation("EnrollmentYear");
 
                     b.Navigation("Nationality");
                 });

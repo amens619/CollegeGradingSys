@@ -239,23 +239,28 @@ namespace CollegeGradingSys.Data
             }
             context.SaveChanges();
 
-            //var SubCourses = new SubCourse[]
-            //{
-            // new SubCourse{  SubCourseName="الحلية" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName == "تزكية (101)")},
-            // new SubCourse{  SubCourseName="المستخلص" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName == "تزكية (101)")},
-            // new SubCourse{  SubCourseName="الحلية" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName == "تزكية (102)")},
-            // new SubCourse{  SubCourseName="المستخلص" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName == "تزكية (102)")},
-            //new SubCourse{  SubCourseName="التذكرة" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName == "التزكية (201)")},
-            // new SubCourse{  SubCourseName="المستخلص" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName =="التزكية (201)")},
-            // new SubCourse{  SubCourseName="التذكرة" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName == "تزكية (202)")},
-            // new SubCourse{  SubCourseName="المستخلص" , BigGrade= 100 , SmallGrade=60 , Course=courses.Single(g => g.CourseName =="تزكية (202)")},
+            var SubCourses = new Course[]
+            {
+             new Course{  CourseName="الحلية" , Specialization=Specialization , BigGrade= 100 , SmallGrade=60, Level= Level.الأول , Term= Term.الأول , IsSubCourse=true , Parent=courses.Single(g => g.CourseName == "تزكية (101)")},
+             new Course{  CourseName="المستخلص" , Specialization=Specialization , BigGrade= 100 , SmallGrade=60, Level= Level.الأول , Term= Term.الأول , IsSubCourse=true , Parent=courses.Single(g => g.CourseName == "تزكية (101)")},
+             new Course{  CourseName="الحلية" , Specialization=Specialization ,  BigGrade= 100 , SmallGrade=60, Level= Level.الأول , Term= Term.الثاني , IsSubCourse=true , Parent=courses.Single(g => g.CourseName == "تزكية (102)")},
+             new Course{  CourseName="المستخلص" , Specialization=Specialization , BigGrade= 100 , SmallGrade=60, Level= Level.الأول , Term= Term.الثاني , IsSubCourse=true, Parent=courses.Single(g => g.CourseName == "تزكية (102)")},
+            new Course{  CourseName="التذكرة" , Specialization=Specialization ,  BigGrade= 100 , SmallGrade=60, Level= Level.الثاني , Term= Term.الأول , IsSubCourse=true , Parent=courses.Single(g => g.CourseName == "التزكية (201)")},
+             new Course{  CourseName="المستخلص" , Specialization=Specialization ,  BigGrade= 100 , SmallGrade=60, Level= Level.الثاني , Term= Term.الأول , IsSubCourse=true , Parent=courses.Single(g => g.CourseName =="التزكية (201)")},
+             new Course{  CourseName="التذكرة" , Specialization=Specialization ,  BigGrade= 100 , SmallGrade=60, Level= Level.الثاني , Term= Term.الثاني , IsSubCourse=true , Parent=courses.Single(g => g.CourseName == "تزكية (202)")},
+             new Course{  CourseName="المستخلص" , Specialization=Specialization ,  BigGrade= 100 , SmallGrade=60, Level= Level.الثاني , Term= Term.الثاني , IsSubCourse=true , Parent=courses.Single(g => g.CourseName =="تزكية (202)")},
 
-            //};
-            //foreach (SubCourse subCourse in SubCourses)
-            //{
-            //    context.SubCourse.Add(subCourse);
-            //}
-            //context.SaveChanges();
+              new Course{  CourseName="تطهير الاعتقاد" , Specialization=Specialization ,  BigGrade= 100 , SmallGrade=60, Level= Level.الثالث , Term= Term.الأول , IsSubCourse=true , Parent=courses.Single(g => g.CourseName == "تزكية (301)")},
+             new Course{  CourseName="المستخلص" , Specialization=Specialization ,  BigGrade= 100 , SmallGrade=60, Level= Level.الثالث , Term= Term.الأول , IsSubCourse=true , Parent=courses.Single(g => g.CourseName =="تزكية (301)")},
+
+            };
+
+            foreach (Course c in SubCourses)
+            {
+                context.Course.Add(c);
+            }
+            context.SaveChanges();
+           
 
             //    var enrollments = new Enrollment[]
             //    {

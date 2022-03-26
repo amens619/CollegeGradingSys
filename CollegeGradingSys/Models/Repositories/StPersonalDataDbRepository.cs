@@ -39,7 +39,9 @@ namespace CollegeGradingSys.Models.Repositories
             return db.StPersonalData.Include(x => x.StHighSchoolData)
                 .Include(x => x.StAcademicDatas)
                 .ThenInclude(x => x.Batch)
+                 .Include(x => x.Birthcountry)
                 .Include(x => x.BirthGovernorate)
+                .Include(x => x.EnrollmentYear)
                 .SingleOrDefault(a => a.AcademicID == id);
         }
 
@@ -49,6 +51,7 @@ namespace CollegeGradingSys.Models.Repositories
                 .Include(x => x.StAcademicDatas)
                 .ThenInclude(x => x.Batch)
                 .Include(x => x.BirthGovernorate)
+                .Include(x => x.EnrollmentYear)
                 .ToList();
         }
 

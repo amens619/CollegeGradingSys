@@ -13,12 +13,15 @@ namespace CollegeGradingSys.Controllers
     {
         private readonly ICollegeGradingSysRepository<AcademicYear> AcademicYearRepository;
         private readonly ICollegeGradingSysRepository<StAcademicData> StAcademicDataRepository;
+        private readonly ICollegeGradingSysRepository<StPersonalData> StPersonalDataRepository;
 
         public AcademicYearController(ICollegeGradingSysRepository<AcademicYear> AcademicYearRepository,
-            ICollegeGradingSysRepository<StAcademicData> StAcademicDataRepository)
+            ICollegeGradingSysRepository<StAcademicData> StAcademicDataRepository,
+            ICollegeGradingSysRepository<StPersonalData> StPersonalDataRepository)
         {
             this.AcademicYearRepository = AcademicYearRepository;
             this.StAcademicDataRepository = StAcademicDataRepository;
+            this.StPersonalDataRepository = StPersonalDataRepository;
         }
         // GET: AcademicYearController
         public ActionResult Index()
@@ -50,12 +53,34 @@ namespace CollegeGradingSys.Controllers
             {
                 try
                 {
+                    if (academicYear.AcademicYearName == null)
+                    {
+
+                        ModelState.Clear();
+                        ModelState.AddModelError(nameof(academicYear.AcademicYearName), " الرجاء كتابة العام الاكاديمي");
+
+                        return View(academicYear);
+                    }
+
+                    if (isAcademicYearNameExists((academicYear.AcademicYearName).Trim()))
+                    {
+                        ModelState.AddModelError(nameof(academicYear.AcademicYearName), "لقد تم إيجاد عما سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
+                        return View(academicYear);
+                    }
                     if (academicYear.AcademicYearStart >= academicYear.AcademicYearEnd)
                     {
                         ModelState.AddModelError(nameof(academicYear.AcademicYearEnd), "يجب ان يكون تاريخ نهاية العام بعد تاريخ بداية العام");
                         return View(academicYear);
                     }
+                   var previousAcademicYears = AcademicYearRepository.List().Where(x => x.IsCurrentYear == true);
+                    foreach (var pAcademicYear in previousAcademicYears)
+                    {
+                        pAcademicYear.IsCurrentYear = false;
+                        AcademicYearRepository.Update(pAcademicYear.Id, pAcademicYear);
+                    }
 
+
+                    academicYear.IsCurrentYear = true;
                     AcademicYearRepository.Add(academicYear);
                     return RedirectToAction(nameof(Index));
                 }
@@ -127,6 +152,14 @@ namespace CollegeGradingSys.Controllers
         {
             try
             {
+                var StPersonalDatasOFBirthAcademicYear = StPersonalDataRepository.List().Where(x => x.EnrollmentYear.Id == id).ToList();
+                if (StPersonalDatasOFBirthAcademicYear != null && StPersonalDatasOFBirthAcademicYear.Count > 0)
+                {
+                    var academicYear = AcademicYearRepository.Find(id);
+                    ViewBag.Message = "لا يمكن حذف العام الجامعي بسبب تسجيل بعض الطلاب في نفس السنة.. الرجاء حذف الطلاب المسجلين فيها أولا ";
+                    return View(academicYear);
+                }
+
                 var StAcademicDatasOFBirthAcademicYear = StAcademicDataRepository.List().Where(x => x.AcademicYear.Id == id).ToList();
                 if (StAcademicDatasOFBirthAcademicYear != null && StAcademicDatasOFBirthAcademicYear.Count > 0)
                 {
@@ -134,6 +167,7 @@ namespace CollegeGradingSys.Controllers
                     ViewBag.Message = "لا يمكن حذف العام الجامعي بسبب وجود سجل اكاديمي لبعض الطلاب تابعة له.. الرجاء حذف السجلات التابعة لها أولا ";
                     return View(academicYear);
                 }
+               
                 
                 AcademicYearRepository.Delete(id);
                 return RedirectToAction(nameof(Index));
@@ -142,6 +176,11 @@ namespace CollegeGradingSys.Controllers
             {
                 return View();
             }
+        }
+
+        private bool isAcademicYearNameExists(string academicYearName)
+        {
+            return AcademicYearRepository.List().Any(e => e.AcademicYearName == academicYearName);
         }
     }
 }

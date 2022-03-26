@@ -21,7 +21,11 @@ namespace CollegeGradingSys.ViewModels
         [Display(Name = "الدفعة")]
         public int BatchId { get; set; }
 
-        
+        //===
+        public bool IsSelectCurrentYear { get; set; }
+
+        //===
+
         public ICollection<Batch> Batches { get; set; }
 
         //public ICollection<StPersonalData>  StPersonalDatas { get; set; }

@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using CollegeGradingSys.Data;
 using CollegeGradingSys.Models;
 using CollegeGradingSys.Models.Repositories;
+using CollegeGradingSys.ViewModels;
+using System.Globalization;
 
 namespace CollegeGradingSys.Controllers
 {
@@ -55,7 +57,7 @@ namespace CollegeGradingSys.Controllers
             {
                 return NotFound();
             }
-            var model = new StHighSchoolData();
+            var model = new StHighSchoolDataVM();
             model.AcademicID = id ?? 0;
             
 
@@ -68,15 +70,105 @@ namespace CollegeGradingSys.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public  IActionResult Create([Bind("AcademicID,CertificateType,Average,Source,SeatNo,CertificateYear,HighSchoolName,Note")] StHighSchoolData stHighSchoolData)
+        public  IActionResult Create([Bind("AcademicID,CertificateType,Average,Source,SeatNo,CertificateYear,HighSchoolName,Note")] StHighSchoolDataVM model)
         {
-            if (ModelState.IsValid)
-            {
-                _StHighSchoolDataRepository.Add(stHighSchoolData);                
-                return RedirectToAction(nameof(Index), "StPersonalData");
+            ModelState.ClearValidationState(nameof(model));
+            float newAverage = 0;
+                if (model.Average is not null)
+                {                    
+                    var cultureInfo = new CultureInfo("en");
+                    if (!(decimal.TryParse(model.Average,
+                        NumberStyles.AllowDecimalPoint,
+                        cultureInfo, out var modelAverage)) || !(modelAverage >= 0 && modelAverage <= 100))
+                    {
+                        ModelState.AddModelError(nameof(model.Average), " الرجاء إدخال المعدل رقماً  بين 0 - 100.");
+
+                        //return PartialView("_Edit", model);
+                    }
+                    newAverage = (float)modelAverage;
+                   
+                }
+                else
+                {
+                    ModelState.AddModelError(nameof(model.Average), " الرجاء إدخال المعدل رقماً  بين 0 - 100.");
+                }
+
                 
-            }          
-            return PartialView("_Create", stHighSchoolData);
+                int newCertificateYear = 0;
+                if (model.CertificateYear is not null)
+                {
+                    var cultureInfo = new CultureInfo("en");
+                    if (!(int.TryParse(model.CertificateYear,
+                        NumberStyles.AllowDecimalPoint,
+                        cultureInfo, out var modelCertificateYear)))
+                    {
+                        ModelState.AddModelError(nameof(model.CertificateYear), " الرجاء إدخال سنة الشهادة رقماً .");
+
+                        //return PartialView("_Edit", model);
+                    }
+                    newCertificateYear = (int)modelCertificateYear;
+
+                }
+                else
+                {
+                    ModelState.AddModelError(nameof(model.CertificateYear), " الرجاء إدخال سنة الشهادة .");
+                }
+
+                int newSeatNo = 0;
+                if (model.SeatNo is not null)
+                {
+                    var cultureInfo = new CultureInfo("en");
+                    if (!(int.TryParse(model.SeatNo,
+                        NumberStyles.AllowDecimalPoint,
+                        cultureInfo, out var modelSeatNo)))
+                    {
+                        ModelState.AddModelError(nameof(model.SeatNo), " الرجاء ادخال رقم الجلوس رقماً .");
+
+                        //return PartialView("_Edit", model);
+                    }
+                    newSeatNo = (int)modelSeatNo;
+
+                }
+                else
+                {
+                    ModelState.AddModelError(nameof(model.SeatNo), " الرجاء ادخال رقم الجلوس .");
+                }
+
+                if (!TryValidateModel(model, nameof(model)))
+                {                   
+                    return PartialView("_Create", model);
+                }
+
+
+                var stHighSchoolData = new StHighSchoolData()
+                {
+                    AcademicID = model.AcademicID,
+                    Average = newAverage,
+                    CertificateType = model.CertificateType,
+                    CertificateYear = newCertificateYear,
+                    HighSchoolName = model.HighSchoolName,
+                    SeatNo = newSeatNo,
+                    Source = model.Source,
+                    Note = model.Note,
+                    StPersonalData = model.StPersonalData
+                };
+            try
+            {
+                _StHighSchoolDataRepository.Add(stHighSchoolData);
+                return PartialView("_Create", model);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                //if (!StHighSchoolDataExists(stHighSchoolData.AcademicID))
+                //{
+                //    return NotFound();
+                //}
+                //else
+                //{
+                throw;
+                //}
+            }
+
         }
 
         // GET: StHighSchoolData/Edit/5
@@ -92,8 +184,20 @@ namespace CollegeGradingSys.Controllers
             {
                 return NotFound();
             }
+            var model = new StHighSchoolDataVM()
+            {
+                AcademicID = stHighSchoolData.AcademicID,
+                Average = stHighSchoolData.Average.ToString(),
+                CertificateType = stHighSchoolData.CertificateType,
+                CertificateYear = stHighSchoolData.CertificateYear.ToString(),
+                HighSchoolName = stHighSchoolData.HighSchoolName,
+                SeatNo = stHighSchoolData.SeatNo.ToString(),
+                Source = stHighSchoolData.Source,
+                StPersonalData = stHighSchoolData.StPersonalData,
+                Note = stHighSchoolData.Note
+            };
 
-            return PartialView("_Edit", stHighSchoolData); 
+            return PartialView("_Edit", model); 
         }
 
         // POST: StHighSchoolData/Edit/5
@@ -101,20 +205,100 @@ namespace CollegeGradingSys.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public  IActionResult Edit(int id, [Bind("AcademicID,CertificateType,Average,Source,SeatNo,CertificateYear,HighSchoolName,Note")] StHighSchoolData stHighSchoolData)
+        public  IActionResult Edit(int id, [Bind("AcademicID,CertificateType,Average,Source,SeatNo,CertificateYear,HighSchoolName,Note")] StHighSchoolDataVM model)
         {
-            if (id != stHighSchoolData.AcademicID)
+            if (id != model.AcademicID)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
-            {
+            
+                
+                    ModelState.ClearValidationState(nameof(model));
+                    float newAverage = 0;
+                    if (model.Average is not null)
+                    {
+                        var cultureInfo = new CultureInfo("en");
+                        if (!(decimal.TryParse(model.Average,
+                            NumberStyles.AllowDecimalPoint,
+                            cultureInfo, out var modelAverage)) || !(modelAverage >= 0 && modelAverage <= 100))
+                        {
+                            ModelState.AddModelError(nameof(model.Average), " الرجاء إدخال المعدل رقماً  بين 0 - 100.");
+
+                            //return PartialView("_Edit", model);
+                        }
+                        newAverage = (float)modelAverage;
+
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(nameof(model.Average), " الرجاء إدخال المعدل رقماً  بين 0 - 100.");
+                    }
+
+
+                    int newCertificateYear = 0;
+                    if (model.CertificateYear is not null)
+                    {
+                        var cultureInfo = new CultureInfo("en");
+                        if (!(int.TryParse(model.CertificateYear,
+                            NumberStyles.AllowDecimalPoint,
+                            cultureInfo, out var modelCertificateYear)))
+                        {
+                            ModelState.AddModelError(nameof(model.CertificateYear), " الرجاء إدخال سنة الشهادة رقماً .");
+
+                            //return PartialView("_Edit", model);
+                        }
+                        newCertificateYear = (int)modelCertificateYear;
+
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(nameof(model.CertificateYear), " الرجاء إدخال سنة الشهادة .");
+                    }
+
+                    int newSeatNo = 0;
+                    if (model.SeatNo is not null)
+                    {
+                        var cultureInfo = new CultureInfo("en");
+                        if (!(int.TryParse(model.SeatNo,
+                            NumberStyles.AllowDecimalPoint,
+                            cultureInfo, out var modelSeatNo)))
+                        {
+                            ModelState.AddModelError(nameof(model.SeatNo), " الرجاء ادخال رقم الجلوس رقماً .");
+
+                            //return PartialView("_Edit", model);
+                        }
+                        newSeatNo = (int)modelSeatNo;
+
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(nameof(model.SeatNo), " الرجاء ادخال رقم الجلوس .");
+                    }
+
+                    if (!TryValidateModel(model, nameof(model)))
+                    {
+                    return PartialView("_Edit", model);
+                }
+
+
+                    var stHighSchoolData = new StHighSchoolData()
+                    {
+                        AcademicID = model.AcademicID,
+                        Average = newAverage,
+                        CertificateType = model.CertificateType,
+                        CertificateYear = newCertificateYear,
+                        HighSchoolName = model.HighSchoolName,
+                        SeatNo = newSeatNo,
+                        Source = model.Source,
+                        Note = model.Note,
+                        StPersonalData = model.StPersonalData
+                    };
                 try
                 {
-                        _StHighSchoolDataRepository.Update(id, stHighSchoolData);                      
-                        return RedirectToAction(nameof(Details), "StPersonalData", new { id = stHighSchoolData.AcademicID });
-                }
+                    _StHighSchoolDataRepository.Update(id, stHighSchoolData);
+                return PartialView("_Edit", model);
+            }
                 catch (DbUpdateConcurrencyException)
                 {
                     //if (!StHighSchoolDataExists(stHighSchoolData.AcademicID))
@@ -128,8 +312,8 @@ namespace CollegeGradingSys.Controllers
                 }
 
                 
-            }           
-            return PartialView("_Edit", stHighSchoolData);
+                      
+            
         }
 
         // GET: StHighSchoolData/Delete/5
@@ -158,8 +342,8 @@ namespace CollegeGradingSys.Controllers
             
             _StHighSchoolDataRepository.Delete(id);
 
-            return RedirectToAction(nameof(Details), "StPersonalData", new { id = id });
-           
+            return PartialView("_Delete");
+
         }
 
         //private bool StHighSchoolDataExists(int id)

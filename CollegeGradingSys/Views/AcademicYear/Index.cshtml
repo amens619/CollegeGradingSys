@@ -21,12 +21,15 @@
                             @Html.DisplayNameFor(model => model.AcademicYearName)
                         </th>
                         <th>
+                            @Html.DisplayNameFor(model => model.AcademicYearNameH)
+                        </th>
+                        <th>
                             @Html.DisplayNameFor(model => model.AcademicYearStart)
                         </th>
                         <th>
                             @Html.DisplayNameFor(model => model.AcademicYearEnd)
                         </th>
-
+                        <th>العام الحالي</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -38,19 +41,38 @@
                             @Html.DisplayFor(modelItem => item.AcademicYearName)
                         </td>
                         <td>
+                            @Html.DisplayFor(modelItem => item.AcademicYearNameH)
+                        </td>
+                        <td>
                             @Html.DisplayFor(modelItem => item.AcademicYearStart)
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.AcademicYearEnd)
                         </td>
 
+                        @if (item.IsCurrentYear)
+                        {
+                            <td>
+                                <span class="badge bg-warning">العام الاكاديمي الحالي</span>
+                            </td>
+                            <td>
+                                @*<a asp-action="Index" class="btn btn-secondary btn-sm" asp-controller="Batch" asp-route-id="@item.Id">الدفعات</a>*@
+                                <a asp-action="Edit" class="btn btn-primary btn-sm align-self-center" asp-route-id="@item.Id">تعديل</a>
+                                <a asp-action="Details" class="btn btn-warning btn-sm" asp-route-id="@item.Id">تفاصيل</a>
+                                <a asp-action="Delete" class="btn btn-danger btn-sm align-self-center" asp-route-id="@item.Id">حذف</a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                
+                            </td>
+                            <td>
+                                @*<a asp-action="Index" class="btn btn-secondary btn-sm" asp-controller="Batch" asp-route-id="@item.Id">الدفعات</a>*@
+                                <a asp-action="Details" class="btn btn-warning btn-sm" asp-route-id="@item.Id">تفاصيل</a>
+                            </td>
+                        }
 
-                        <td>
-                            <a asp-action="Index" class="btn btn-secondary btn-sm" asp-controller="Batch" asp-route-id="@item.Id">الدفعات</a>
-                            <a asp-action="Edit" class="btn btn-primary btn-sm align-self-center" asp-route-id="@item.Id">تعديل</a>
-                            <a asp-action="Details" class="btn btn-warning btn-sm" asp-route-id="@item.Id">تفاصيل</a>
-                            <a asp-action="Delete" class="btn btn-danger btn-sm align-self-center" asp-route-id="@item.Id">حذف</a>
-                        </td>
                     </tr>
                     }
                 </tbody>

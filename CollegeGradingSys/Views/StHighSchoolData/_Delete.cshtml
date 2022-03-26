@@ -5,12 +5,11 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                <h5 class="modal-title" id="addContactLabel">تعديل بيانات الثانوية</h5>
-            </div>
-
-            <hr />
+                <h5 class="modal-title" id="addContactLabel">حذف بيانات الثانوية</h5>
+            </div>            
             <div class="modal-body row">
-                <dl class="row">
+                <h4>هل تريد بالفعل حذف بيانات الثانوية ؟!!</h4>
+                <dl class="row m-3">
                     <dt class="col-sm-4">
                         @Html.DisplayNameFor(model => model.CertificateType)
                     </dt>
@@ -53,18 +52,19 @@
                     <dd class="col-sm-7">
                         @Html.DisplayFor(model => model.Note)
                     </dd>
-                    <dt class="col-sm-4">
-                        @Html.DisplayNameFor(model => model.StPersonalData)
-                    </dt>
-                    <dd class="col-sm-7">
-                        @Html.DisplayFor(model => model.StPersonalData.EnrollmentYearH)
-                    </dd>
+                    @*<dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.StPersonalData)
+            </dt>*@
+                    @*<dd class="col-sm-7">
+                @Html.DisplayFor(model => model.StPersonalData.EnrollmentYearH)
+            </dd>*@
                 </dl>
                 <form asp-action="Delete">
+                    <input name="IsValid" type="hidden" value="@ViewData.ModelState.IsValid.ToString()" />
                     <div class="modal-footer">
                         <input type="hidden" asp-for="AcademicID" />
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء الأمر</button>
-                        <input type="submit" value="Delete" class="btn btn-danger" />
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">إلغاء الأمر</button>
+                        <button type="button" data-save="modal" class="btn btn-danger btn-sm ">حذف</button>
                     </div>
                 </form>
             </div>

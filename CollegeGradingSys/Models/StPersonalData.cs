@@ -51,14 +51,11 @@ namespace CollegeGradingSys.Models
         [DataType(DataType.Date)]        
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM/dd/yyyy}")]
         public DateTime BirthDate { get; set; }
-        [Required]
-        [StringLength(15, MinimumLength = 2)]
+        
+       
         [Display(Name = "سنة الالتحاق ميلادي")]
-        public string EnrollmentYearM { get; set; }
-        [Required]
-        [StringLength(15, MinimumLength = 2)]
-        [Display(Name = "سنة الالتحاق هجري")]
-        public string EnrollmentYearH { get; set; }
+        public AcademicYear EnrollmentYear { get; set; }
+        
 
 
 

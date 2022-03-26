@@ -1,4 +1,4 @@
-﻿@model CollegeGradingSys.Models.StHighSchoolData
+﻿@model CollegeGradingSys.ViewModels.StHighSchoolDataVM
 <!-- Modal -->
 <div class="modal fade " id="add-contact" tabindex="-1" role="dialog" aria-labelledby="addContactLabel" aria-hidden="true">
     <form asp-action="Edit">
@@ -8,10 +8,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <h5 class="modal-title" id="addContactLabel">تعديل بيانات الثانوية</h5>
                 </div>
-
-                <hr />
                 <div class="modal-body row">
-
                     <input name="IsValid" type="hidden" value="@ViewData.ModelState.IsValid.ToString()" />
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="form-group col-md-6">
@@ -54,12 +51,10 @@
                         <input asp-for="Note" class="form-control" />
                         <span asp-validation-for="Note" class="text-danger"></span>
                     </div>
-
-
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء الأمر</button>
-                    <button type="submit" class="btn btn-primary">حفظ</button>
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">إلغاء الأمر</button>
+                    <button type="button" data-save="modal" class="btn btn-primary btn-sm">حفظ</button>
                 </div>
             </div>
         </div>

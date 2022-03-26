@@ -13,6 +13,7 @@ namespace CollegeGradingSys.Models
             الرابع,
             الخامس,
             السادس,
-            السابع
+            السابع,
+            الشامل
     }
 }
