@@ -319,7 +319,7 @@ namespace CollegeGradingSys.Data.Migrations
                     b.Property<float?>("GPA")
                         .HasColumnType("real");
 
-                    b.Property<bool>("IsCurrentYear")
+                    b.Property<bool>("IsTerm")
                         .HasColumnType("bit");
 
                     b.Property<int>("StLevel")
@@ -329,6 +329,9 @@ namespace CollegeGradingSys.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("StStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudyType")
                         .HasColumnType("int");
 
                     b.Property<int?>("Term")

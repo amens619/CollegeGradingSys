@@ -8,6 +8,8 @@
     <meta name="generator" content="Hugo 0.84.0">
     <title>@ViewData["Title"] - نظام إدارة الدرجات</title>
     <link href="~/css/sidebars.css" rel="stylesheet" />
+
+    <script src="~/lib/popper.js/umd/popper.js"></script>
     <link href="~/lib/twitter-bootstrap/css/bootstrap.css" rel="stylesheet" />
     @*<script src="https://unpkg.com/feather-icons"></script>*@
     <link rel="stylesheet" href="~/css/site.css" />
@@ -43,10 +45,10 @@
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
+            @*<div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
 
                 <partial name="_LoginPartial" />
-            </div>
+            </div>*@
 
         </nav>
 
@@ -100,7 +102,7 @@
                         </button>
                         <div class="collapse" id="Grading-collapse">
                             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                                <li><a href="~/CourseGrade" class="link-dark rounded">درجات الطالب</a></li>
+                                @*<li><a href="~/CourseGrade" class="link-dark rounded">درجات الطالب</a></li>*@
                                 <li><a href="~/CourseGrade/AllbatchCourseGrade" class="link-dark rounded">درجات لمادة دراسية للدفعة</a></li>
 
                             </ul>

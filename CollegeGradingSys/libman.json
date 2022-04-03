@@ -9,6 +9,10 @@
     {
       "library": "feather-icons@4.28.0",
       "destination": "wwwroot/lib/feather-icons/"
+    },
+    {
+      "library": "popper.js@2.11.4",
+      "destination": "wwwroot/lib/popper.js/"
     }
   ]
 }

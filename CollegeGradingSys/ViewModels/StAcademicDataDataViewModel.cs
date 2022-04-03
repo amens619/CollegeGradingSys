@@ -17,7 +17,7 @@ namespace CollegeGradingSys.ViewModels
         
         [Display(Name = "الاسم الطالب")]
         public string StName { get; set; }
-
+        public bool IsRegisteredInCurrentYear { get; set; }
         public ICollection<StAcademicData>  StAcademicDatas { get; set; }
     }
 }

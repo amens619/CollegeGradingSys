@@ -15,6 +15,10 @@
             <h5 class="mb-4">  <span style="margin-left:6px;" data-feather="list"></span>البيانات الشخصية للطلاب</h5>
             <h6 class="m-1">القائمة الرئسية</h6>
             <hr class="mb-4 mt-0">
+            @if (ViewBag.Message != null)
+            {
+                <h5 class="alert alert-danger">@ViewBag.Message</h5>
+            }
             <p>
                 <a class="btn btn-secondary col-2 btn-sm" asp-action="Create">إضافة طالب جديد</a>
             </p>
@@ -85,7 +89,7 @@
                                 رقم القيد
                             </th>
                             <th scope="col" class="col-1" style="vertical-align: middle;">
-                               اسم الطالب
+                                اسم الطالب
                             </th>
                             <th scope="col" class="col-1 text-center" style="vertical-align: middle;">
                                 الرقم الوطني (الهوية )
@@ -125,67 +129,67 @@
                             {
                                 selectedRow = "table-success";
                             }
-                            <tr class="@selectedRow">
-                                <th scope="row" class="text-center" style="vertical-align: middle;">
-                                    @Html.DisplayFor(modelItem => item.AcademicID)
-                                </th>
+                        <tr class="@selectedRow">
+                            <th scope="row" class="text-center" style="vertical-align: middle;">
+                                @Html.DisplayFor(modelItem => item.AcademicID)
+                            </th>
+                            <td class="text-center" style="vertical-align: middle;">
+                                @Html.DisplayFor(modelItem => item.StName)
+                            </td>
+                            <td class="text-center" style="vertical-align: middle;">
+                                @Html.DisplayFor(modelItem => item.IdentificatioNO)
+                            </td>
+                            <td class="text-center" style="vertical-align: middle;">
+                                @Html.DisplayFor(modelItem => item.Sex)
+                            </td>
+                            <td class="text-center" style="vertical-align: middle;">
+                                @Html.DisplayFor(modelItem => item.EnrollmentYear.AcademicYearName)
+                            </td>
+                            <td class="text-center" style="vertical-align: middle;">
+                                @Html.DisplayFor(modelItem => item.EnrollmentYear.AcademicYearNameH)
+                            </td>
+                            <td class="text-center" style="vertical-align: middle;">
+                                @Html.DisplayFor(modelItem => item.BirthDate)
+                            </td>
+                            @if (item.StHighSchoolData != null)
+                            {
+
                                 <td class="text-center" style="vertical-align: middle;">
-                                    @Html.DisplayFor(modelItem => item.StName)
+                                    @Html.DisplayFor(modelItem => item.StHighSchoolData.CertificateType)
                                 </td>
                                 <td class="text-center" style="vertical-align: middle;">
-                                    @Html.DisplayFor(modelItem => item.IdentificatioNO)
+                                    @Html.DisplayFor(modelItem => item.StHighSchoolData.CertificateYear)
+
                                 </td>
                                 <td class="text-center" style="vertical-align: middle;">
-                                    @Html.DisplayFor(modelItem => item.Sex)
+                                    @Html.DisplayFor(modelItem => item.StHighSchoolData.Average)
+
                                 </td>
-                                <td class="text-center" style="vertical-align: middle;">
-                                    @Html.DisplayFor(modelItem => item.BirthDate)
+
+                            }
+                            else
+                            {
+                                <!-- Modal placeholder -->
+                                <div id="modal-placeholder"></div>
+
+                                <!-- Button trigger modal -->
+
+                                <td class="align-items-center" colspan="3" style="vertical-align: middle;">
+                                    لا توجد بيانات شهادة الثانوية
+                                    <button type="button" class="btn btn-outline-secondary align-self-center btn-sm" data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Create","StHighSchoolData", new { id = item.AcademicID })">
+                                        إضافة
+                                    </button>
+                                    @*<a asp-action="Create" class="" asp-controller= asp-route-id="@item.AcademicID"></a>*@
                                 </td>
-                                <td class="text-center" style="vertical-align: middle;">
-                                    @Html.DisplayFor(modelItem => item.EnrollmentYear.AcademicYearName)
-                                </td>
-                                <td class="text-center" style="vertical-align: middle;">
-                                    @Html.DisplayFor(modelItem => item.EnrollmentYear.AcademicYearNameH)
-                                </td>
-                                @if (item.StHighSchoolData != null)
-                                {
-
-                                    <td class="text-center" style="vertical-align: middle;">
-                                        @Html.DisplayFor(modelItem => item.StHighSchoolData.CertificateType)
-                                    </td>
-                                    <td class="text-center" style="vertical-align: middle;">
-                                        @Html.DisplayFor(modelItem => item.StHighSchoolData.CertificateYear)
-
-                                    </td>
-                                    <td class="text-center" style="vertical-align: middle;">
-                                        @Html.DisplayFor(modelItem => item.StHighSchoolData.Average)
-
-                                    </td>
-
-                                }
-                                else
-                                {
-                                    <!-- Modal placeholder -->
-                                    <div id="modal-placeholder"></div>
-
-                                    <!-- Button trigger modal -->
-
-                                    <td class="align-items-center" colspan="3" style="vertical-align: middle;">
-                                        لا توجد بيانات شهادة الثانوية
-                                        <button type="button" class="btn btn-outline-secondary align-self-center btn-sm" data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Create","StHighSchoolData", new { id = item.AcademicID })">
-                                            إضافة
-                                        </button>
-                                        @*<a asp-action="Create" class="" asp-controller= asp-route-id="@item.AcademicID"></a>*@
-                                    </td>
-                                }
+                            }
 
 
-                                <td class="text-center " style="vertical-align: middle;">
-                                    <a asp-action="AllStAcademicDatas" asp-controller="StAcademicData" class="btn m-1 btn-secondary btn-sm" asp-route-id="@item.AcademicID">السجل الاكاديمي</a>
-                                    <a asp-action="Details" class="btn m-1 btn-warning btn-sm" asp-route-id="@item.AcademicID">تفاصيل</a>
-                                    <a asp-action="Delete" class="btn m-1 btn-danger btn-sm" asp-route-id="@item.AcademicID">حذف</a>
-                                </td>
-                            </tr>
+                            <td class="text-center " style="vertical-align: middle;">
+                                <a asp-action="AllStAcademicDatas" asp-controller="StAcademicData" class="btn m-1 btn-secondary btn-sm" asp-route-id="@item.AcademicID">السجل الاكاديمي</a>
+                                <a asp-action="Details" class="btn m-1 btn-warning btn-sm" asp-route-id="@item.AcademicID">تفاصيل</a>
+                                <a asp-action="Delete" class="btn m-1 btn-danger btn-sm" asp-route-id="@item.AcademicID">حذف</a>
+                            </td>
+                        </tr>
                         }
                     </tbody>
                 </table>
@@ -194,6 +198,6 @@
             <partial name="_PaginationPartial" model="Model.pagedResult" view-data="ViewData" />
 
         </div>
-      
+    </div>
         
 </div>

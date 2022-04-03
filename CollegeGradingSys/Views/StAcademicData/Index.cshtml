@@ -32,18 +32,17 @@
                                 <select id="BatchId" name="BatchId" class="form-control text-center"
                                         asp-items="ViewBag.BatchId"></select>
                             </div>
-                            <div class="form-group col-md-4">
-                                <label class="control-label">المستوى</label>
-                                <select id="Level" asp-for="Level" name="Level" class="form-control text-center"
-                                        asp-items="Html.GetEnumSelectList<Level>()">
-                                    <option value="-1">-- الكل --</option>
-                                </select>
-                            </div>
+                            @*<div class="form-group col-md-4">
+                    <label class="control-label">المستوى</label>
+                    <select id="Level" asp-for="Level" name="Level" class="form-control text-center"
+                            asp-items="Html.GetEnumSelectList<Level>()">
+                        <option value="-1">-- الكل --</option>
+                    </select>
+                </div>*@
                             <div class="form-group col-md-4">
                                 <label class="control-label">الفصل الدراسي</label>
                                 <select id="Term" asp-for="Term" name="Term" class="form-control text-center"
                                         asp-items="Html.GetEnumSelectList<Term>()">
-                                    <option value="-1">-- الكل --</option>
                                 </select>
                             </div>
                             <div class="form-group col-md-4">
@@ -53,18 +52,22 @@
                                     <option value="-1">-- الكل --</option>
                                 </select>
                             </div>
-                            <div class="form-group form-check">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" name="IsCurrentYear" type="checkbox" asp-for="IsCurrentYear" /> @Html.DisplayNameFor(model => model.IsCurrentYear)
-                                </label>
-                            </div>
+
                             <hr class="my-4">
                         </div>
                         <div class="container">
                             <input type="submit" value="تصفية" class="btn btn-secondary btn-sm" />
-                            <a asp-action="Index" class="btn btn-secondary btn-sm" asp-route-id=-1>إلغاء التصفية</a>
+                            <a asp-action="Index" class="btn btn-secondary btn-sm" asp-route-id=-1>إلغاء التصفية</a> 
+                            @if (Model.StStatus == StStatus.مقيد)
+                            {
+                            <input type="submit" value="كشف المقيدين" class="btn btn-success btn-sm" />
+                            }
+                            @if (Model.StStatus == StStatus.متخرج)
+                            {
+                            <input type="submit" value="كشف الخريجين" class="btn btn-success btn-sm" />
+                            }
                         </div>
-
+                      
 
                     }
                 </div>
@@ -73,6 +76,8 @@
                 <div class="card-body">
                     <div class=" container">
                         <span class="badge bg-primary  "> مقيد</span>
+                        <span class="badge bg-info  ">ناجح</span>
+                        <span class="badge bg-danger  ">راسب</span>
                         <span class="badge bg-secondary  ">منحسب</span>
                         <span class="badge bg-warning  ">موقف قيد</span>
                         <span class="badge bg-success  ">متخرج</span>
@@ -81,154 +86,171 @@
 
                     @*@using (Html.BeginForm("NextLevel", "StAcademicData", FormMethod.Get))*@
                     <form asp-action="NextLevel" asp-controller="StAcademicData" method="get">
-                        @*{*@
 
-                        <table class="table">
-                            <thead>
+
+                        <table class="table table-bordered">
+                            <thead class="table-light">
                                 <tr>
-                                    <th class="text-center">
-                                        <input id="checkallCheckbox" type="checkbox">
-                                    </th>
-                                    <th>
+                                    @*<th scope="col" class="text-center" style="vertical-align: middle;">
+            <input id="checkallCheckbox" type="checkbox">
+        </th>*@
+                                    <th scope="col" class=" col-1 text-center" style="vertical-align: middle;">
                                         <span>رقم القيد</span>
                                     </th>
-                                    <th>
+                                    <th scope="col" class="col-2 text-center" style="vertical-align: middle;">
                                         <span>اسم الطالب</span>
                                     </th>
-                                    <th>
+                                    <th scope="col" class="col-1 text-center" style="vertical-align: middle;">
                                         <span>الدفعة</span>
                                     </th>
-                                    <th>
+                                    <th scope="col" class="col-1 text-center" style="vertical-align: middle;">
                                         <span>العام الدراسي</span>
                                     </th>
-                                    <th>
+                                    <th scope="col" class=" text-center" style="vertical-align: middle;">
                                         <span>المستوى</span>
                                     </th>
-                                    <th>
+                                    <th scope="col" class=" text-center" style="vertical-align: middle;">
                                         <span>الفصل الدراسي</span>
                                     </th>
-                                    <th>
-                                        <span>الفصل الحالي</span>
+                                    <th scope="col" class=" text-center" style="vertical-align: middle;">
+                                        <span>نظام الدراسة</span>
                                     </th>
-                                    <th>
+                                    <th scope="col" class=" text-center" style="vertical-align: middle;">
                                         <span>حالة الطالب</span>
                                     </th>
-                                    <th>
+                                    <th scope="col" class=" text-center" style="vertical-align: middle;">
                                         <span>النسبة</span>
                                     </th>
-                                    <th>
+                                    <th scope="col" class=" text-center" style="vertical-align: middle;">
                                         <span>التقدير</span>
                                     </th>
-                                    <th>
+                                    <th scope="col" class=" text-center" style="vertical-align: middle;">
                                         <span>المعدل التراكمي</span>
                                     </th>
-                                    <th></th>
+                                    <th scope="col" class="col-3 text-center" style="vertical-align: middle;"></th>
                                 </tr>
                             </thead>
                             <tbody>
 
-                                @for (int i = 0; i < Model.StPersonalDataVMs.Count; i++)
+                                @for (int i = 0; i < Model.StAcademicDataVMs.Count; i++)
                                 {
                                     <tr>
-                                        <th class="text-center">
-                                            <input type="checkbox" asp-for="@Model.StPersonalDataVMs[i].IsSelected" />
+                                        <!--<th class="text-center">
+                                            <input type="checkbox" asp-for="@Model.StAcademicDataVMs[i].IsSelected" />-->
                                             @*<input value="@Model.StPersonalDataVMs[i].IsSelected" id="AcademicID" name="IsSelected" type="checkbox">*@
-                                        </th>
-                                        <td>
-                                            @Html.DisplayFor(m => m.StPersonalDataVMs[i].AcademicID)
-                                            <input type="hidden" asp-for="@Model.StPersonalDataVMs[i].AcademicID" />
+                                        <!--</th>-->
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @Html.DisplayFor(m => m.StAcademicDataVMs[i].StPersonalData.AcademicID)
+                                            <input type="hidden" asp-for="@Model.StAcademicDataVMs[i].StPersonalData.AcademicID" />
                                         </td>
-                                        <td>
-                                            @Html.DisplayFor(m => m.StPersonalDataVMs[i].StName)
+                                        <td style="vertical-align: middle;">
+                                            @Html.DisplayFor(m => m.StAcademicDataVMs[i].StPersonalData.StName)
                                         </td>
-                                        @if (Model.StPersonalDataVMs[i].StAcademicData != null)
-                                        {
-                                            <td>
-                                                @Html.DisplayFor(m => m.StPersonalDataVMs[i].StAcademicData.Batch.BatchName)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(m => m.StPersonalDataVMs[i].StAcademicData.AcademicYear.AcademicYearName)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(m => m.StPersonalDataVMs[i].StAcademicData.StLevel)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(m => m.StPersonalDataVMs[i].StAcademicData.Term)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(m => m.StPersonalDataVMs[i].StAcademicData.IsCurrentYear)
-                                            </td>
-                                            <td>
 
-                                                @switch (@Model.StPersonalDataVMs[i].StAcademicData.StStatus)
-                                                {
-                                                    case StStatus.مقيد:
-                                                        <span class="badge bg-primary"> @Model.StPersonalDataVMs[i].StAcademicData.StStatus</span>
-                                                        break;
-                                                    case StStatus.منحسب:
-                                                        <span class="badge bg-secondary"> @Model.StPersonalDataVMs[i].StAcademicData.StStatus</span>
-                                                        break;
-                                                    case StStatus.موقف_قيد:
-                                                        <span class="badge bg-warning ">@Model.StPersonalDataVMs[i].StAcademicData.StStatus</span>
-                                                        break;
-                                                    case StStatus.متخرج:
-                                                        <span class="badge bg-success">@Model.StPersonalDataVMs[i].StAcademicData.StStatus</span>
-                                                        break;
-                                                }
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(m => m.StPersonalDataVMs[i].StAcademicData.Average)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(m => m.StPersonalDataVMs[i].StAcademicData.GPA)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(m => m.StPersonalDataVMs[i].StAcademicData.Valuation)
-                                            </td>
-                                        }
-                                        else
-                                        {
-                                            <td>
-                                            </td>
-                                            <td>
-                                            </td>
-                                            <td>
-                                            </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @Html.DisplayFor(m => m.StAcademicDataVMs[i].Batch.BatchName)
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @Html.DisplayFor(m => m.StAcademicDataVMs[i].AcademicYear.AcademicYearName)
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @Html.DisplayFor(m => m.StAcademicDataVMs[i].StLevel)
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @Html.DisplayFor(m => m.StAcademicDataVMs[i].Term)
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @Html.DisplayFor(m => m.StAcademicDataVMs[i].StudyType)
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
 
-                                            <td class="align-items-center" colspan="3">
-                                                لا توجد بيانات  أكاديمية
-                                                <a asp-action="Create" asp-controller="StAcademicData" class="btn btn-outline-secondary align-self-center btn-sm" asp-route-id="@Model.StPersonalDataVMs[i].AcademicID">إضافة</a>
-                                            </td>
-
-                                            <td>
-                                            </td>
-                                            <td>
-                                            </td>
-                                            <td>
-                                            </td>
-                                        }
-                                        <td>
-                                            @if (Model.StPersonalDataVMs[i].StAcademicData != null)
+                                            @switch (@Model.StAcademicDataVMs[i].StStatus)
                                             {
-                                                <a asp-action="AllStCourseGrade" asp-controller="CourseGrade" class="btn btn-secondary btn-sm" asp-route-id="@Model.StPersonalDataVMs[i].StAcademicData.Id">الدرجات</a>
+                                                case StStatus.مقيد:
+                                                    <span class="badge bg-primary" style="vertical-align: middle;"> @Model.StAcademicDataVMs[i].StStatus</span>
+                                                    break;
+                                                case StStatus.ناجح:                                                   
+                                                    <span class="badge bg-info" style="vertical-align: middle;"> @Model.StAcademicDataVMs[i].StStatus</span>
+                                                    break;
+                                                case StStatus.راسب:
+                                                    <span class="badge bg-danger " style="vertical-align: middle;">@Model.StAcademicDataVMs[i].StStatus</span>
+                                                    break;
+                                                case StStatus.منحسب:
+                                                    <span class="badge bg-secondary" style="vertical-align: middle;"> @Model.StAcademicDataVMs[i].StStatus</span>
+                                                    break;
+                                                case StStatus.موقف_قيد:
+                                                    <span class="badge bg-warning " style="vertical-align: middle;">@Model.StAcademicDataVMs[i].StStatus</span>
+                                                    break;
+                                                case StStatus.متخرج:
+                                                    <span class="badge bg-success" style="vertical-align: middle;">@Model.StAcademicDataVMs[i].StStatus</span>
+                                                    break;
                                             }
-                                            else
-                                            {
-                                                <a href="#" aria-disabled="true" style="pointer-events: none" class="btn btn-secondary disabled btn-sm">الدرجات</a>
-
-                                            }
-                                            <a asp-action="AllStAcademicDatas" asp-controller="StAcademicData" class="btn btn-secondary btn-sm" asp-route-id="@Model.StPersonalDataVMs[i].AcademicID">السجل كامل</a>
-
                                         </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @Html.DisplayFor(m => m.StAcademicDataVMs[i].Average)
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @Html.DisplayFor(m => m.StAcademicDataVMs[i].GPA)
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @Html.DisplayFor(m => m.StAcademicDataVMs[i].Valuation)
+                                        </td>
+                                      
+
+                                        @*{
+                                                <td>
+                                                </td>
+                                                <td>
+                                                </td>
+                                                <td>
+                                                </td>
+
+                                                <td class="align-items-center" colspan="3">
+                                                    لا توجد بيانات  أكاديمية
+                                                    <a asp-action="Create" asp-controller="StAcademicData" class="btn btn-outline-secondary align-self-center btn-sm" asp-route-id="@Model.StAcademicDataVMs[i].AcademicID">إضافة</a>
+                                                </td>
+
+                                                <td>
+                                                </td>
+                                                <td>
+                                                </td>
+                                                <td>
+                                                </td>
+                                            }*@
+                                    <td class="text-center" style="vertical-align: middle;">
+                                        <a asp-action="AllStCourseGrade" asp-controller="CourseGrade" class="btn btn-secondary btn-sm" asp-route-id="@Model.StAcademicDataVMs[i].Id">الدرجات</a>
+                                        <a asp-action="AllStAcademicDatas" asp-controller="StAcademicData" class="btn btn-secondary btn-sm" asp-route-id="@Model.StAcademicDataVMs[i].StPersonalData.AcademicID">السجل كامل</a>
+                                        @if (@Model.StAcademicDataVMs[i].StStatus == StStatus.متخرج)
+                                        {
+                                            <a class="btn btn-dark m-1 btn-sm" asp-route-id="@Model.StAcademicDataVMs[i].Id">شهادة التخرج</a>
+                                            <a class="btn btn-dark m-1 btn-sm" asp-route-id="@Model.StAcademicDataVMs[i].Id">افادة</a>
+                                        }
+                                        @if (@Model.StAcademicDataVMs[i].StStatus == StStatus.مقيد)
+                                        {
+                                            <a class="btn btn-dark m-1 btn-sm" asp-route-id="@Model.StAcademicDataVMs[i].Id">تأكيد الدراسة</a>
+                                        }
+                                        @if (@Model.StAcademicDataVMs[i].StStatus == StStatus.ناجح && @Model.StAcademicDataVMs[i].StLevel == Level.الشامل)
+                                        {
+                                            <a class="btn btn-dark m-1 btn-sm" asp-route-id="@Model.StAcademicDataVMs[i].Id">افادة بعد الشامل</a>
+                                        }
+                                        @if (@Model.StAcademicDataVMs[i].StStatus == StStatus.ناجح && @Model.StAcademicDataVMs[i].StLevel == Level.السابع)
+                                        {
+                                            <a class="btn btn-dark m-1 btn-sm" asp-route-id="@Model.StAcademicDataVMs[i].Id">افادة ثلاثة سنوات</a>
+                                        }
+                                    </td>
                                     </tr>
                                 }
                             </tbody>
                         </table>
-                        @*}*@
-                        <div class="container">
-                            <input type="submit" value="الانتقال المستوى التالي" class="btn btn-secondary btn-sm" />
+                        @*@if (Model.IsCurrentYear)
+                        {
+                            <div class="container">
+                                <input type="submit" value="الانتقال المستوى التالي" class="btn btn-secondary btn-sm" />
 
-                        </div>
+                            </div>
+                        }*@
+
+
                     </form>
                 </div>
             </div>

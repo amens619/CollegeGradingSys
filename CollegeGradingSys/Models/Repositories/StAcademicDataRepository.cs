@@ -76,7 +76,7 @@ namespace CollegeGradingSys.Models.Repositories
             var oldStAcademicData = Find(academicID);
             if (oldStAcademicData != null)
             {
-                oldStAcademicData.IsCurrentYear = newStAcademicData.IsCurrentYear;
+                oldStAcademicData.IsTerm = newStAcademicData.IsTerm;
                 oldStAcademicData.StLevel = newStAcademicData.StLevel;
                 oldStAcademicData.StPersonalData = newStAcademicData.StPersonalData;
                 oldStAcademicData.StStatus = newStAcademicData.StStatus;

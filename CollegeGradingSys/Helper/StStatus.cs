@@ -8,6 +8,8 @@ namespace CollegeGradingSys.Models
     public enum StStatus
     {
         مقيد,
+        ناجح,
+        راسب,
         منحسب,
         موقف_قيد,
         متخرج

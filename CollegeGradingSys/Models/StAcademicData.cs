@@ -26,8 +26,9 @@ namespace CollegeGradingSys.Models
         [Display(Name = "حالة الطالب")]
         public StStatus StStatus { get; set; }
 
-        //[Display(Name = "نظام الدراسة")]
-        //public StudyType StudyType { get; set; }
+        [Display(Name = "نظام الدراسة")]
+        public StudyType StudyType { get; set; }
+        
 
         [Display(Name = "المعدل")]
         public float? Average { get; set; }
@@ -36,7 +37,7 @@ namespace CollegeGradingSys.Models
         [Display(Name = "التقدير")]
         public Valuation Valuation { get; set; }
         [Display(Name = "الفصل الحالي")]
-        public bool IsCurrentYear { get; set; }
+        public bool IsTerm { get; set; }
 
         public virtual AcademicYear   AcademicYear { get; set; }
         public virtual Batch  Batch { get; set; }

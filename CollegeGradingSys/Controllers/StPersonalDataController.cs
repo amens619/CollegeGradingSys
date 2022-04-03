@@ -76,7 +76,11 @@ namespace CollegeGradingSys.Controllers
             if (IsSelectCurrentYear == true)
             {
                 var currentYear = AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true);
-                AcademicYearId = currentYear.Id;               
+                if (currentYear != null)
+                {
+                    AcademicYearId = currentYear.Id;
+                }
+                             
             }
             ViewData["IsSelectCurrentYear"] = IsSelectCurrentYear;
             ViewData["AcademicYearId"] = new SelectList(FillSelectAcademicYearesList("-- الكل --"), "Id", "AcademicYearName", AcademicYearId ?? -1);
@@ -160,7 +164,11 @@ namespace CollegeGradingSys.Controllers
         public ActionResult Create()
         {
             var currentYear = AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true); 
-           
+           if(currentYear == null)
+            {
+                ViewBag.Message = "الرجاء ادخال السنة الاكاديمية أولا ";
+                return RedirectToAction(nameof(Index));
+            }
             var model = new StPersonalDataViewModel
             {
 
@@ -300,7 +308,8 @@ namespace CollegeGradingSys.Controllers
                     Term = Term.الأول,
                     StStatus =  StStatus.مقيد,                  
                     Valuation =  Valuation.غير_محدد,
-                    IsCurrentYear = true,
+                    IsTerm = true,
+                     StudyType =StudyType.انتظام,
                     StPersonalData = stPersonalData,
                     AcademicYear = academicYear,
                     Batch = studentBatch
@@ -322,7 +331,8 @@ namespace CollegeGradingSys.Controllers
                     Term = Term.الثاني,
                     StStatus = StStatus.مقيد,
                     Valuation = Valuation.غير_محدد,
-                    IsCurrentYear = true,
+                    IsTerm = true,
+                    StudyType = StudyType.انتظام,
                     StPersonalData = stPersonalData,
                     AcademicYear = academicYear,
                     Batch = studentBatch

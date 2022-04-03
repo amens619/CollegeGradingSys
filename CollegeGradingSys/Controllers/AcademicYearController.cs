@@ -1,5 +1,6 @@
 ﻿using CollegeGradingSys.Models;
 using CollegeGradingSys.Models.Repositories;
+using CollegeGradingSys.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -26,8 +27,14 @@ namespace CollegeGradingSys.Controllers
         // GET: AcademicYearController
         public ActionResult Index()
         {
+            
             var academicYears = AcademicYearRepository.List().OrderByDescending(x => x.AcademicYearStart);
-            return View(academicYears);
+            var model = new AcademicYearVM()
+            {
+                AcademicYears = academicYears.ToList(),
+                IsCurrentYearClosed = IsCurrentYearClosed()
+            };                       
+            return View(model);
         }
 
         // GET: AcademicYearController/Details/5
@@ -40,7 +47,10 @@ namespace CollegeGradingSys.Controllers
         // GET: AcademicYearController/Create
         public ActionResult Create()
         {
-
+            if (!IsCurrentYearClosed())
+            {
+                return NotFound();
+            }
             return View();
         }
 
@@ -49,6 +59,11 @@ namespace CollegeGradingSys.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(AcademicYear academicYear)
         {
+            if (!IsCurrentYearClosed())
+            {
+                return NotFound();
+            }          
+
             if (ModelState.IsValid)
             {
                 try
@@ -170,6 +185,12 @@ namespace CollegeGradingSys.Controllers
                
                 
                 AcademicYearRepository.Delete(id);
+                var LastYear = AcademicYearRepository.List().LastOrDefault();
+                if(LastYear != null)
+                {
+                    LastYear.IsCurrentYear = true;
+                    AcademicYearRepository.Update(LastYear.Id, LastYear);
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -178,6 +199,22 @@ namespace CollegeGradingSys.Controllers
             }
         }
 
+        private bool IsCurrentYearClosed()
+        {
+            var currentYear = AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true);
+            var StAcademicOfAllStInCurrentYear = StAcademicDataRepository.List().Where(x => x.AcademicYear.Id == currentYear.Id);
+
+
+            var stAs = StAcademicOfAllStInCurrentYear.Where(x => x.StStatus == StStatus.مقيد).ToList();
+            if (stAs != null)
+            {
+                if (stAs.Count > 0)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
         private bool isAcademicYearNameExists(string academicYearName)
         {
             return AcademicYearRepository.List().Any(e => e.AcademicYearName == academicYearName);

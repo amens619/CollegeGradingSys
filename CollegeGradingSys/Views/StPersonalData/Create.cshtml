@@ -87,27 +87,33 @@
                         <div class="card-body">                           
                             <h6 class="m-1">البيانات الأكاديمية</h6>
                             <hr class="mb-4 mt-0">
-                            <div class="row"> 
+                            <div class="row">
                                 <div class="form-group col-md-6">
                                     <label asp-for="BatchId" class="control-label"></label>
                                     <select id="BatchList" asp-for="BatchId" class="form-control text-center"
                                             asp-items="ViewBag.BatchId"></select>
                                     <span asp-validation-for="BatchId" class="text-danger"></span>
                                 </div>
+                                <div class="form-group col-md-4">
+                                    <label asp-for="StudyType" class="control-label"></label>
+                                    <select asp-for="StudyType" class="form-control text-center"
+                                            asp-items="Html.GetEnumSelectList<StudyType>()"></select>
+                                    <span asp-validation-for="StudyType" class="text-danger"></span>
+                                </div>
                                 @*<div class="form-group col-md-3">
-                                    <label asp-for="StLevel" class="control-label"></label>
-                                    <select asp-for="StLevel" class="form-control text-center"
-                                            asp-items="Html.GetEnumSelectList<Level>()"></select>
-                                    <span asp-validation-for="StLevel" class="text-danger"></span>
-                                </div>*@                                
+            <label asp-for="StLevel" class="control-label"></label>
+            <select asp-for="StLevel" class="form-control text-center"
+                    asp-items="Html.GetEnumSelectList<Level>()"></select>
+            <span asp-validation-for="StLevel" class="text-danger"></span>
+        </div>*@
                                 @*<div class="form-group col-md-4">
-                                    <label asp-for="StStatus" class="control-label"></label>
-                                    <select id="StStatusList" asp-for="StStatus" class="form-control text-center"
-                                            asp-items="Html.GetEnumSelectList<StStatus>()"></select>
-                                    <span asp-validation-for="StStatus" class="text-danger"></span>
-                                </div>*@                            
+            <label asp-for="StStatus" class="control-label"></label>
+            <select id="StStatusList" asp-for="StStatus" class="form-control text-center"
+                    asp-items="Html.GetEnumSelectList<StStatus>()"></select>
+            <span asp-validation-for="StStatus" class="text-danger"></span>
+        </div>*@
 
-                               
+
 
                             </div>
 

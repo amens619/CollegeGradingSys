@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CollegeGradingSys.Models.AcademicYear>
+﻿@model CollegeGradingSys.ViewModels.AcademicYearVM
 
 @{
     ViewData["Title"] = "إدارة العام الجامعي";
@@ -12,29 +12,37 @@
             <h6 class="m-1">القائمة الرئسية</h6>
             <hr class="mb-4 mt-0">
             <p>
-                <a class="btn btn-secondary col-2 btn-sm" asp-action="Create">جديد</a>
+                @if (Model.IsCurrentYearClosed)
+                {
+                <a asp-action="Create" class="btn btn-secondary btn-sm">عام جديد</a>
+                }
+                else
+        {
+            <a tabindex="0" class="btn btn-secondary btn-sm" role="button" data-bs-toggle="popover" data-bs-placement="left" data-bs-trigger="focus" title="عذرا" data-bs-content="يجب اقفال العام السابق  بإدخال جميع درجات المواد لجميع الطلاب واكمال بيانات جميع السجلات الطلابية">عام جديد</a>
+        }
+                
             </p>
             <table class="table table-bordered">
                 <thead class="table-light">
                     <tr>
                         <th>
-                            @Html.DisplayNameFor(model => model.AcademicYearName)
+                            العام الدراسي
                         </th>
                         <th>
-                            @Html.DisplayNameFor(model => model.AcademicYearNameH)
+                            العام الدراسي بالهجري
                         </th>
                         <th>
-                            @Html.DisplayNameFor(model => model.AcademicYearStart)
+                            تاريخ نهاية العامwe
                         </th>
                         <th>
-                            @Html.DisplayNameFor(model => model.AcademicYearEnd)
+                            تاريخ نهاية العام
                         </th>
                         <th>العام الحالي</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model)
+                    @foreach (var item in Model.AcademicYears)
                     {
                     <tr>
                         <td>

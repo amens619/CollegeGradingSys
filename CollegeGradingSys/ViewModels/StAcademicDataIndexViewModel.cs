@@ -16,7 +16,7 @@ namespace CollegeGradingSys.ViewModels
         public Level? Level { get; set; }
         [Display(Name = "الفصل الحالي")]
         public bool IsCurrentYear { get; set; }
-        public IList<StPersonalDataVM> StPersonalDataVMs { get; set; }
+        public IList<StAcademicDataVM> StAcademicDataVMs { get; set; }
 
 
     }

@@ -40,7 +40,8 @@ namespace CollegeGradingSys.Models.Repositories
                  .Include(x => x.Batch)
                     .ThenInclude(y => y.Specialization)                 
                 .Include(x => x.AcademicYear)                
-                .Include(x => x.StPersonalData)                
+                .Include(x => x.StPersonalData)
+                .Include(x => x.CourseGrades)
                 .SingleOrDefault(a => a.Id == id);
         }
 
@@ -50,7 +51,8 @@ namespace CollegeGradingSys.Models.Repositories
                 .Include(x => x.Batch)
                     .ThenInclude(y => y.Specialization)
                 .Include(x => x.AcademicYear)                    
-                .Include(x => x.StPersonalData)               
+                .Include(x => x.StPersonalData)
+                .Include(x => x.CourseGrades)
                 .ToList();
         }
 
