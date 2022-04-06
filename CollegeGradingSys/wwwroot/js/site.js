@@ -15,10 +15,21 @@
             else {
                 $("#EditCourseParentId").removeAttr("disabled");
             }
+
+            //==============
+            if ($("#EditStStatusForCourse").val() == 2 || $("#EditStStatusForCourse").val() == 3) {
+                $("#EditCourseGrade").removeAttr("disabled");
+            }
+            else {
+                $("#EditCourseGrade").val("");
+                $("#EditCourseGrade").attr("disabled", "disabled");
+
+            }
         });
     });
 
     placeholderElement.on('click', '[data-save="modal"]', function (event) {
+        
         event.preventDefault();       
         var form = $(this).parents('.modal').find('form');
         var actionUrl = form.attr('action');
@@ -54,7 +65,19 @@
             $("#EditCourseParentId").removeAttr("disabled");
         }
     });
-        
+    
+
+    placeholderElement.on('change', '#EditStStatusForCourse', function () {
+       
+        if ($("#EditStStatusForCourse").val() == 2 || $("#EditStStatusForCourse").val() == 3 ) {
+            $("#EditCourseGrade").removeAttr("disabled");
+        }
+        else {
+            $("#EditCourseGrade").val("");
+            $("#EditCourseGrade").attr("disabled", "disabled");
+           
+        }
+    });
 
     var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
     var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {       

@@ -67,159 +67,165 @@
 
                 </div>
             </div>
-            <hr class="my-4">
-            <div class=" container">
-                <span class="badge bg-info  ">ناجح</span>
-                <span class="badge bg-danger  ">راسب</span>
-                <span class="badge bg-success  ">غائب</span>
-                <span class="badge bg-primary  ">محروم</span>
-                <span class="badge bg-warning  ">غير محدد</span>
-            </div>
-            <hr class="my-4">
-            <div class="row table-responsive justify-content-center">
-                <div class="col-auto">
-                    <table class="table  table-bordered">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="auto">
-                                    م
-                                </th>
-                                <th class="col-2" scope="col">
-                                    اسم المادة
-                                </th>
-                                <th scope="auto">
-                                    نوع المادة  ( فرعية/أساسية)
-                                </th>
-                                <th class="col-2" scope="col">
-                                    اسم المادة الاساسية
-                                </th>
-                                <th class="col-2" scope="col">
-                                    الدرجة
-                                </th>
-                                <th scope="col">
-                                    حالة الطالب للمادة
-                                </th>
-                                <th class="col-2" scope="col">
-                                    ملاحظة
-                                </th>
-                                <th scope="col"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @{
-                                int no = 0;
-                            }
+           
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class=" container">
+                        <span class="badge bg-info  ">ناجح</span>
+                        <span class="badge bg-danger  ">راسب</span>
+                        <span class="badge bg-success  ">غائب</span>
+                        <span class="badge bg-primary  ">محروم</span>
+                        <span class="badge bg-warning  ">غير محدد</span>
+                    </div>
+                    <hr class="my-4">
+                    <div class="row table-responsive justify-content-center">
+                        <div class="col-auto">
+                            <table class="table  table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="auto" class="text-center" style="vertical-align: middle;">
+                                            م
+                                        </th>
+                                        <th scope="col" class=" col-2 text-center" style="vertical-align: middle;">
+                                            اسم المادة
+                                        </th>
+                                        <th scope="col" class=" col-2 text-center" style="vertical-align: middle;">
+                                            نوع المادة  ( فرعية/أساسية)
+                                        </th>
+                                        <th scope="col" class=" col-2 text-center" style="vertical-align: middle;">
+                                            اسم المادة الاساسية
+                                        </th>
+                                        <th scope="col" class=" col-1 text-center" style="vertical-align: middle;">
+                                            الدرجة
+                                        </th>
+                                        <th scope="col" class=" col-1 text-center" style="vertical-align: middle;">
+                                            حالة الطالب للمادة
+                                        </th>
+                                        <th scope="col" class=" col-2 text-center" style="vertical-align: middle;">
+                                            ملاحظة
+                                        </th>
+                                        <th scope="col" class=" col-1 text-center" style="vertical-align: middle;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        int no = 0;
+                                    }
 
-                            @foreach (var item in Model.CourseGrades)
-                            {
-                                no++;
-                                string selectedRow = "";
-                                if (item.Course.IsSubCourse == true)
-                                {
-                                    selectedRow = "bg-secondary";
-                                }
-                                <tr class="@selectedRow">
-                                    <td>
-                                        @no
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Course.CourseName)
-                                    </td>
-                                    <td>
-                                        @if (item.Course.IsSubCourse)
-                                        {
-                                            <span class="badge bg-warning">مادة فرعية</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-success">مادة أساسية</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Course.Parent.CourseName)
-                                    </td>
-                                    <td class="">
-                                        @Html.DisplayFor(modelItem => item.Grade)
-                                    </td>
-                                    <td class="">
-                                        @switch (item.StStatusForCourse)
-                                        {
-                                            case StStatusForCourse.غير_محدد:
-                                                <span class="badge bg-warning text-center ">@item.StStatusForCourse</span>
-                                                break;
-                                            case StStatusForCourse.محروم:
-                                                <span class="badge bg-primary text-center">@item.StStatusForCourse</span>
-                                                break;
-                                            case StStatusForCourse.ناجح:
-                                                <span class="badge bg-info text-center">@item.StStatusForCourse</span>
-                                                break;
-                                            case StStatusForCourse.راسب:
-                                                <span class="badge bg-danger text-center">@item.StStatusForCourse</span>
-                                                break;
-                                            case StStatusForCourse.غائب:
-                                                <span class="badge bg-success text-center">@item.StStatusForCourse</span>
-                                                break;
-                                        }
-                                    </td>
-
-                                    @if (item.Course.SubCourses != null)
+                                    @foreach (var item in Model.CourseGrades)
                                     {
-                                        <!-- Modal placeholder -->
-                                        <div id="modal-placeholder"></div>
-                                        @if (item.Course.SubCourses.Count > 0)
+                                        no++;
+                                        string selectedRow = "";
+                                        if (item.Course.IsSubCourse == true)
                                         {
+                                            selectedRow = "bg-secondary";
+                                        }
+                                        <tr class="@selectedRow">
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                @no
+                                            </td>
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                @Html.DisplayFor(modelItem => item.Course.CourseName)
+                                            </td>
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                @if (item.Course.IsSubCourse)
+                                                {
+                                                    <span class="badge bg-warning">مادة فرعية</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-success">مادة أساسية</span>
+                                                }
+                                            </td>
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                @Html.DisplayFor(modelItem => item.Course.Parent.CourseName)
+                                            </td>
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                @Html.DisplayFor(modelItem => item.Grade)
+                                            </td>
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                @switch (item.StStatusForCourse)
+                                                {
+                                                    case StStatusForCourse.غير_محدد:
+                                                        <span class="badge bg-warning text-center ">@item.StStatusForCourse</span>
+                                                        break;
+                                                    case StStatusForCourse.محروم:
+                                                        <span class="badge bg-primary text-center">@item.StStatusForCourse</span>
+                                                        break;
+                                                    case StStatusForCourse.ناجح:
+                                                        <span class="badge bg-info text-center">@item.StStatusForCourse</span>
+                                                        break;
+                                                    case StStatusForCourse.راسب:
+                                                        <span class="badge bg-danger text-center">@item.StStatusForCourse</span>
+                                                        break;
+                                                    case StStatusForCourse.غائب:
+                                                        <span class="badge bg-success text-center">@item.StStatusForCourse</span>
+                                                        break;
+                                                }
+                                            </td>
 
-                                            <td class="">
-                                                <p>
-                                                    <span>درجة المادة تجمع من المواد/المادة الفرعية (</span>
-                                                    @foreach (var SubCourse in item.Course.SubCourses)
-                                                    {
-                                                        <span>@SubCourse.CourseName</span>
+                                            @if (item.Course.SubCourses != null)
+                                            {
+                                                <!-- Modal placeholder -->
+                                                <div id="modal-placeholder"></div>
+                                                @if (item.Course.SubCourses.Count > 0)
+                                                {
+
+                                                    <td class="text-center" style="vertical-align: middle;">
+                                                        <p>
+                                                            <span>درجة المادة تجمع من المواد/المادة الفرعية (</span>
+                                                            @foreach (var SubCourse in item.Course.SubCourses)
+                                                            {
+                                                                <span>@SubCourse.CourseName</span>
+                                                                <span>-</span>
+                                                            }
+                                                            <span>) ويتم القسمة على @item.Course.SubCourses.Count </span>
+                                                        </p>
+                                                    </td>
+                                                    <td>
+                                                      
+                                                    </td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="text-center" style="vertical-align: middle;">
                                                         <span>-</span>
-                                                    }
-                                                    <span>) ويتم القسمة على @item.Course.SubCourses.Count </span>
-                                                </p>
-                                            </td>
-                                            <td>
-                                                @*<button type="button" disabled class="btn btn-primary btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Edit","CourseGrade",new { id = item.Id })">
-                                                        تعديل
-                                                    </button>*@
-                                                @*<a href="#" class="btn btn-primary btn-sm disabled" tabindex="-1" role="button" aria-disabled="true">تعديل</a>*@
-                                            </td>
-                                        }
-                                        else
-                                        {
-                                            <td class="">
-                                                <span>-</span>
-                                            </td>
-                                            <td>
+                                                    </td>
+                                                    <td class="text-center" style="vertical-align: middle;">
+                                                        @if (Model.IsCurrentYear)
+                                                        {
+                                                            <button type="button" class="btn btn-primary btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Edit","CourseGrade",new { id = item.Id })">
+                                                                تعديل
+                                                            </button>
+                                                        }
 
-                                                <button type="button" class="btn btn-primary btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Edit","CourseGrade",new { id = item.Id })">
-                                                    تعديل
-                                                </button>
-                                                @*<a asp-action="Edit" class="btn btn-primary  btn-sm" asp-route-id="@item.Id">تعديل</a>*@
-                                            </td>
-                                        }
+                                                        @*<a asp-action="Edit" class="btn btn-primary  btn-sm" asp-route-id="@item.Id">تعديل</a>*@
+                                                    </td>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    <span>-</span>
+                                                </td>
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    @if (Model.IsCurrentYear)
+                                                    {
+                                                        <button type="button" class="btn btn-primary btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Edit", "CourseGrade", new { id = item.Id })">
+                                                            تعديل
+                                                        </button>
+                                                    }
+                                                        @*<a asp-action="Edit" class="btn btn-primary btn-sm" asp-route-id="@item.Id">تعديل</a>*@
+                                                    </td>
+                                            }
+                                        </tr>
                                     }
-                                    else
-                                    {
-                                        <td class="">
-                                            <span>-</span>
-                                        </td>
-                                        <td>
-                                            <button type="button" class="btn btn-primary btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Edit","CourseGrade",new { id = item.Id })">
-                                                تعديل
-                                            </button>
-                                            @*<a asp-action="Edit" class="btn btn-primary btn-sm" asp-route-id="@item.Id">تعديل</a>*@
-                                        </td>
-                                    }
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
-
         </div>
     </div>
 

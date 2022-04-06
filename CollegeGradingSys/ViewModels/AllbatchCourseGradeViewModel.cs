@@ -17,6 +17,7 @@ namespace CollegeGradingSys.ViewModels
         [Display(Name = "المستوى")]
         public Level? Level { get; set; }
 
+        public bool IsCurrentYear { get; set; }
         public string courseName { get; set; }
         //==========================      
 

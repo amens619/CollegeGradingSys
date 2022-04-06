@@ -21,22 +21,22 @@
 
                     <div class="form-group col-md-6">
                         <label asp-for="CourseName" class="control-label"></label>
-                        <input asp-for="CourseName" readonly class="form-control" />
+                        <input asp-for="CourseName" readonly class="form-control text-center" />
                         <span asp-validation-for="CourseName" class="text-danger"></span>
                     </div>
                     <div class="form-group col-md-6">
                         <label asp-for="CourseType" class="control-label"></label>
-                        <input asp-for="CourseType" readonly class="form-control" />
+                        <input asp-for="CourseType" readonly class="form-control text-center" />
                         <span asp-validation-for="CourseType" class="text-danger"></span>
                     </div>
                     <div class="form-group col-md-3">
                         <label id="BigGrade" asp-for="BigGrade" class="control-label"></label>
-                        <input asp-for="BigGrade" type="number" readonly class="form-control" />
+                        <input asp-for="BigGrade" type="number" readonly class="form-control text-center" />
                         <span asp-validation-for="BigGrade" class="text-danger"></span>
                     </div>
                     <div class="form-group col-md-3">
                         <label asp-for="SmallGrade" class="control-label"></label>
-                        <input id="SmallGrade"  type="number" asp-for="SmallGrade" readonly class="form-control" />
+                        <input id="SmallGrade"  type="number" asp-for="SmallGrade" readonly class="form-control text-center" />
                         <span asp-validation-for="SmallGrade" class="text-danger"></span>
                     </div>
                     <div class="form-group col-md-6">
@@ -49,7 +49,7 @@
                         <label asp-for="Grade" class="control-label"></label>
                         @*@Html.TextBox("Grade", 0.00D, null)*@
                         <input id="EditCourseGrade" 
-                               onkeypress="CheckNumeric()" asp-for="Grade" class="form-control" />
+                               onkeypress="CheckNumeric()"  asp-for="Grade" class="form-control text-center" />
                         <span asp-validation-for="Grade" class="text-danger"></span>
                     </div>
 

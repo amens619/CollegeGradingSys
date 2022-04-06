@@ -242,7 +242,7 @@ namespace CollegeGradingSys.Controllers
                 AcademicYear = stAcademicData.AcademicYear.AcademicYearName,
                 Batch = stAcademicData.Batch.BatchName,
                 CourseType = _courseType ? "عام" : "تكميلي",
-                IsCurrentYear = stAcademicData.IsTerm,
+                IsCurrentYear = stAcademicData.AcademicYear.IsCurrentYear,
                 Level = stAcademicData.StLevel.ToString(),
                 Specialization = stAcademicData.Batch.Specialization.SpecializationName,
                 StStatus = stAcademicData.StStatus.ToString(),
@@ -257,17 +257,19 @@ namespace CollegeGradingSys.Controllers
         //All student's Courses with a grade for one term Academy
         public IActionResult AllbatchCourseGrade(int? BatchId, int? AcademicYearId, StStatusForCourse? stStatusForCourse, Term? term, Level? level, bool? CourseType , int? CourseId)
         {
-            level ??= Level.الأول;
+           
             term ??= Term.الأول;
             int? batchId= BatchId;
             int courseId = CourseId ?? 0;
 
             var model = new AllbatchCourseGradeViewModel();
+
             var AcademicYearsList = _AcademicYearRepository.List().OrderByDescending(x => x.AcademicYearStart).ToList();
             
             if (AcademicYearsList != null)
             {
-                var academicYearId = AcademicYearId ??= AcademicYearsList[0].Id;
+                var academicYearId = AcademicYearId ??= GetCurrentYear().Id;
+                model.IsCurrentYear = AcademicYearsList.SingleOrDefault(x => x.Id == academicYearId).IsCurrentYear;
                 ViewData["AcademicYearId"] = new SelectList(AcademicYearsList, "Id", "AcademicYearName", academicYearId);
                 
                 var Batchs = getBatchsOfOneAcademicYear(academicYearId);
@@ -275,8 +277,8 @@ namespace CollegeGradingSys.Controllers
                 {
                      batchId = BatchId ??= Batchs[0].Id;
                     ViewData["BatchId"] = new SelectList(Batchs, "Id", "BatchName", batchId);
-                    
-                    
+
+                     level ??= Batchs[0].StAcademicDatas.LastOrDefault().StLevel;
                      var courses = getCoursessOfOneBatch(batchId, level, term);
                     if (courses !=null)
                     {
@@ -292,7 +294,7 @@ namespace CollegeGradingSys.Controllers
 
 
 
-
+            CourseType ??= true;
 
             var courseGrades = _CourseGradeRepository.List()
                 .Where(x => x.StAcademicData.AcademicYear.Id == AcademicYearId)
@@ -311,122 +313,10 @@ namespace CollegeGradingSys.Controllers
             model.Level = level;
             model.Term = term;           
             model.CourseType = CourseType ?? true;
-            model.CourseGrades = courseGrades.ToList();
-
-            //ICollection<CourseGrade> courseGrades = new List<CourseGrade>();
-
-
-            //if (AcademicYearId != null)
-            //{
-            //    IList<StPersonalData> sts = new List<StPersonalData>();
-            //    foreach (var StPersonalData in StPersonalDatas)
-            //    {
-
-            //        var StAcademicDatasTemp = StPersonalData.StAcademicDatas.Where(x => x.AcademicYear.Id == AcademicYearId).ToList();
-            //        if (StAcademicDatasTemp.Count > 0)
-            //        {
-            //            StPersonalData.StAcademicDatas = StAcademicDatasTemp;
-            //            sts.Add(StPersonalData);
-            //        }
-            //    }
-            //    StPersonalDatas = sts;
-            //    //StPersonalDatas = StPersonalDatas.Where(x => x.StAcademicDatas.SingleOrDefault(x => x.AcademicYear.Id == AcademicYearId)).ToList();
-            //    ViewBag.SelectedBatchId = BatchId;
-            //    ViewData["AcademicYearId"] = new SelectList(FillSelectAcademicYearesList("-- الكل --"), "Id", "AcademicYearName", AcademicYearId ?? -1);
-            //}
-            //if (BatchId != null)
-            //{
-            //    IList<StPersonalData> sts = new List<StPersonalData>();
-            //    foreach (var StPersonalData in StPersonalDatas)
-            //    {
-            //        var StAcademicDatasTemp = StPersonalData.StAcademicDatas.Where(x => x.Batch.Id == BatchId).ToList();
-            //        if (StAcademicDatasTemp.Count > 0)
-            //        {
-            //            StPersonalData.StAcademicDatas = StAcademicDatasTemp;
-            //            sts.Add(StPersonalData);
-            //        }
-            //    }
-            //    StPersonalDatas = sts;
-            //    ViewData["BatchId"] = new SelectList(FillSelectBatchsList("-- الكل --"), "Id", "BatchName", BatchId ?? -1);
-            //}
-
-            //if (level != null)
-            //{
-            //    model.Level = level;
-            //    IList<StPersonalData> sts = new List<StPersonalData>();
-            //    foreach (var StPersonalData in StPersonalDatas)
-            //    {
-            //        var StAcademicDatasTemp = StPersonalData.StAcademicDatas.Where(x => x.StLevel == level).ToList();
-            //        if (StAcademicDatasTemp.Count > 0)
-            //        {
-            //            StPersonalData.StAcademicDatas = StAcademicDatasTemp;
-            //            sts.Add(StPersonalData);
-            //        }
-            //    }
-            //    StPersonalDatas = sts;
-            //}
-            //if (term != null)
-            //{
-            //    model.Term = term;
-            //    IList<StPersonalData> sts = new List<StPersonalData>();
-            //    foreach (var StPersonalData in StPersonalDatas)
-            //    {
-            //        var StAcademicDatasTemp = StPersonalData.StAcademicDatas.Where(x => x.Term == term).ToList();
-            //        if (StAcademicDatasTemp.Count > 0)
-            //        {
-            //            StPersonalData.StAcademicDatas = StAcademicDatasTemp;
-            //            sts.Add(StPersonalData);
-            //        }
-            //    }
-            //    StPersonalDatas = sts;
-            //}
-            //if (IsCurrentYear)
-            //{
-            //    model.IsCurrentYear = IsCurrentYear;
-            //    IList<StPersonalData> sts = new List<StPersonalData>();
-            //    foreach (var StPersonalData in StPersonalDatas)
-            //    {
-            //        var StAcademicDatasTemp = StPersonalData.StAcademicDatas.Where(x => x.IsCurrentYear == IsCurrentYear).ToList();
-            //        if (StAcademicDatasTemp.Count > 0)
-            //        {
-            //            StPersonalData.StAcademicDatas = StAcademicDatasTemp;
-            //            sts.Add(StPersonalData);
-            //        }
-            //    }
-            //    StPersonalDatas = sts;
-            //}
-            //if (stStatus != null)
-            //{
-            //    model.StStatus = stStatus;
-            //    IList<StPersonalData> sts = new List<StPersonalData>();
-            //    foreach (var StPersonalData in StPersonalDatas)
-            //    {
-            //        var StAcademicDatasTemp = StPersonalData.StAcademicDatas.Where(x => x.StStatus == stStatus).ToList();
-            //        if (StAcademicDatasTemp.Count > 0)
-            //        {
-            //            StPersonalData.StAcademicDatas = StAcademicDatasTemp;
-            //            sts.Add(StPersonalData);
-            //        }
-            //    }
-            //    StPersonalDatas = sts;
-            //}
-
-
-            //{
-
-            //    //AcademicID = stAcademicData.StPersonalData.AcademicID,
-            //    //StName = stAcademicData.StPersonalData.StName,
-            //    //AcademicYear = stAcademicData.AcademicYear.AcademicYearName,
-            //    //Batch = stAcademicData.Batch.BatchName,
-            //    CourseType = _courseType,
-
-            //    //Level = stAcademicData.StLevel.ToString(),
-            //    //Specialization = stAcademicData.Batch.Specialization.SpecializationName,
-            //    //StStatus = stAcademicData.StStatus.ToString(),
-            //    //Term = stAcademicData.Term.ToString(),
-            //    CourseGrades = courseGrades
-            //};
+            model.CourseGrades = courseGrades.ToList();           
             return View(model);
+
+
         }
         // GET: StAcademicData/Details/5
         public IActionResult StSearch()
@@ -458,80 +348,7 @@ namespace CollegeGradingSys.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create([Bind("Id,StLevel,Term,StStatus,Average,GPA,Valuation,IsCurrentYear,AcademicID,AcademicYearId,BatchId")] CreateStAcademicDataDataViewModel model)
         {
-            //if (ModelState.IsValid)
-            //{
-            //    if (model.BatchId == -1)
-            //    {
-            //        ViewBag.Message = "الرجاء اختيار العام الاكاديمي من القائمة";
-            //        FullAllListes("-- أختر --");
-            //        return View(model);
-            //    }
-            //    if (model.AcademicYearId == -1)
-            //    {
-            //        ViewBag.Message = "الرجاء اختيار الدفعة من القائمة";
-            //        FullAllListes("-- أختر --");
-            //        return View(model);
-            //    }
-            //    var stPersonalData = _StPersonalDataRepository.Find(model.AcademicID);
-            //    var studentBatch = _BatchRepository.Find(model.BatchId);
-            //    var academicYear = _AcademicYearRepository.Find(model.AcademicYearId);
-
-            //    if (!model.IsCurrentYear && model.StStatus == StStatus.مقيد )
-            //    {
-            //        if(model.Average == null || model.GPA == null || model.Valuation == Valuation.غير_محدد)
-            //        {
-            //            ViewBag.Message = "الرجاء اكمال ادخال البيانات او اختيار الفصل الحالي";
-            //            FullAllListes("-- أختر --");
-            //            return View(model);
-            //        }
-            //    }
-            //    var StAcademicDataList = _StAcademicDataRepository.List();
-
-            //    var checkStAcademicDataF = StAcademicDataList
-            //    .Any(x => x.StPersonalData.AcademicID == model.AcademicID && x.AcademicYear.Id == model.AcademicYearId && x.Term == model.Term);
-
-            //    if (checkStAcademicDataF)
-            //    {
-            //        ViewBag.Message = "لقد تم إيجاد بيانات سابقة بنفس العام الاكادمي و الفصل الدراسي للطالب .. الرجاء اختيار عام أخر او اختيار فصل دراسي آخر";
-            //        FullAllListes("-- أختر --");
-            //        return View(model);
-            //    }
-            //    var checkStAcademicDataS = StAcademicDataList
-            //    .Any(x => x.StPersonalData.AcademicID == model.AcademicID && x.StLevel == model.StLevel && x.Term == model.Term);
-
-            //    if (checkStAcademicDataS)
-            //    {
-            //        ViewBag.Message = "لقد تم إيجاد بيانات سابقة بنفس المستوى و الفصل الدراسي للطالب .. الرجاء اختيار مستوى أخر او اختيار فصل دراسي آخر";
-            //        FullAllListes("-- أختر --");
-            //        return View(model);
-            //    }
-
-            //    var checkStAcademicDatath = StAcademicDataList
-            //  .Any(x => x.StPersonalData.AcademicID == model.AcademicID && x.IsCurrentYear == true );
-
-            //    if (checkStAcademicDatath && model.IsCurrentYear == true )
-            //    {
-            //        ViewBag.Message = " لقد تم تعين فصل دراسي سابق  كفصل حالي للطالب .. الرجاء تعين فصل واحد فقط كفصل حالي للطالب  ";
-            //        FullAllListes("-- أختر --");
-            //        return View(model);
-            //    }
-            //    var stAcademicData = new StAcademicData()
-            //    {
-            //        StLevel = model.StLevel,
-            //        Term = model.Term,
-            //        StStatus = model.StStatus,
-            //        Average = model.Average,
-            //        GPA = model.GPA,
-            //        Valuation = model.Valuation,
-            //        IsCurrentYear = model.IsCurrentYear,
-            //        StPersonalData = stPersonalData,
-            //        AcademicYear = academicYear,
-            //        Batch = studentBatch
-            //    };
-
-            //    _StAcademicDataRepository.Add(stAcademicData);               
-            //    return RedirectToAction(nameof(AllStCourseGrade), new { id =model.AcademicID });
-            //}
+           
             return View(model);
         }
 
@@ -592,20 +409,30 @@ namespace CollegeGradingSys.Controllers
                 {
                     float? newGrade =null;
                     StStatusForCourse NewStStatus = model.StStatusForCourse;
-                    if (Grade is not null)
+                    if(NewStStatus== StStatusForCourse.ناجح || NewStStatus == StStatusForCourse.راسب)
                     {
-                        var cultureInfo = new CultureInfo("en");
-                        if (!(decimal.TryParse(Grade,
-                            NumberStyles.AllowDecimalPoint,
-                            cultureInfo, out var modelGrade)) || !(modelGrade >= 0 && modelGrade <= 100))
-                        {                            
-                                ModelState.AddModelError(nameof(model.Grade)," يجب إدخال  درجة المادة رقماً بين 0 - 100.");
+                        if (Grade is not null)
+                        {
+                            var cultureInfo = new CultureInfo("en");
+                            if (!(decimal.TryParse(Grade,
+                                NumberStyles.AllowDecimalPoint,
+                                cultureInfo, out var modelGrade)) || !(modelGrade >= 0 && modelGrade <= 100))
+                            {
+                                ModelState.AddModelError(nameof(model.Grade), " يجب إدخال  درجة المادة رقماً بين 0 - 100.");
 
-                                return PartialView("_Edit", model);                           
+                                return PartialView("_Edit", model);
+                            }
+                            newGrade = (float)modelGrade;
+                            NewStStatus = newGrade >= model.SmallGrade ? StStatusForCourse.ناجح : StStatusForCourse.راسب;
                         }
-                        newGrade = (float)modelGrade;
-                        NewStStatus = newGrade >= model.SmallGrade ? StStatusForCourse.ناجح : StStatusForCourse.راسب;
+                        else
+                        {
+                            ModelState.AddModelError(nameof(model.Grade), " يجب إدخال  درجة المادة رقماً بين 0 - 100.");
+
+                            return PartialView("_Edit", model);
+                        }
                     }
+                   
                     
                     var oldcourseGrade = _CourseGradeRepository.Find(model.Id);
                    
@@ -777,6 +604,12 @@ namespace CollegeGradingSys.Controllers
             var CoursessList = getCoursessOfOneBatch(batchId, level, term);
             return Json(new SelectList(CoursessList, "Id", "CourseName"));
         }
-        
+
+        private AcademicYear GetCurrentYear()
+        {
+            var currentYear = _AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true);
+            return (currentYear);
+        }
+
     }
 }
