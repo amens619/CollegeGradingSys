@@ -19,12 +19,12 @@
                             <div class="form-group col-md-4">
                                 <label class="control-label">العام</label>
                                 <select id="AcademicYearList" name="AcademicYearId" class="form-control text-center "
-                                        asp-items="ViewBag.AcademicYearId"></select>
+                                        asp-items="ViewBag.AcademicYearsList"></select>
                             </div>
                             <div class="form-group col-md-4">
                                 <label class="control-label">الدفعة</label>
                                 <select id="BatchList" name="BatchId" class="form-control text-center"
-                                        asp-items="ViewBag.BatchId"></select>
+                                        asp-items="ViewBag.BatchsList"></select>
                             </div>
                             <div class="form-group col-md-4">
                                 <label class="control-label">المستوى</label>
@@ -49,7 +49,7 @@
                             <div class="form-group col-md-4">
                                 <label class="control-label">المادة</label>
                                 <select id="CourseList" name="CourseId" class="form-control text-center"
-                                        asp-items="ViewBag.CourseId"></select>
+                                        asp-items="ViewBag.CourseList"></select>
                             </div>
                             <div class="form-group col-md-4">
                                 <label class="control-label">حالة الطالب للمادة</label>
@@ -62,7 +62,7 @@
                         </div>
                         <div class="container">
                             <input type="submit" value="بحث" class="btn btn-secondary col-2 btn-sm" />
-                            @*<input  value="تصدير المقبولين" class="btn btn-success btn-sm" formaction="" formmethod="get" />*@
+                            <input type="submit" value="استيراد من ملف" class="btn btn-success btn-sm"  formaction="@Url.Action("BatchCourseGradeUpload")"  formmethod="get" />
                         </div>
 
 
@@ -156,11 +156,14 @@
                                     <td class="text-center" style="vertical-align: middle;">
                                         @if (Model.IsCurrentYear)
                                         {
-                                            <!-- Modal placeholder -->
-                                            <div id="modal-placeholder"></div>
-                                            <button type="button" class="btn btn-primary btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Edit", "CourseGrade", new { id = item.Id })">
-                                                تعديل
-                                            </button>
+                                            @if (item.Course.SubCourses ==null)
+                                            {
+                                                <!-- Modal placeholder -->
+                                                <div id="modal-placeholder"></div>
+                                                <button type="button" class="btn btn-primary btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Edit", "CourseGrade", new { id = item.Id })">
+                                                    تعديل
+                                                </button>
+                                            }
                                         }
                                         </td>
                                 </tr>

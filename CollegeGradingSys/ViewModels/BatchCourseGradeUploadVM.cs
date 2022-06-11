@@ -1,4 +1,5 @@
 ﻿using CollegeGradingSys.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -7,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace CollegeGradingSys.ViewModels
 {
-    public class AllbatchCourseGradeViewModel
-    {
+    public class BatchCourseGradeUploadVM
+    {       
         [Display(Name = "حالة الطالب للمادة")]
         public StStatusForCourse? StStatusForCourse { get; set; }
 
@@ -18,19 +19,20 @@ namespace CollegeGradingSys.ViewModels
         public Level? Level { get; set; }
 
         public bool IsCurrentYear { get; set; }
-        public string courseName { get; set; }
+        public string CourseName { get; set; }
         //==========================      
 
-
+        public IFormFile BatchGrades  { get; set; }
 
         [Display(Name = "نوع الفصل (تكميلي / عام )")]
         public bool CourseType { get; set; }
-         
 
-        
 
-        public ICollection<CourseGrade>  CourseGrades { get; set; }
+
+
+        public IList<CourseGradeVM> CourseGrades { get; set; }
 
 
     }
 }
+

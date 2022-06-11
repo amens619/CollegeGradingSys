@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="cloudscribe.Pagination.Models" Version="1.1.0" />
     <PackageReference Include="cloudscribe.Web.Pagination" Version="5.0.0" />
+    <PackageReference Include="EPPlus.Core" Version="1.5.4" />
     <PackageReference Include="GemBox.Spreadsheet" Version="47.0.1398" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.12" />

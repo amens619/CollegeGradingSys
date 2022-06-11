@@ -1,0 +1,204 @@
+﻿@model CollegeGradingSys.ViewModels.BatchCourseGradeUploadVM
+@{
+    ViewData["Title"] = "درجات لمادة دراسية للدفعة";
+}
+
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="bg-white">
+            <h5 class="mb-4">  <span style="margin-left:6px;" data-feather="list"></span>ادارةالدرجات</h5>
+            <h6 class="m-1">درجات لمادة دراسية للدفعة</h6>
+            <hr class="mb-4 mt-0">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form asp-action="BatchCourseGradeUpload" asp-controller="CourseGrade" method="post" id="create-form" enctype="multipart/form-data">
+                        <div class="row ">
+                            <div class="form-group col-md-4">
+                                <label class="control-label">العام</label>
+                                <input type="hidden"     name="AcademicYearId" value="@ViewBag.AcademicYearId" />
+                                <select id="AcademicYearList"  disabled class="form-control disabled text-center "
+                                        asp-items="ViewBag.AcademicYearsList"></select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label class="control-label">الدفعة</label>
+                                <input type="hidden" name="BatchId" value="@ViewBag.BatchId" />
+                                <select id="BatchList" name="BatchId" disabled class="form-control disabled text-center"
+                                        asp-items="ViewBag.BatchsList"></select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label class="control-label">المستوى</label>
+                                <input type="hidden" name="Level" value="@Model.Level" />
+                                <select id="LevelList" asp-for="Level" name="Level" disabled class="form-control disabled text-center"
+                                        asp-items="Html.GetEnumSelectList<Level>()">
+                                </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label class="control-label">الفصل الدراسي</label>
+                                <input type="hidden" name="Term" value="@Model.Term" />
+                                <select id="TermList" asp-for="Term" name="Term" disabled class="form-control disabled text-center"
+                                        asp-items="Html.GetEnumSelectList<Term>()">
+                                </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label class="control-label">نوع الفصل</label>
+                                <input type="hidden" name="CourseType" asp-for="CourseType" value="@Model.CourseType" />
+                                <select id="CourseType" asp-for="CourseType" name="CourseType" disabled class="form-control disabled text-center">
+                                    <option value="False">تكميلي</option>
+                                    <option selected="selected" value="True">عام</option>
+
+                                </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label class="control-label">المادة</label>
+                                <input type="hidden" name="CourseId" value="@ViewBag.CourseId" />
+                                <select id="CourseList" name="CourseId" disabled class="form-control disabled text-center"
+                                        asp-items="ViewBag.CourseList"></select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label class="control-label">حالة الطالب للمادة</label>                                
+                                <input type="hidden" name="StStatusForCourse" value="@Model.StStatusForCourse" />                                                            
+                                <select id="StStatusForCourse" asp-for="StStatusForCourse" name="StStatusForCourse" disabled class="form-control disabled text-center"
+                                        asp-items="Html.GetEnumSelectList<StStatusForCourse>()">
+                                    <option value="-1">-- الكل --</option>
+                                </select>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="form-group">
+                                <label class="control-label">
+                                    استعراض:
+                                </label>
+                                <input id="batchGrades" name="batchGrades"   class="form-control" type="file" tabindex="14">
+                                <span class="form-text text-muted">أنواع الملفات المسموح بها :  xlsx, xls.</span>
+                            </div>
+                            <div class="card-footer">                                
+                                    <button type="submit" id="BtnUploadFile" class="btn btn-secondary col-2 btn-sm">استيراد</button>                                  
+                                
+                            </div>
+                        </div>
+                    </form>
+                </div>     
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="p-2 p-md-2 mb-2  rounded">
+                        <h1 class=" text-center my-1">
+                            اسم المادة <span>@Model.CourseName</span>
+                        </h1>
+
+                    </div>
+                    <div class=" container">
+                        <span class="badge bg-info  ">ناجح</span>
+                        <span class="badge bg-danger  ">راسب</span>
+                        <span class="badge bg-success  ">غائب</span>
+                        <span class="badge bg-primary  ">محروم</span>
+                        <span class="badge bg-warning  ">غير محدد</span>
+                    </div>
+                    <hr class="my-4">
+                    <form asp-controller="CourseGrade" asp-action="BatchCourseGradeXlsxUpdate" method="post">
+                        <table class="table  table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="auto" class="text-center" style="vertical-align: middle;">
+                                        م
+                                    </th>
+                                    <th scope="col" class=" col-1 text-center" style="vertical-align: middle;">
+                                        <span>رقم القيد</span>
+                                    </th>
+                                    <th scope="col" class=" col-3 text-center" style="vertical-align: middle;">
+                                        <span>اسم الطالب</span>
+                                    </th>
+                                    <th scope="col" class=" text-center" style="vertical-align: middle;">
+                                        الدرجة
+                                    </th>
+                                    <th scope="col" class=" col-1 text-center" style="vertical-align: middle;">
+                                        حالة الطالب للمادة
+                                    </th>
+                                    <th scope="col" class=" col-2 text-center" style="vertical-align: middle;">
+                                        ملاحظة
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @{
+                                    int no = 0;
+                                }
+
+                                @foreach (var item in Model.CourseGrades)
+                                {
+                                    no++;
+                                    string selectedRow = "";
+                                    if (item.Course.IsSubCourse == true)
+                                    {
+                                        selectedRow = "bg-secondary";
+                                    }
+                                    <tr class="@selectedRow">
+
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @no
+                                            <input asp-for="CourseGrades[no-1].Id" type="hidden" />
+                                            <input asp-for="CourseGrades[no-1].IsGradeChange" type="hidden" />
+                                            <input asp-for="CourseGrades[no-1].Course.IsSubCourse" type="hidden" />
+                                            <input asp-for="CourseGrades[no-1].Course.ParentId" type="hidden" />
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            <input asp-for="CourseGrades[no-1].AcademicID" type="hidden" />
+                                            @Html.DisplayFor(modelItem => item.AcademicID)
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            <input asp-for="CourseGrades[no-1].StName" type="hidden" />
+                                            @Html.DisplayFor(modelItem => item.StName)
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            <input asp-for="CourseGrades[no-1].Grade" type="hidden" />
+                                            @Html.DisplayFor(modelItem => item.Grade)
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @switch (item.StStatusForCourse)
+                                            {
+                                                case StStatusForCourse.غير_محدد:
+                                                    <span class="badge bg-warning text-center ">@item.StStatusForCourse</span>
+
+                                                    break;
+                                                case StStatusForCourse.محروم:
+                                                    <span class="badge bg-primary text-center">@item.StStatusForCourse</span>
+                                                    break;
+                                                case StStatusForCourse.ناجح:
+                                                    <span class="badge bg-info text-center">@item.StStatusForCourse</span>
+                                                    break;
+                                                case StStatusForCourse.راسب:
+                                                    <span class="badge bg-danger text-center">@item.StStatusForCourse</span>
+                                                    break;
+                                                case StStatusForCourse.غائب:
+                                                    <span class="badge bg-success text-center">@item.StStatusForCourse</span>
+                                                    break;
+                                            }
+                                            <input asp-for="CourseGrades[no-1].StStatusForCourse" type="hidden" />
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @Html.DisplayFor(modelItem => item.Note)
+                                            @if (item.IsGradeChange)
+                                            {
+                                                <span>تم تغير درجة الطالب </span>
+                                            }
+
+                                        </td>
+                                    </tr>
+                                }
+
+
+                            </tbody>
+                        </table>
+                        <input type="submit" value="حفظ التغيرات" class="btn btn-secondary col-2 btn-sm" />                       
+                        <a asp-action="AllbatchCourseGrade" asp-controller="CourseGrade" class="btn btn-secondary btn-sm">القائمة الرئسية</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -24,5 +24,6 @@ namespace CollegeGradingSys.Models
         public virtual StAcademicData StAcademicData { get; set; }
          public virtual Course Course { get; set; }
 
+
     }
 }
