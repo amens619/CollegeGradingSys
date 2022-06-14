@@ -48,6 +48,7 @@ namespace CollegeGradingSys.Models.Repositories
         public IList<StPersonalData> List()
         {
             return db.StPersonalData.Include(x => x.StHighSchoolData)
+                .Include(x => x.Nationality)
                 .Include(x => x.StAcademicDatas)
                 .ThenInclude(x => x.Batch)
                 .Include(x => x.BirthGovernorate)

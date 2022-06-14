@@ -76,7 +76,7 @@
 
                         <input type="submit" value="تصفية" class="btn btn-secondary btn-sm" />
                         <a asp-action="Index" class="btn btn-secondary btn-sm" asp-route-id=-1>إلغاء التصفية</a>
-                        <input type="submit" value="تصدير المقبولين" class="btn btn-success btn-sm" formaction="@Url.Action("Delete")" formmethod="get" />
+                        <input type="submit" value="تصدير المقبولين" class="btn btn-success btn-sm" formaction="@Url.Action("ExportAcceptedStToExcel")" formmethod="get" />
                         <input type="submit" value="تصدير من واقع الثانوية العامة" class="btn btn-success btn-sm" />
                     }
                 </div>

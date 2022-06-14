@@ -38,7 +38,8 @@ namespace CollegeGradingSys.Models.Repositories
         {
             return db.StAcademicData
                  .Include(x => x.Batch)
-                    .ThenInclude(y => y.Specialization)                 
+                    .ThenInclude(y => y.Specialization)
+                        .ThenInclude(z => z.Department)
                 .Include(x => x.AcademicYear)                
                 .Include(x => x.StPersonalData)
                 .Include(x => x.CourseGrades)
@@ -50,6 +51,7 @@ namespace CollegeGradingSys.Models.Repositories
             return db.StAcademicData
                 .Include(x => x.Batch)
                     .ThenInclude(y => y.Specialization)
+                        .ThenInclude(z => z.Department)
                 .Include(x => x.AcademicYear)                    
                 .Include(x => x.StPersonalData)
                 .Include(x => x.CourseGrades)
