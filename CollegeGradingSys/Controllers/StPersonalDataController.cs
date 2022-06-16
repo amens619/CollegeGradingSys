@@ -478,7 +478,13 @@ namespace CollegeGradingSys.Controllers
         public ActionResult Delete(int id)
         {
             var  stPersonalData = StPersonalDataRepository.Find(id);
-            
+            var StAcademicDatasOFStPersonalData = StAcademicDataRepository.List().Where(x => x.StPersonalData.AcademicID == id).ToList();
+            if (StAcademicDatasOFStPersonalData != null && StAcademicDatasOFStPersonalData.Count > 0)
+            {
+               
+                ViewBag.Message = "يوجد سجلات اكاديمية تابعة للطالب.. سيتم حذف الطالب وجميع بيانات ودرجاته";
+                
+            }
             return View(stPersonalData);       
         }
 
@@ -492,9 +498,15 @@ namespace CollegeGradingSys.Controllers
                 var StAcademicDatasOFStPersonalData = StAcademicDataRepository.List().Where(x => x.StPersonalData.AcademicID == model.AcademicID).ToList();
                 if (StAcademicDatasOFStPersonalData != null && StAcademicDatasOFStPersonalData.Count > 0)
                 {
-                    var department = StPersonalDataRepository.Find(AcademicID);
-                    ViewBag.Message = "لا يمكن حذف الطالب بسبب وجود سجلات اكاديمية تابعة له.. الرجاء حذف السجلات التابعة له أولا ";
-                    return View(department);
+                    foreach (var StAcademicDataOFStPersonalData in StAcademicDatasOFStPersonalData)
+                    {
+                        foreach (var CourseGrade in StAcademicDataOFStPersonalData.CourseGrades)
+                        {
+                            CourseGradeRepository.Delete(CourseGrade.Id);
+                        }
+                        StAcademicDataRepository.Delete(StAcademicDataOFStPersonalData.Id);
+                    }            
+
                 }
                 StHighSchoolDataRepository.Delete(AcademicID);
                 StPersonalDataRepository.Delete(AcademicID);
