@@ -56,10 +56,11 @@ namespace CollegeGradingSys.Controllers
             ViewBag.CurrentSort = sortOrder;
             ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewBag.SexSortParm = sortOrder == "SexSortParm" ? "SexSortParm_desc" : "SexSortParm";
-           
-           
 
- 
+            
+
+
+
             if (StNameSearch != null)
             {
                
