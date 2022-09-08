@@ -519,7 +519,7 @@ namespace CollegeGradingSys.Controllers
         }
 
 
-
+        
         //==============================================
         public ActionResult ExportAcceptedStToExcel(bool IsSelectCurrentYear, int? AcademicYearId)
         {
@@ -1141,7 +1141,7 @@ namespace CollegeGradingSys.Controllers
 
                 // set some core property values
                 xlPackage.Workbook.Properties.Title = "User List";
-                xlPackage.Workbook.Properties.Author = "Mohamad Lawand";
+                xlPackage.Workbook.Properties.Author = "Ameen Bashaaib";
                 xlPackage.Workbook.Properties.Subject = "User List";
                 // save the new spreadsheet
                 xlPackage.Save();

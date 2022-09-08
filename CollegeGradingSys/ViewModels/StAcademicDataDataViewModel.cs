@@ -1,4 +1,5 @@
 ﻿using CollegeGradingSys.Models;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -19,5 +20,7 @@ namespace CollegeGradingSys.ViewModels
         public string StName { get; set; }
         public bool IsRegisteredInCurrentYear { get; set; }
         public ICollection<StAcademicData>  StAcademicDatas { get; set; }
+
+       
     }
 }

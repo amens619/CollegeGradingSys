@@ -1,0 +1,45 @@
+﻿@model CollegeGradingSys.Models.CourseGrade
+
+
+@{
+    ViewData["Title"] = "حذف المادةالتكميلية للطالب";
+}
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="bg-white">
+            <h5 class="mb-4">  <span style="margin-left:6px;" data-feather="delete"></span>ادارةالدرجات</h5>
+            <h6 class="m-1">حذف المادةالتكميلية للطالب</h6>
+            <hr class="mb-4 mt-0">
+            <div class="row">
+                <h4>هل تريد بالفعل حذف المادة التكميلية للطالب؟!!</h4>
+                <div>
+                    <hr />
+                    @if (ViewBag.Message != null)
+                    {
+                        <h5 class="alert alert-danger">@ViewBag.Message</h5>
+                    }
+                <div class="row my-5">
+                    <div class="col-sm-2 my-2">
+                        @Html.DisplayNameFor(model => model.StAcademicData.StPersonalData.StName)
+                    </div>
+                    <div class="col-sm-10 my-2">
+                        @Html.DisplayFor(model => model.StAcademicData.StPersonalData.StName)
+                    </div>
+                    <div class="col-sm-2 my-2">
+                        @Html.DisplayNameFor(model => model.Course.CourseName)
+                    </div>
+                    <div class="col-sm-10 my-2">
+                        @Html.DisplayFor(model => model.Course.CourseName)
+                    </div>
+                </div>
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="submit" value="حذف" class="btn btn-danger btn-sm " />
+                        <a class="btn btn-secondary  btn-sm" asp-action="AllbatchCourseGradeFailed">إلغاء الامر</a>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

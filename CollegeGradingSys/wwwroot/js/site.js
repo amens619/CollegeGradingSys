@@ -38,9 +38,10 @@
         $.post(actionUrl, dataToSend).done(function (data) {
             var newBody = $('.modal-body', data);
             placeholderElement.find('.modal-body').replaceWith(newBody);
-
+            
             var isValid = newBody.find('[name="IsValid"]').val() == 'True';
-            if (isValid) {
+            
+            if (isValid) {                
                 placeholderElement.find('.modal').modal('hide');
             }
         });

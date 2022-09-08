@@ -12,11 +12,14 @@ using cloudscribe.Pagination.Models;
 using CollegeGradingSys.ViewModels;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using GemBox.Spreadsheet;
+//using GemBox.Spreadsheet;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using Microsoft.AspNetCore.Http;
 using CollegeGradingSys.Helper;
+using System.Drawing;
+using System.IO;
+using OfficeOpenXml.Drawing;
 
 namespace CollegeGradingSys.Controllers
 {
@@ -327,6 +330,15 @@ namespace CollegeGradingSys.Controllers
             return View(model);
 
         }
+
+
+        public IActionResult AllbatchCourseGradeFailed(string searchString, int? SearchAcademicID, Term? term, Level? level,int? CourseId,int? SpecializationId ,int? AcademicYearId,bool IsSelectCurrentYear)
+        {
+            var model = getAllCourseGradeFailedViewModel(searchString, SearchAcademicID, term, level, CourseId, SpecializationId, AcademicYearId, IsSelectCurrentYear);
+
+            return View(model);
+        }
+
         // GET: StAcademicData/Details/5
         public IActionResult StSearch()
         {
@@ -497,30 +509,52 @@ namespace CollegeGradingSys.Controllers
             }
         }
 
-        // GET: StAcademicData/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // GET: CourseController/Delete/5
+        public ActionResult Delete(int id)
         {
-            if (id == null)
+            if (id == null || id == 0)
             {
                 return NotFound();
             }
+            var courseGrade = _CourseGradeRepository.Find(id);
+            if (courseGrade is null)
+            {
+                return NotFound();
+            }
+           
 
-            
-            
-
-            return View();
+            return View("Delete", courseGrade);
         }
 
-        // POST: StAcademicData/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public ActionResult Delete(int id, CourseGrade courseGrade)
         {
            
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                if (id == null || id == 0)
+                {
+                    return NotFound();
+                }
+
+                if (courseGrade.CourseType == true)
+                {
+                    ModelState.AddModelError(nameof(courseGrade.CourseType), "");
+                    ViewBag.Message = "لا يمكن حذف درجات المادةالاساسية";
+                    return View("Delete", courseGrade);
+                }
+                _CourseGradeRepository.Delete(id);
+                return RedirectToAction(nameof(AllbatchCourseGradeFailed));
+                
+                
+            }
+            catch
+            {
+                return PartialView("_Delete", courseGrade);
+            }
         }
 
-        
 
         public IActionResult BatchCourseGradeUpload(IFormFile batchGrades, int? BatchId, int? AcademicYearId, StStatusForCourse? stStatusForCourse, Term? term, Level? level, bool? CourseType, int? CourseId)
         {
@@ -762,6 +796,119 @@ namespace CollegeGradingSys.Controllers
             model.CourseGrades = courseGrades.ToList();
             return (model);
         }
+
+        
+        private AllbatchCourseGradeFailedViewModel getAllCourseGradeFailedViewModel(string searchString, int? SearchAcademicID, Term? term, Level? level, int? CourseId, int? SpecializationId, int? AcademicYearId, bool IsSelectCurrentYear)
+        {
+            bool isTermSelected = false;
+            bool isLevelSelected = false;
+            bool isSpecializationIdSelected = false;
+            int courseId = CourseId ?? -1;
+            //int specializationId = SpecializationId ?? _SpecializationRepository.List().FirstOrDefault().Id;
+
+            if (IsSelectCurrentYear == true)
+            {
+                var currentYear = _AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true);
+                if (currentYear != null)
+                {
+                   
+                    AcademicYearId = currentYear.Id;
+                }
+
+            }
+            else
+            {
+                AcademicYearId = -1;
+            }
+            ViewBag.CurrentFilter = searchString;
+            ViewData["IsSelectCurrentYear"] = IsSelectCurrentYear;
+            var model = new AllbatchCourseGradeFailedViewModel();
+
+
+            var courses = getCoursessOfOneSpecialization(SpecializationId, level, term);
+            if (courses != null)
+            {
+                if (courseId != -1)
+                {
+                    model.courseName = courses.SingleOrDefault(x => x.Id == courseId).CourseName;
+                }
+
+                ViewData["CourseId"] = courseId;
+                ViewData["CourseList"] = new SelectList(courses, "Id", "CourseName", courseId);
+
+            }
+            var AcademicYearsList = _AcademicYearRepository.List().OrderByDescending(x => x.AcademicYearStart).ToList();
+
+            if (AcademicYearsList != null)
+            {
+
+                var academicYearId = AcademicYearId ??= -1;
+                // model.IsCurrentYear = AcademicYearsList.SingleOrDefault(x => x.Id == academicYearId).IsCurrentYear;
+                ViewData["AcademicYearsList"] = new SelectList(AcademicYearsList, "Id", "AcademicYearName", academicYearId);
+                ViewData["AcademicYearId"] = academicYearId;
+            }
+
+            var courseGrades = _CourseGradeRepository.List()
+                            .Where(x => x.CourseType == false);
+
+
+            if (AcademicYearId != null && AcademicYearId != -1)
+            {
+                
+                model.AcademicYearId = AcademicYearId ?? 1;
+                courseGrades = courseGrades.Where(x => x.StAcademicData.AcademicYear.Id == AcademicYearId).ToList();
+            }
+
+            if (SpecializationId != null && SpecializationId != -1)
+            {
+                isSpecializationIdSelected = true;
+                model.SpecializationId = SpecializationId ?? 1;
+                courseGrades = courseGrades.Where(x => x.StAcademicData.Batch.Specialization.Id == SpecializationId).ToList();
+            }
+            if (level != null)
+            {
+               
+                 isLevelSelected = true;
+                
+                model.Level = level;
+                courseGrades = courseGrades.Where(x => x.StAcademicData.StLevel == level).ToList();
+            }
+            if (term != null)
+            {
+                isTermSelected = true;
+                model.Term = term;
+                courseGrades = courseGrades.Where(x => x.StAcademicData.Term == term).ToList();
+            }
+            if (CourseId != null && CourseId != -1)
+            {
+                courseGrades = courseGrades.Where(x => x.Course.Id == courseId).ToList();
+            }
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                courseGrades = courseGrades.Where(s => s.StAcademicData.StPersonalData.StName.Contains(searchString)).ToList();
+
+            }
+
+            if (SearchAcademicID != null)
+            {
+                ViewData["SearchAcademicID"] = SearchAcademicID;
+                courseGrades = courseGrades.Where(s => s.StAcademicData.StPersonalData.AcademicID.Equals(SearchAcademicID)).ToList();
+
+            }
+
+
+
+
+
+            model.CourseGrades = courseGrades.ToList();
+            model.isExportBtnEnable = isTermSelected && isLevelSelected && isSpecializationIdSelected;
+            ViewData["Specializations"] = new SelectList(FillSelectSpecializationsList(), "Id", "SpecializationName");
+
+            return (model);
+
+        }
+
+
         List<Batch> getBatchsOfOneAcademicYear(int AcademicYearId)
         {
             var Batches = new List<Batch>();
@@ -832,7 +979,27 @@ namespace CollegeGradingSys.Controllers
                                   .Where(x => x.Term == term).ToList();
             return (courses);
         }
-       
+
+        List<Course> getCoursessOfOneSpecialization(int? SpecializationId, Level? level, Term? term)
+        {
+
+            var Courses = _CourseRepository.List().ToList();
+            if (SpecializationId != null && SpecializationId != -1)
+            {                
+                Courses = Courses.Where(x => x.Specialization.Id == SpecializationId).ToList();
+            }
+            if (level != null)
+            {
+                Courses = Courses.Where(x => x.Level == level).ToList();
+            }
+            if (term != null)
+            {
+               Courses = Courses.Where(x => x.Term == term).ToList();
+            }                                 
+                                  
+                                 
+            return (Courses);
+        }
 
         public JsonResult GetCoursess(int? batchId, Level level, Term term)
         {
@@ -844,12 +1011,513 @@ namespace CollegeGradingSys.Controllers
             return Json(new SelectList(CoursessList, "Id", "CourseName"));
         }
 
+        public JsonResult GetCoursessbySpecialization(int? SpecializationId, Level? level, Term? term)
+        {
+            if (SpecializationId == null)
+            {
+                return null;
+            }
+            var CoursessList = getCoursessOfOneSpecialization(SpecializationId, level, term);
+            return Json(new SelectList(CoursessList, "Id", "CourseName"));
+        }
+
         private AcademicYear GetCurrentYear()
         {
             var currentYear = _AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true);
             return (currentYear);
         }
 
+        List<Specialization> FillSelectSpecializationsList()
+        {
+            var specializations = _SpecializationRepository.List().ToList();
+
+
+            return specializations;
+        }
+
+
+        public ActionResult ExportCourseGradeToExcel(string searchString, int? SearchAcademicID, Term? term, Level? level, int? CourseId, int? SpecializationId, int? AcademicYearId, bool IsSelectCurrentYear)
+        {
+           var model = getAllCourseGradeFailedViewModel(searchString, SearchAcademicID, term, level, CourseId, SpecializationId, AcademicYearId, IsSelectCurrentYear);
+            // Get the user list 
+           
+            //var users = GetlistOfUsers();
+            var courses = getCoursessOfOneSpecialization(SpecializationId, level, term);
+                courses = courses.Where(x => x.IsSubCourse == false).ToList();
+            var stream = new MemoryStream();
+            using (var xlPackage = new ExcelPackage(stream))
+            {
+                var worksheet = xlPackage.Workbook.Worksheets.Add(" كشف التكميلية طلاب");
+                worksheet.View.RightToLeft = true;
+                worksheet.Cells.Style.Font.Bold = true;
+                var namedStyle = xlPackage.Workbook.Styles.CreateNamedStyle("HyperLink");
+                namedStyle.Style.Font.UnderLine = true;
+                namedStyle.Style.Font.Color.SetColor(Color.Blue);
+                const int startRow = 5;
+                const int startColumn = 3;
+                var row = startRow;
+
+                worksheet.Column(1).Width = 18.43;
+                worksheet.Column(2).Width = 41.71;
+                worksheet.Column(3).Width = 101.71;
+                int coursesNo = 1;
+                for (; coursesNo <= courses.Count(); coursesNo++)
+                {
+                    worksheet.Column(coursesNo + startColumn).Width = 24.86;
+                }
+               
+                
+                
+                worksheet.Column(coursesNo + startColumn).Width = 73.71;                
+                //==========================
+                worksheet.Row(1).Height = 45;
+                worksheet.Row(2).Height = 45;
+                worksheet.Row(3).Height = 45;
+                worksheet.Row(4).Height = 30.5;
+                worksheet.Row(5).Height = 144;
+
+
+
+
+                //Create Headers and format them
+                worksheet.Cells["B1:C1"].Value = "       الجمهورية اليمنية";
+                using (var r = worksheet.Cells["B1:C1"])
+                {
+                    r.Merge = true;
+                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+                }
+                worksheet.Cells["B2:c2"].Value = "       جامعة الإيمان";
+                using (var r = worksheet.Cells["B2:C2"])
+                {
+                    r.Merge = true;
+                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+                }
+                worksheet.Cells["B3:C3"].Value = "       فرع حضرموت";
+                using (var r = worksheet.Cells["B3:C3"])
+                {
+                    r.Merge = true;
+                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+                }
+                //=============================
+
+                worksheet.Cells["A5:N5"].Style.Font.Size = 28;
+                worksheet.Cells["B1:B3"].Style.Font.Size = 36;
+
+                worksheet.Cells["A5:N5"].Style.Font.Name = "Khalid Art bold";
+
+                //=============================
+                var academicYear = _AcademicYearRepository.Find(model.AcademicYearId);
+                worksheet.Cells[4, startColumn + 1, 4, coursesNo + 1].Style.Font.Size = 28;
+                
+                worksheet.Cells[4, startColumn + 1,4 ,coursesNo+1].Value = academicYear != null ? (" نتيجة إمتحانات       " + "المستوى: " + model.Level + "       الفصل: " + model.Term + "    للعام الجامعي: " + academicYear.AcademicYearNameH +  " الموافق " + academicYear.AcademicYearName ) : (" نتيجة إمتحانات       " + "المستوى: " + model.Level + "       الفصل: " + model.Term );
+                using (var r = worksheet.Cells[4, startColumn + 1, 4, coursesNo + 1])
+                {
+                    r.Merge = true;
+                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+                }
+                ////////============================
+                worksheet.Cells[1, coursesNo + startColumn-1, 1, coursesNo + startColumn ].Value = "Republic of Yemen";
+                using (var r = worksheet.Cells[1, coursesNo + startColumn - 1, 1, coursesNo + startColumn ])
+                {
+                    r.Merge = true;
+                    r.Style.Font.Name = "Times New Roman";
+                    r.Style.Font.Size = 36;
+                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+                }
+                worksheet.Cells[2, coursesNo + startColumn - 1, 2, coursesNo + startColumn ].Value = "AL - Eman university";
+                using (var r = worksheet.Cells[2, coursesNo - 1 + startColumn, 2, coursesNo + startColumn ])
+                {
+                    r.Merge = true;
+                    r.Style.Font.Name = "Stenc";
+                    r.Style.Font.Size = 36;
+                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+                }
+                worksheet.Cells[3, coursesNo + startColumn - 1, 3, coursesNo + startColumn].Value = "Hadhramout branch";
+
+                using (var r = worksheet.Cells[3, coursesNo + startColumn-1, 3, coursesNo + startColumn ])
+                {
+                    r.Merge = true;
+                    r.Style.Font.Name = "Times New Roman";
+                    r.Style.Font.Size = 36;
+                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+                }
+                //=====================================
+                //////var academicYear = GetCurrentYear();
+                //////worksheet.Cells["I2"].Value = academicYear.AcademicYearName;
+                Color colGradFromHex = System.Drawing.ColorTranslator.FromHtml("#BFBFBF");
+                Color LightYellowFromHex = System.Drawing.ColorTranslator.FromHtml("#FFFFCC");
+                Color BrownFromHex = System.Drawing.ColorTranslator.FromHtml("#974706");
+               
+                //================================
+
+                int rowIndex = 1;
+                int colIndex = 7;
+                int PixelTop = 17;
+                int PixelLeft = 1721;
+                int Height = 153;
+                int Width = 100;
+                Image img = Image.FromFile(@"wwwroot/images/CollegeIcon.jpg");
+                
+                ExcelPicture pic = worksheet.Drawings.AddPicture("Sample", img);
+                //pic.SetPosition(rowIndex, 0, colIndex, 0);
+                pic.SetPosition(PixelTop, PixelLeft);  
+                //pic.SetSize(Height, Width);
+                //pic.SetSize(40);  
+                //////using (var r = worksheet.Cells["I2:J2"])
+                //////{
+                //////    r.Merge = true;
+                //////    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                //////    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                //////    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                //////    r.Style.Fill.BackgroundColor.SetColor(colGradFromHex);
+                //////}
+                ////////================================
+                //////worksheet.Cells["K2"].Value = "برنامج الدراسة";
+                //////using (var r = worksheet.Cells["K2:L2"])
+                //////{
+                //////    r.Merge = true;
+                //////    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                //////    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+                //////}
+                ////////===============================================
+                //////worksheet.Cells["K3"].Value = "برنامج الدراسة";
+                //////using (var r = worksheet.Cells["K3:L3"])
+                //////{
+                //////    r.Merge = true;
+                //////    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                //////    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+                //////}
+                ////////===============================================
+                //////using (var r = worksheet.Cells["M2:N3"])
+                //////{
+                //////    r.Merge = true;
+                //////    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                //////    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                //////    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                //////    r.Style.Fill.BackgroundColor.SetColor(colGradFromHex);
+                //////}
+                ////////================================
+                //////worksheet.Cells["A4"].Value = "اسم الجامعة";
+                //////using (var r = worksheet.Cells["A4:D4"])
+                //////{
+                //////    r.Merge = true;
+                //////    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                //////    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                //////    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                //////    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
+                //////    r.Style.Border.Top.Style = ExcelBorderStyle.Thick;
+                //////    r.Style.Border.Left.Style = ExcelBorderStyle.Thick;
+                //////    r.Style.Border.Right.Style = ExcelBorderStyle.Thick;
+                //////    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thick;
+                //////}
+                ////////================================
+                //////worksheet.Cells["E4"].Value = "للعام الدراسي";
+                //////using (var r = worksheet.Cells["E4:J4"])
+                //////{
+                //////    r.Merge = true;
+                //////    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                //////    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                //////    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                //////    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
+                //////    r.Style.Border.Top.Style = ExcelBorderStyle.Thick;
+                //////    r.Style.Border.Left.Style = ExcelBorderStyle.Thick;
+                //////    r.Style.Border.Right.Style = ExcelBorderStyle.Thick;
+                //////    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thick;
+                //////}
+                ////////================================
+                //////worksheet.Cells["K4"].Value = "Name Of University";
+                //////using (var r = worksheet.Cells["K4:p4"])
+                //////{
+                //////    r.Merge = true;
+                //////    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                //////    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                //////    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                //////    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
+                //////    r.Style.Border.Top.Style = ExcelBorderStyle.Thick;
+                //////    r.Style.Border.Left.Style = ExcelBorderStyle.Thick;
+                //////    r.Style.Border.Right.Style = ExcelBorderStyle.Thick;
+                //////    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thick;
+                //////}
+                ////////================================
+                //////worksheet.Cells["A5"].Value = "جامعة الإيمان فرع حضرموت";
+                //////using (var r = worksheet.Cells["A5:D5"])
+                //////{
+                //////    r.Merge = true;
+                //////    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                //////    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                //////    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                //////    r.Style.Fill.BackgroundColor.SetColor(colGradFromHex);
+                //////    r.Style.Border.Top.Style = ExcelBorderStyle.Thick;
+                //////    r.Style.Border.Left.Style = ExcelBorderStyle.Thick;
+                //////    r.Style.Border.Right.Style = ExcelBorderStyle.Thick;
+                //////    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thick;
+                //////}
+                ////////================================
+                //////worksheet.Cells["E5"].Value = academicYear.AcademicYearName + "  " + academicYear.AcademicYearNameH;
+                //////using (var r = worksheet.Cells["E5:J5"])
+                //////{
+                //////    r.Merge = true;
+                //////    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                //////    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                //////    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                //////    r.Style.Fill.BackgroundColor.SetColor(colGradFromHex);
+                //////    r.Style.Border.Top.Style = ExcelBorderStyle.Thick;
+                //////    r.Style.Border.Left.Style = ExcelBorderStyle.Thick;
+                //////    r.Style.Border.Right.Style = ExcelBorderStyle.Thick;
+                //////    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thick;
+                //////}
+                ////////================================
+                //////worksheet.Cells["K5"].Value = "";
+                //////using (var r = worksheet.Cells["K5:p5"])
+                //////{
+                //////    r.Merge = true;
+                //////    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                //////    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                //////    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                //////    r.Style.Fill.BackgroundColor.SetColor(colGradFromHex);
+                //////    r.Style.Border.Top.Style = ExcelBorderStyle.Thick;
+                //////    r.Style.Border.Left.Style = ExcelBorderStyle.Thick;
+                //////    r.Style.Border.Right.Style = ExcelBorderStyle.Thick;
+                //////    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thick;
+                //////}
+
+                using (var r = worksheet.Cells["A5:C5"])
+                {
+                    r.Style.WrapText = true;
+                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    r.Style.Fill.BackgroundColor.SetColor(colGradFromHex);
+
+                    r.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    r.Style.Border.Top.Color.SetColor(Color.Black);
+
+                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    r.Style.Border.Left.Color.SetColor(Color.Black);
+
+                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    r.Style.Border.Right.Color.SetColor(Color.Black);
+
+                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    r.Style.Border.Bottom.Color.SetColor(Color.Black);
+                }
+                row = startRow ;
+                //================================
+                worksheet.Cells["A5"].Value = "م";
+                               //================================
+                worksheet.Cells["B5"].Value = "الرقم الاكاديمي";
+                              //================================
+                worksheet.Cells["C5"].Value = "الاسم";
+                //================================
+                 var Column = startColumn;
+                foreach (var course in courses)
+                {
+                    Column++;
+                    using (var r = worksheet.Cells[row, Column])
+                    {
+                        r.Style.WrapText = true;
+                        r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                        r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+                        r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                        r.Style.Fill.BackgroundColor.SetColor(colGradFromHex);
+
+                        r.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                        r.Style.Border.Top.Color.SetColor(Color.Black);
+
+                        r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                        r.Style.Border.Left.Color.SetColor(Color.Black);
+
+                        r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                        r.Style.Border.Right.Color.SetColor(Color.Black);
+
+                        r.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                        r.Style.Border.Bottom.Color.SetColor(Color.Black);
+                    }
+                   
+                    worksheet.Cells[row, Column].Value = course.CourseName;
+                }
+
+
+                //================================
+                Column++;
+                using (var r = worksheet.Cells[row, Column])
+                {
+                    r.Style.WrapText = true;
+                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    r.Style.Fill.BackgroundColor.SetColor(colGradFromHex);
+
+                    r.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    r.Style.Border.Top.Color.SetColor(Color.Black);
+
+                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    r.Style.Border.Left.Color.SetColor(Color.Black);
+
+                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    r.Style.Border.Right.Color.SetColor(Color.Black);
+
+                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    r.Style.Border.Bottom.Color.SetColor(Color.Black);
+                }
+                worksheet.Cells[row, Column].Value = "ملاحظات";
+
+
+
+                var stsCourseGrade = model.CourseGrades.GroupBy(x => x.StAcademicData.StPersonalData);
+
+
+                
+                var no = 1;
+                foreach (var OneSt in stsCourseGrade)
+                {
+                    row++;
+                    worksheet.Row(row).Height = 40;
+                    worksheet.Cells[row, 1].Value = no;
+
+                    DrowCell(worksheet, row, 1, Color.White);
+                    
+                    
+                    //=================================================
+                    worksheet.Cells[row, 2].Value = OneSt.Key.AcademicID;
+                    DrowCell(worksheet, row, 2, colGradFromHex);                  
+                    //================================================
+                    worksheet.Cells[row, 3].Value = OneSt.Key.StName;
+                    DrowCell(worksheet, row, 3, Color.White);
+                    //================================================
+                    Column = 3;
+                    foreach (var course in courses)
+                    {
+                        Column++;
+                        var courseGradeTemp = OneSt.FirstOrDefault(x => x.Course.Id == course.Id);
+                        if (courseGradeTemp != null)
+
+                            worksheet.Cells[row, Column].Value = courseGradeTemp.Grade != null ? courseGradeTemp.Grade : 0 ;
+                        else
+                            worksheet.Cells[row, Column].Value = "-";
+                        DrowCell(worksheet, row, Column, colGradFromHex);
+                    }
+                    //=================================================
+                    worksheet.Cells[row, Column + 1].Value = " ";
+                    DrowCell(worksheet, row, Column + 1, Color.White);
+
+                    no++;
+                }
+                for (; no <=24; no++)
+                {
+                    row++;
+                    worksheet.Row(row).Height = 40;
+                    worksheet.Cells[row, 1].Value = no;
+
+                    DrowCell(worksheet, row, 1, Color.White);
+
+
+                    //=================================================
+                    worksheet.Cells[row, 2].Value = "";
+                    DrowCell(worksheet, row, 2, colGradFromHex);
+                    //================================================
+                    worksheet.Cells[row, 3].Value = "";
+                    DrowCell(worksheet, row, 3, Color.White);
+                    //================================================
+                    Column = 3;
+                    foreach (var course in courses)
+                    {
+                        Column++;                      
+                        worksheet.Cells[row, Column].Value = "";
+                        DrowCell(worksheet, row, Column, colGradFromHex);
+                    }
+                    //=================================================
+                    worksheet.Cells[row, Column + 1].Value = " ";
+                    DrowCell(worksheet, row, Column + 1, Color.White);
+
+
+                }
+                worksheet.Row(row + 1).Height = 201.75;
+                worksheet.Cells[row + 1, 1, row + 1, Column + 1].Style.Font.Size = 36;
+                worksheet.Cells[row + 1, 1, row + 1, Column + 1].Style.Font.Name = "Khalid Art bold";
+                worksheet.Cells[row+1,1, row+1, Column + 1].Value = "مدير القبول والتسجيل                                                             نائب رئيس الفرع لشئون الطلاب                                                نائب رئيس الفرع للشئون العلمية";
+                using (var r = worksheet.Cells[row + 1, 1, row + 1, Column + 1])
+                {
+                    r.Merge = true;
+                    r.Style.WrapText = true;
+                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    r.Style.Fill.BackgroundColor.SetColor(Color.White);
+
+                    r.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    r.Style.Border.Top.Color.SetColor(Color.Black);
+
+                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    r.Style.Border.Left.Color.SetColor(Color.Black);
+
+                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    r.Style.Border.Right.Color.SetColor(Color.Black);
+
+                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    r.Style.Border.Bottom.Color.SetColor(Color.Black);
+                }
+                // set some core property values
+                xlPackage.Workbook.Properties.Title = "User List";
+                xlPackage.Workbook.Properties.Author = "";
+                xlPackage.Workbook.Properties.Subject = "User List";
+                // save the new spreadsheet
+                xlPackage.Save();
+                // Response.Clear();
+            }
+            stream.Position = 0;
+            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "بيان درجات التكميلية.xlsx");
+        }
+
+
+       
+
+        private void DrowCell(OfficeOpenXml.ExcelWorksheet worksheet,int row ,int Column, Color backgroundColor)
+        {
+            worksheet.Cells[row, Column].Style.Font.Size = 28;
+            worksheet.Cells[row , Column].Style.Font.Name = "Khalid Art bold";
+            using (var r = worksheet.Cells[row, Column])
+            {
+                r.Style.WrapText = true;
+                r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+                r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                r.Style.Fill.BackgroundColor.SetColor(backgroundColor);
+
+                r.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                r.Style.Border.Top.Color.SetColor(Color.Black);
+
+                r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                r.Style.Border.Left.Color.SetColor(Color.Black);
+
+                r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                r.Style.Border.Right.Color.SetColor(Color.Black);
+
+                r.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                r.Style.Border.Bottom.Color.SetColor(Color.Black);
+            }
+        }
     }
 
    

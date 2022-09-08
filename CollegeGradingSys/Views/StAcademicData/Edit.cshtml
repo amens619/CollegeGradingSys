@@ -71,12 +71,11 @@
                             <input id="GPAInput" asp-for="GPA" class="form-control" />
                             <span asp-validation-for="GPA" class="text-danger"></span>
                         </div>
-
                         <div class="form-group mt-4">
-                            <input type="submit" value="حفظ" class="col-2 btn btn-primary btn-sm" />
-                            <a class="btn btn-secondary btn-sm" asp-action="AllStAcademicDatas" asp-route-id="@Model.AcademicID">السجل الاكاديمي</a>
-                            <a class="btn btn-secondary  btn-sm" asp-action="Index">القائمة الرئسية</a>
-                        </div>
+                                <input type="submit" value="حفظ" class="col-2 btn btn-primary btn-sm" />
+                                <a class="btn btn-secondary btn-sm" asp-action="AllStAcademicDatas" asp-route-id="@Model.AcademicID">السجل الاكاديمي</a>
+                                <a class="btn btn-secondary  btn-sm" asp-action="Index">القائمة الرئسية</a>
+                            </div>
                     </form>
                 </div>
             </div>
@@ -86,9 +85,9 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
-    <script>
-        $(document).ready(function () {           
-            if ($(StStatusList).val() != 1) {               
+    <script>       
+        $(document).ready(function () {
+            if ($(StStatusList).val() != 1) {
                 $("#Valuationlist").val(0);
                 $("#AverageInput").val("");
                 $("#GPAInput").val("");
@@ -100,9 +99,9 @@
                 if ($(StStatusList).val() == 1) {
                     $("#Valuationlist").removeAttr("disabled");
                     $("#AverageInput").removeAttr("disabled");
-                    $("#GPAInput").removeAttr("disabled");                   
+                    $("#GPAInput").removeAttr("disabled");
                 }
-                else {                    
+                else {
                     $("#Valuationlist").val(0);
                     $("#AverageInput").val("");
                     $("#GPAInput").val("");

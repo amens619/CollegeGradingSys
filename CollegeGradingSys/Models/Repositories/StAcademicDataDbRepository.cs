@@ -43,6 +43,7 @@ namespace CollegeGradingSys.Models.Repositories
                 .Include(x => x.AcademicYear)                
                 .Include(x => x.StPersonalData)
                 .Include(x => x.CourseGrades)
+                    .ThenInclude(y => y.Course)
                 .SingleOrDefault(a => a.Id == id);
         }
 

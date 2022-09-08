@@ -165,6 +165,9 @@ namespace CollegeGradingSys.Controllers
 
         public IActionResult AllStAcademicDatas (int id)
         {
+
+
+            //ViewBag.Message = "يجب اقفال الفصل  بإدخال جميع درجات المواد";
             var stPersonalData = _StPersonalDataRepository.Find(id);
             
             IList<StAcademicData> stAcademicDatas =new List<StAcademicData>();
@@ -183,7 +186,7 @@ namespace CollegeGradingSys.Controllers
                 AcademicID = stPersonalData.AcademicID,
                 StName = stPersonalData.StName,
                 IsRegisteredInCurrentYear = true,
-                StAcademicDatas = stAcademicDatas
+                StAcademicDatas = stAcademicDatas                
             };
             var currentYear = GetCurrentYear();
             var stACourseGrades = stAcademicDatas.Where(x => x.AcademicYear.Id == currentYear.Id).ToList();
@@ -444,7 +447,7 @@ namespace CollegeGradingSys.Controllers
             }
             ModelState.ClearValidationState(nameof(model));
 
-            var studentBatch = _BatchRepository.Find(model.BatchId);
+            //var studentBatch = _BatchRepository.Find(model.BatchId);
 
             var stAcademicData = _StAcademicDataRepository.Find(model.Id);
 
@@ -505,12 +508,27 @@ namespace CollegeGradingSys.Controllers
 
             stAcademicData.StudyType = model.StudyType;
             stAcademicData.StStatus = model.StStatus;          
-            stAcademicData.Batch = studentBatch;
+        //    stAcademicData.Batch = studentBatch;
 
+            if (model.StStatus == StStatus.ناجح)
+            {
+                var courseGradesFailed = CourseGradesFailed(model.AcademicID);
+                // اضافة المواد الرسوب الى التكميلي
+                foreach (var courseGradeFailed in courseGradesFailed)
+                {
 
+                    var courseGrade = new CourseGrade()
+         
+                    {
+                        Course = courseGradeFailed.Course,
+                        CourseType = false,
+                        StAcademicData = stAcademicData,
+                        StStatusForCourse = StStatusForCourse.غير_محدد,
+                    };
 
-
-
+                    _courseGradeRepository.Add(courseGrade);
+                }
+            }
 
             _StAcademicDataRepository.Update(id,stAcademicData);              
                 
@@ -647,7 +665,7 @@ namespace CollegeGradingSys.Controllers
         private bool IsCourseGradesEntered(int StAcademicDataId)
         {
             var StA = _StAcademicDataRepository.Find(StAcademicDataId);
-            var stAs = StA.CourseGrades.Where(x => x.StStatusForCourse == StStatusForCourse.غير_محدد).ToList();
+            var stAs = StA.CourseGrades.Where(x => x.StStatusForCourse == StStatusForCourse.غير_محدد && x.CourseType == true).ToList();
             if (stAs != null)
             {
                 if (stAs.Count > 0)
@@ -656,6 +674,41 @@ namespace CollegeGradingSys.Controllers
                 }
             }
             return true;
+        }
+
+        private bool IsCourseGradefaildIsExist(CourseGrade courseGrade)
+        {
+            var StA = _StAcademicDataRepository.Find(courseGrade.Id);
+            var stAs = StA.CourseGrades.Where(x => x.StStatusForCourse == StStatusForCourse.غير_محدد && x.CourseType == true).ToList();
+            if (stAs != null)
+            {
+                if (stAs.Count > 0)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        private List<CourseGrade> CourseGradesFailed(int AcademicId)
+        {
+            var stAs = _StAcademicDataRepository.List().Where(x => x.StPersonalData.AcademicID == AcademicId);
+            List<CourseGrade> AllcourseGradesFailed = new();
+            foreach (var StA in stAs)
+            {
+                var CourseGradesFailedForStAcademicData = StA.CourseGrades.Where(x => x.StStatusForCourse != StStatusForCourse.ناجح && x.StStatusForCourse != StStatusForCourse.غير_محدد && x.Course.IsSubCourse == false).ToList();
+                foreach (var CourseGradeFailed in CourseGradesFailedForStAcademicData)
+                {
+                    var IsCourseGradesFailedExit = StA.CourseGrades.Any(x => x.StAcademicData.StPersonalData.AcademicID == CourseGradeFailed.StAcademicData.StPersonalData.AcademicID && x.Course.Id == CourseGradeFailed.Course.Id && x.CourseType == false);
+                    if (CourseGradeFailed is not null && !IsCourseGradesFailedExit)
+                    {
+                        AllcourseGradesFailed.Add(CourseGradeFailed);
+                    }
+                }
+
+            }
+            
+           
+            return AllcourseGradesFailed;
         }
 
 

@@ -27,13 +27,13 @@ namespace CollegeGradingSys.Models.Repositories
 
         public CourseGrade Delete(int id)
         {
-            var course = Find(id);
-            if (course != null)
+            var courseGrade = Find(id);
+            if (courseGrade != null)
             {
-                db.CourseGrade.Remove(course);
+                db.CourseGrade.Remove(courseGrade);
                 SaveChange();
             }
-            return course;
+            return courseGrade;
         }
 
         public CourseGrade Find(int id)
