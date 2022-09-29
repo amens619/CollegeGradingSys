@@ -97,6 +97,7 @@ namespace CollegeGradingSys.Controllers
 
                     academicYear.IsCurrentYear = true;
                     AcademicYearRepository.Add(academicYear);
+
                     return RedirectToAction(nameof(Index));
                 }
                 catch
@@ -215,6 +216,8 @@ namespace CollegeGradingSys.Controllers
             }
             return true;
         }
+        
+      
         private bool isAcademicYearNameExists(string academicYearName)
         {
             return AcademicYearRepository.List().Any(e => e.AcademicYearName == academicYearName);

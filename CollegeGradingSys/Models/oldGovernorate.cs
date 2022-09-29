@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,6 +17,7 @@ namespace CollegeGradingSys.Models
         الحديدة,
         الجوف,
         المحويت,
+        [Display(Name = "أمانة العاصمة")]
         أمانة_العاصمة,
         ذمار,
         حجة,
@@ -27,6 +29,7 @@ namespace CollegeGradingSys.Models
         أبين,
         الضالع,
         المهرة,
+        [Display(Name = "أرخيب سقطرى")]
         أرخيب_سقطرى,
         لحج          
 

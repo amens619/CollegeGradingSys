@@ -8,8 +8,12 @@ namespace CollegeGradingSys.Models
 {
     public enum Valuation
     {
+        [Display(Name = "غير محدد")]
         غير_محدد,
-        ممتاز ,جيدجدا ,جيد ,مقبول, ضعيف
+        ممتاز ,
+        [Display(Name = "جيد جدا")]
+        جيدجدا
+            ,جيد ,مقبول, ضعيف
     }
     public class StAcademicData
     {

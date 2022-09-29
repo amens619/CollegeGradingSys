@@ -87,7 +87,7 @@
 
     <script>       
         $(document).ready(function () {
-            if ($(StStatusList).val() != 1) {
+            if ($(StStatusList).val() != 1 && $(StStatusList).val() != 5) {
                 $("#Valuationlist").val(0);
                 $("#AverageInput").val("");
                 $("#GPAInput").val("");
@@ -96,7 +96,7 @@
                 $("#GPAInput").attr("disabled", "disabled");
             }
             $("#StStatusList").on("change", function () {
-                if ($(StStatusList).val() == 1) {
+                if ($(StStatusList).val() == 1 || $(StStatusList).val() == 5 ) {
                     $("#Valuationlist").removeAttr("disabled");
                     $("#AverageInput").removeAttr("disabled");
                     $("#GPAInput").removeAttr("disabled");

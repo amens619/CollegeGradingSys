@@ -15,6 +15,10 @@
             <div class="card mb-4">
 
                 <div class="card-body">
+                    @if (ViewBag.Message != null)
+                    {
+                        <h5 class="alert alert-warning" >@ViewBag.Message</h5>
+                    }
                     @using (Html.BeginForm("Index", "StAcademicData", FormMethod.Get))
                     {
                         <div class="row ">
@@ -57,19 +61,32 @@
                         </div>
                         <div class="container">
                             <input type="submit" value="تصفية" class="btn btn-secondary btn-sm" />
-                            <a asp-action="Index" class="btn btn-secondary btn-sm" asp-route-id=-1>إلغاء التصفية</a> 
+                            <a asp-action="Index" class="btn btn-secondary btn-sm" asp-route-id=-1>إلغاء التصفية</a>
                             @if (Model.StStatus == StStatus.مقيد)
                             {
-                            <input type="submit" value="كشف المقيدين" class="btn btn-success btn-sm" />
+                                <input type="submit" value="كشف المقيدين" class="btn btn-success btn-sm" />
                             }
                             @if (Model.StStatus == StStatus.متخرج)
                             {
-                            <input type="submit" value="كشف الخريجين" class="btn btn-success btn-sm" />
+                                <input type="submit" value="كشف الخريجين" class="btn btn-success btn-sm" />
+                            }
+                            @if (Model.IsCurrentYear)
+                            {
+                                @*@if (Model.IsStEnrollmentClosed)
+                                {*@
+                                    <input type="submit" value="تقييد جميع طلاب العام الماضي" class="btn btn-primary btn-sm" formaction="@Url.Action("AddAcademicDataForAllSts")" formmethod="get" />
+                                @*}
+                                else
+                                {
+                                     <a tabindex="0" class="btn btn-primary btn-sm" role="button" data-bs-toggle="popover" data-bs-placement="left" data-bs-trigger="focus" title="عذرا" data-bs-content="يجب إضافة دفعة جديدة قبل تقييد الطلاب">تقييد جميع طلاب العام الماضي</a>
+                                }*@
+
                             }
                         </div>
-                      
+
 
                     }
+
                 </div>
             </div>
             <div class="card mb-4">
@@ -242,13 +259,7 @@
                                 }
                             </tbody>
                         </table>
-                        @*@if (Model.IsCurrentYear)
-                        {
-                            <div class="container">
-                                <input type="submit" value="الانتقال المستوى التالي" class="btn btn-secondary btn-sm" />
-
-                            </div>
-                        }*@
+                      
 
 
                     </form>
