@@ -1150,14 +1150,251 @@ namespace CollegeGradingSys.Controllers
             stream.Position = 0;
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "المقبولين.xlsx");
         }
-//==============================================
-List<Governorate> FillSelectGovernoratesList()
+        //==============================================
+
+        public ActionResult ExportSthighSchoolToExcel(bool IsSelectCurrentYear, int? AcademicYearId)
+        {
+            var StPersonalDatasR = StPersonalDataRepository.List();
+
+            if (IsSelectCurrentYear == true)
+            {
+                var currentYear = AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true);
+                if (currentYear != null)
+                {
+                    AcademicYearId = currentYear.Id;
+                }
+
+            }
+            ViewData["IsSelectCurrentYear"] = IsSelectCurrentYear;
+            ViewData["AcademicYearId"] = new SelectList(FillSelectAcademicYearesList("-- الكل --"), "Id", "AcademicYearName", AcademicYearId ?? -1);
+            if (AcademicYearId != null)
+            {
+                StPersonalDatasR = StPersonalDatasR.Where(x => x.EnrollmentYear.Id == AcademicYearId).ToList();
+            }
+            //================================           
+            var stream = new MemoryStream();
+            using (var xlPackage = new ExcelPackage(stream))
+            {
+                var worksheet = xlPackage.Workbook.Worksheets.Add(" كشف الطلاب");
+                worksheet.View.RightToLeft = true;
+                worksheet.Cells.Style.Font.Bold = true;
+                var namedStyle = xlPackage.Workbook.Styles.CreateNamedStyle("HyperLink");
+                namedStyle.Style.Font.UnderLine = true;
+                namedStyle.Style.Font.Color.SetColor(Color.Blue);
+                const int startRow = 2;                
+                var row = startRow;
+
+                worksheet.Column(1).Width = 6;
+                worksheet.Column(2).Width = 46.57;
+                worksheet.Column(3).Width = 20;
+                worksheet.Column(4).Width = 20;
+                worksheet.Column(5).Width = 20;
+                worksheet.Column(6).Width = 20;
+                worksheet.Column(7).Width = 20;
+                worksheet.Column(8).Width = 20;
+                worksheet.Column(9).Width = 20;
+                worksheet.Column(10).Width = 20;
+                worksheet.Column(11).Width = 20;
+                worksheet.Column(12).Width = 31.71;
+               
+
+
+                //==========================
+                worksheet.Row(1).Height = 58.75;
+                worksheet.Row(2).Height = 80;
+               
+
+
+
+
+                //Create Headers and format them
+                worksheet.Cells["A1:L1"].Value = "بيانات طلاب حضرموت دفعة 1439هـ من واقع شهادة الثانوية";
+                using (var r = worksheet.Cells["A1:L1"])
+                {
+                    r.Merge = true;
+                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                    r.Style.Font.Size = 36;
+                    r.Style.Font.Name = "Calibri";
+
+                }
+               
+                //=============================
+
+                worksheet.Cells["A2:L2"].Style.Font.Size = 24;
+                
+                //=============================
+               
+               
+                //=====================================
+                //////var academicYear = GetCurrentYear();
+                //////worksheet.Cells["I2"].Value = academicYear.AcademicYearName;
+                Color colGradFromHex = System.Drawing.ColorTranslator.FromHtml("#BFBFBF");
+                Color LightYellowFromHex = System.Drawing.ColorTranslator.FromHtml("#FFFFCC");
+                Color BrownFromHex = System.Drawing.ColorTranslator.FromHtml("#974706");
+
+                //================================
+
+                int rowIndex = 1;
+                int colIndex = 7;
+                int PixelTop = 17;
+                int PixelLeft = 1721;
+                int Height = 153;
+                int Width = 100;
+               
+                using (var r = worksheet.Cells["A2:L2"])
+                {
+                    r.Style.WrapText = true;
+                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    r.Style.Fill.BackgroundColor.SetColor(Color.White);
+
+                    r.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    r.Style.Border.Top.Color.SetColor(Color.Black);
+
+                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    r.Style.Border.Left.Color.SetColor(Color.Black);
+
+                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    r.Style.Border.Right.Color.SetColor(Color.Black);
+
+                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    r.Style.Border.Bottom.Color.SetColor(Color.Black);
+                }
+                row = startRow;
+                //================================
+                worksheet.Cells["A2"].Value = "م";
+                //================================
+                worksheet.Cells["B2"].Value = "الاسم";
+                //================================
+                worksheet.Cells["C2"].Value = "محل الميلاد";
+                //================================
+                worksheet.Cells["D2"].Value = "تاريخ الميلاد";
+                //================================
+                worksheet.Cells["E2"].Value = "الجنسية";
+                //================================
+                worksheet.Cells["F2"].Value = "نوع الشهادة";
+                //================================
+                worksheet.Cells["G2"].Value = "المعدل";
+                //================================
+                worksheet.Cells["H2"].Value = "مصدرها";
+                //================================
+                worksheet.Cells["I2"].Value = "رقم الجلوس";
+                //================================
+                worksheet.Cells["J2"].Value = "تاريخ الالتحاق هـ";
+                //================================
+                worksheet.Cells["K2"].Value = "تاريخ الالتحاق م";
+                //================================
+                worksheet.Cells["L2"].Value = "ملاحظة";
+                //================================              
+                
+
+                var no = 1;
+                foreach (var OneSt in StPersonalDatasR)
+                {
+                    row++;
+                    worksheet.Row(row).Height = 50;
+                    worksheet.Cells[row, 1].Value = no;
+
+                    //=================================================
+                    worksheet.Cells[row, 2].Value = OneSt.StName;
+                    
+                    //================================================
+                    worksheet.Cells[row, 3].Value = OneSt.Birthcountry.CountryName;
+
+                    //================================================
+                    worksheet.Cells[row, 4].Value = OneSt.BirthDate.ToShortDateString();
+
+                    //================================================
+
+                    worksheet.Cells[row, 5].Value = OneSt.Nationality.NationalityName;
+                    if (OneSt.StHighSchoolData is not null)
+                    {
+                        //================================================
+                        worksheet.Cells[row, 6].Value= OneSt.StHighSchoolData.CertificateType.ToString() ;
+
+                        //================================================
+                        worksheet.Cells[row, 7].Value =  OneSt.StHighSchoolData.Average.ToString() ;
+
+                        //================================================
+                        worksheet.Cells[row, 8].Value = (OneSt.StHighSchoolData.Source is not null) ? OneSt.StHighSchoolData.Source : "";
+
+                        //================================================
+                        worksheet.Cells[row, 9].Value =  OneSt.StHighSchoolData.SeatNo.ToString() ;
+
+                        //================================================
+                        worksheet.Cells[row, 12].Value = (OneSt.StHighSchoolData.Note is not null) ? OneSt.StHighSchoolData.Note:"";
+
+                    }
+                    //================================================
+                    worksheet.Cells[row, 10].Value = OneSt.EnrollmentYear.AcademicYearNameH;
+
+                    //================================================
+                    worksheet.Cells[row, 11].Value = OneSt.EnrollmentYear.AcademicYearName;
+                   
+
+
+                    //================================================
+                   
+
+                    using (var r = worksheet.Cells[row,1, row, 12])
+                    {
+                        r.Style.WrapText = true;
+                        r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                        r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+                        r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                        r.Style.Fill.BackgroundColor.SetColor(Color.White);
+
+                        r.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                        r.Style.Border.Top.Color.SetColor(Color.Black);
+
+                        r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                        r.Style.Border.Left.Color.SetColor(Color.Black);
+
+                        r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                        r.Style.Border.Right.Color.SetColor(Color.Black);
+
+                        r.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                        r.Style.Border.Bottom.Color.SetColor(Color.Black);
+                        r.Style.Font.Size = 18;
+                    }
+
+
+                    no++;
+                }
+               
+                    //================================================
+                  
+
+                // set some core property values
+                xlPackage.Workbook.Properties.Title = "User List";
+                xlPackage.Workbook.Properties.Author = "";
+                xlPackage.Workbook.Properties.Subject = "User List";
+                // save the new spreadsheet
+                xlPackage.Save();
+                // Response.Clear();
+            }
+            stream.Position = 0;
+            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "بيان درجات من واقع شهادة الثانوية.xlsx");
+
+        }
+
+        List<Governorate> FillSelectGovernoratesList()
         {
             var Governorates = GovernorateRepository.List().ToList();
-            Governorates.Insert(0, new Governorate { Id = -1,  GovernorateName = "-- أختر --" });
+            Governorates.Insert(0, new Governorate { Id = -1, GovernorateName = "-- أختر --" });
 
             return Governorates;
         }
+
+
 
         List<Batch> FillSelectBatchsList(string studentBatchName)
         {

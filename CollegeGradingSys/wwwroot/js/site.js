@@ -5,8 +5,7 @@
         $.get(url).done(function (data) {
             placeholderElement.html(data);
             placeholderElement.find('.modal').modal('show');           
-            $("#CreateCourseParentId").attr("disabled", "disabled");
-            alert("fhfgg");
+            $("#CreateCourseParentId").attr("disabled", "disabled");           
             //============
             if ($("#EditCourseIsSubCourse").val() == 'False') {
                 $("#EditCourseParentId").prop('selectedIndex', 0);
