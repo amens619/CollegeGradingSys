@@ -14,6 +14,9 @@ namespace CollegeGradingSys.ViewModels
         public StStatus?  StStatus { get; set; }
         public Term? Term { get; set; }
         public Level? Level { get; set; }
+
+        [Display(Name = "نظام الدراسة")]
+        public StudyType? StudyType { get; set; }
         [Display(Name = "الفصل الحالي")]
         public bool IsCurrentYear { get; set; }
 

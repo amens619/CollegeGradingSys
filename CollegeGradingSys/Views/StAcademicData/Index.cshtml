@@ -21,65 +21,71 @@
                     }
                     @using (Html.BeginForm("Index", "StAcademicData", FormMethod.Get))
                     {
-                        <div class="row ">
-                            <div class="form-group col-md-4">
-                                <label class="control-label"> اسم الطالب</label>
-                                <input id="StNameSearch" value="@ViewBag.CurrentFilter" name="StNameSearch" class="form-control " />
-                            </div>
-                            <div class="form-group col-md-4">
-                                <label class="control-label">العام</label>
-                                <select id="AcademicYearId" name="AcademicYearId" class="form-control text-center "
-                                        asp-items="ViewBag.AcademicYearId"></select>
-                            </div>
-                            <div class="form-group col-md-4">
-                                <label class="control-label">الدفعة</label>
-                                <select id="BatchId" name="BatchId" class="form-control text-center"
-                                        asp-items="ViewBag.BatchId"></select>
-                            </div>
-                            @*<div class="form-group col-md-4">
-                    <label class="control-label">المستوى</label>
-                    <select id="Level" asp-for="Level" name="Level" class="form-control text-center"
-                            asp-items="Html.GetEnumSelectList<Level>()">
-                        <option value="-1">-- الكل --</option>
-                    </select>
-                </div>*@
-                            <div class="form-group col-md-4">
-                                <label class="control-label">الفصل الدراسي</label>
-                                <select id="Term" asp-for="Term" name="Term" class="form-control text-center"
-                                        asp-items="Html.GetEnumSelectList<Term>()">
-                                </select>
-                            </div>
-                            <div class="form-group col-md-4">
-                                <label class="control-label">حالة الطالب</label>
-                                <select id="StStatus" asp-for="StStatus" name="StStatus" class="form-control text-center"
-                                        asp-items="Html.GetEnumSelectList<StStatus>()">
-                                    <option value="-1">-- الكل --</option>
-                                </select>
-                            </div>
-
-                            <hr class="my-4">
-                        </div>
+                <div class="row ">
+                    <div class="form-group col-md-4">
+                        <label class="control-label"> اسم الطالب</label>
+                        <input id="StNameSearch" value="@ViewBag.CurrentFilter" name="StNameSearch" class="form-control " />
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label class="control-label">العام</label>
+                        <select id="AcademicYearId" name="AcademicYearId" class="form-control text-center "
+                                asp-items="ViewBag.AcademicYearId"></select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label class="control-label">الدفعة</label>
+                        <select id="BatchId" name="BatchId" class="form-control text-center"
+                                asp-items="ViewBag.BatchId"></select>
+                    </div>
+                    @*<div class="form-group col-md-4">
+            <label class="control-label">المستوى</label>
+            <select id="Level" asp-for="Level" name="Level" class="form-control text-center"
+                    asp-items="Html.GetEnumSelectList<Level>()">
+                <option value="-1">-- الكل --</option>
+            </select>
+        </div>*@
+                    <div class="form-group col-md-4">
+                        <label class="control-label">الفصل الدراسي</label>
+                        <select id="Term" asp-for="Term" name="Term" class="form-control text-center"
+                                asp-items="Html.GetEnumSelectList<Term>()">
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label class="control-label">حالة الطالب</label>
+                        <select id="StStatus" asp-for="StStatus" name="StStatus" class="form-control text-center"
+                                asp-items="Html.GetEnumSelectList<StStatus>()">
+                            <option value="-1">-- الكل --</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label class="control-label">نظام الدراسة </label>
+                        <select id="StStatus" asp-for="StudyType" name="StudyType" class="form-control text-center"
+                                asp-items="Html.GetEnumSelectList<StudyType>()">
+                            <option value="-1">-- الكل --</option>
+                        </select>
+                    </div>
+                    <hr class="my-4">
+                </div>
                         <div class="container">
                             <input type="submit" value="تصفية" class="btn btn-secondary btn-sm" />
                             <a asp-action="Index" class="btn btn-secondary btn-sm" asp-route-id=-1>إلغاء التصفية</a>
                             @if (Model.StStatus == StStatus.مقيد)
                             {
-                                <input type="submit" value="كشف المقيدين" class="btn btn-success btn-sm" />
+                                <input type="submit" value="كشف المقيدين" class="btn btn-success btn-sm" formaction="@Url.Action("ExportStAcademicDataToExcel")" formmethod="get" />
                             }
                             @if (Model.StStatus == StStatus.متخرج)
-                            {
-                                <input type="submit" value="كشف الخريجين" class="btn btn-success btn-sm" />
+                            {                               
+                                <input type="submit" value="كشف الخريجين" class="btn btn-success btn-sm" formaction="@Url.Action("ExportGraduateStToExcel")" formmethod="get" />
                             }
                             @if (Model.IsCurrentYear)
                             {
                                 @*@if (Model.IsStEnrollmentClosed)
-                                {*@
-                                    <input type="submit" value="تقييد جميع طلاب العام الماضي" class="btn btn-primary btn-sm" formaction="@Url.Action("AddAcademicDataForAllSts")" formmethod="get" />
+            {*@
+                                <input type="submit" value="تقييد جميع طلاب العام الماضي" class="btn btn-primary btn-sm" formaction="@Url.Action("AddAcademicDataForAllSts")" formmethod="get" />
                                 @*}
-                                else
-                                {
-                                     <a tabindex="0" class="btn btn-primary btn-sm" role="button" data-bs-toggle="popover" data-bs-placement="left" data-bs-trigger="focus" title="عذرا" data-bs-content="يجب إضافة دفعة جديدة قبل تقييد الطلاب">تقييد جميع طلاب العام الماضي</a>
-                                }*@
+            else
+            {
+                 <a tabindex="0" class="btn btn-primary btn-sm" role="button" data-bs-toggle="popover" data-bs-placement="left" data-bs-trigger="focus" title="عذرا" data-bs-content="يجب إضافة دفعة جديدة قبل تقييد الطلاب">تقييد جميع طلاب العام الماضي</a>
+            }*@
 
                             }
                         </div>

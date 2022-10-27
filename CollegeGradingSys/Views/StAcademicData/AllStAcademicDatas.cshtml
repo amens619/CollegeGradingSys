@@ -14,7 +14,7 @@
             <h6 class="m-1">السجل الاكاديمي التفصيلي للطالب</h6>
             <hr class="mb-4 mt-0">
             <p>
-                @if (!Model.IsRegisteredInCurrentYear)
+                @if (Model.IsCanRegisterInCurrentYear)
                 {
                     <a asp-action="Create" class="btn btn-secondary btn-sm" asp-route-id="@Model.AcademicID">تقييد الطالب</a>
                 }

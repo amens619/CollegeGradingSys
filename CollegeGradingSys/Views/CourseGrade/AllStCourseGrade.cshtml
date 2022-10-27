@@ -120,88 +120,71 @@
                                         {
                                             selectedRow = "bg-secondary";
                                         }
-                                        <tr class="@selectedRow">
-                                            <td class="text-center" style="vertical-align: middle;">
-                                                @no
-                                            </td>
-                                            <td class="text-center" style="vertical-align: middle;">
-                                                @Html.DisplayFor(modelItem => item.Course.CourseName)
-                                            </td>
-                                            <td class="text-center" style="vertical-align: middle;">
-                                                @if (item.Course.IsSubCourse)
-                                                {
-                                                    <span class="badge bg-warning">مادة فرعية</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-success">مادة أساسية</span>
-                                                }
-                                            </td>
-                                            <td class="text-center" style="vertical-align: middle;">
-                                                @Html.DisplayFor(modelItem => item.Course.Parent.CourseName)
-                                            </td>
-                                            <td class="text-center" style="vertical-align: middle;">
-                                                @Html.DisplayFor(modelItem => item.Grade)
-                                            </td>
-                                            <td class="text-center" style="vertical-align: middle;">
-                                                @switch (item.StStatusForCourse)
-                                                {
-                                                    case StStatusForCourse.غير_محدد:
-                                                        <span class="badge bg-warning text-center ">@item.StStatusForCourse</span>
-                                                        break;
-                                                    case StStatusForCourse.محروم:
-                                                        <span class="badge bg-primary text-center">@item.StStatusForCourse</span>
-                                                        break;
-                                                    case StStatusForCourse.ناجح:
-                                                        <span class="badge bg-info text-center">@item.StStatusForCourse</span>
-                                                        break;
-                                                    case StStatusForCourse.راسب:
-                                                        <span class="badge bg-danger text-center">@item.StStatusForCourse</span>
-                                                        break;
-                                                    case StStatusForCourse.غائب:
-                                                        <span class="badge bg-success text-center">@item.StStatusForCourse</span>
-                                                        break;
-                                                }
-                                            </td>
-
-                                            @if (item.Course.SubCourses != null)
+                                    <tr class="@selectedRow">
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @no
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @Html.DisplayFor(modelItem => item.Course.CourseName)
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @if (item.Course.IsSubCourse)
                                             {
-                                                <!-- Modal placeholder -->
-                                                <div id="modal-placeholder"></div>
-                                                @if (item.Course.SubCourses.Count > 0)
-                                                {
+                                                <span class="badge bg-warning">مادة فرعية</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success">مادة أساسية</span>
+                                            }
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @Html.DisplayFor(modelItem => item.Course.Parent.CourseName)
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @Html.DisplayFor(modelItem => item.Grade)
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @switch (item.StStatusForCourse)
+                                            {
+                                                case StStatusForCourse.غير_محدد:
+                                                    <span class="badge bg-warning text-center ">@item.StStatusForCourse</span>
+                                                    break;
+                                                case StStatusForCourse.محروم:
+                                                    <span class="badge bg-primary text-center">@item.StStatusForCourse</span>
+                                                    break;
+                                                case StStatusForCourse.ناجح:
+                                                    <span class="badge bg-info text-center">@item.StStatusForCourse</span>
+                                                    break;
+                                                case StStatusForCourse.راسب:
+                                                    <span class="badge bg-danger text-center">@item.StStatusForCourse</span>
+                                                    break;
+                                                case StStatusForCourse.غائب:
+                                                    <span class="badge bg-success text-center">@item.StStatusForCourse</span>
+                                                    break;
+                                            }
+                                        </td>
 
-                                                    <td class="text-center" style="vertical-align: middle;">
-                                                        <p>
-                                                            <span>درجة المادة تجمع من المواد/المادة الفرعية (</span>
-                                                            @foreach (var SubCourse in item.Course.SubCourses)
-                                                            {
-                                                                <span>@SubCourse.CourseName</span>
-                                                                <span>-</span>
-                                                            }
-                                                            <span>) ويتم القسمة على @item.Course.SubCourses.Count </span>
-                                                        </p>
-                                                    </td>
-                                                    <td>
-                                                      
-                                                    </td>
-                                                }
-                                                else
-                                                {
-                                                    <td class="text-center" style="vertical-align: middle;">
-                                                        <span>-</span>
-                                                    </td>
-                                                    <td class="text-center" style="vertical-align: middle;">
-                                                        @if (Model.IsCurrentYear)
+                                        <!-- Modal placeholder -->
+                                        <div id="modal-placeholder"></div>
+                                        @if (item.Course.SubCourses != null)
+                                        {
+
+                                            @if (item.Course.SubCourses.Count > 0)
+                                            {
+
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    <p>
+                                                        <span>درجة المادة تجمع من المواد/المادة الفرعية (</span>
+                                                        @foreach (var SubCourse in item.Course.SubCourses)
                                                         {
-                                                            <button type="button" class="btn btn-primary btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Edit","CourseGrade",new { id = item.Id })">
-                                                                تعديل
-                                                            </button>
+                                                            <span>@SubCourse.CourseName</span>
+                                                            <span>-</span>
                                                         }
-
-                                                        @*<a asp-action="Edit" class="btn btn-primary  btn-sm" asp-route-id="@item.Id">تعديل</a>*@
-                                                    </td>
-                                                }
+                                                        <span>) ويتم القسمة على @item.Course.SubCourses.Count </span>
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                </td>
                                             }
                                             else
                                             {
@@ -211,14 +194,31 @@
                                                 <td class="text-center" style="vertical-align: middle;">
                                                     @if (Model.IsCurrentYear)
                                                     {
-                                                        <button type="button" class="btn btn-primary btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Edit", "CourseGrade", new { id = item.Id })">
+                                                        <button type="button" class="btn btn-primary btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Edit","CourseGrade",new { id = item.Id })">
                                                             تعديل
                                                         </button>
                                                     }
-                                                        @*<a asp-action="Edit" class="btn btn-primary btn-sm" asp-route-id="@item.Id">تعديل</a>*@
-                                                    </td>
+
+                                                    @*<a asp-action="Edit" class="btn btn-primary  btn-sm" asp-route-id="@item.Id">تعديل</a>*@
+                                                </td>
                                             }
-                                        </tr>
+                                        }
+                                        else
+                                        {
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                <span>-</span>
+                                            </td>
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                @if (Model.IsCurrentYear)
+                                                {
+                                                    <button type="button" class="btn btn-primary btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Edit", "CourseGrade", new { id = item.Id })">
+                                                        تعديل
+                                                    </button>
+                                                }
+                                                @*<a asp-action="Edit" class="btn btn-primary btn-sm" asp-route-id="@item.Id">تعديل</a>*@
+                                            </td>
+                                        }
+                                    </tr>
                                     }
                                 </tbody>
                             </table>

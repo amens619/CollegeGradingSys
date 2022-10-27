@@ -51,7 +51,7 @@ namespace CollegeGradingSys
     });
             services.AddMvcCore().AddMvcOptions(options =>
             {
-                options.ModelBindingMessageProvider.SetNonPropertyAttemptedValueIsInvalidAccessor(s => "The provided value is  ÊãÇãinvalid.");
+                options.ModelBindingMessageProvider.SetNonPropertyAttemptedValueIsInvalidAccessor(s => "The provided value is invalid.");
             });
             //=====================================
             //services.AddSingleton<ICollegeGradingSysRepository<College>, CollegeRepository>();
