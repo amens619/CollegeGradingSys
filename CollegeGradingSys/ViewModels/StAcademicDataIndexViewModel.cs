@@ -21,6 +21,7 @@ namespace CollegeGradingSys.ViewModels
         public bool IsCurrentYear { get; set; }
 
         public bool IsStEnrollmentClosed { get; set; }
+        public bool IsCurrentYearClosed { get; set; }
         public IList<StAcademicDataVM> StAcademicDataVMs { get; set; }
 
 

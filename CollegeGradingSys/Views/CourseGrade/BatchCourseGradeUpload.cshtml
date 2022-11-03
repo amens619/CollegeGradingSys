@@ -12,12 +12,16 @@
             <hr class="mb-4 mt-0">
             <div class="card mb-4">
                 <div class="card-body">
+                    @if (ViewBag.Message != null)
+                    {
+                        <h5 class="alert alert-warning">@ViewBag.Message</h5>
+                    }
                     <form asp-action="BatchCourseGradeUpload" asp-controller="CourseGrade" method="post" id="create-form" enctype="multipart/form-data">
                         <div class="row ">
                             <div class="form-group col-md-4">
                                 <label class="control-label">العام</label>
-                                <input type="hidden"     name="AcademicYearId" value="@ViewBag.AcademicYearId" />
-                                <select id="AcademicYearList"  disabled class="form-control disabled text-center "
+                                <input type="hidden" name="AcademicYearId" value="@ViewBag.AcademicYearId" />
+                                <select id="AcademicYearList" disabled class="form-control disabled text-center "
                                         asp-items="ViewBag.AcademicYearsList"></select>
                             </div>
                             <div class="form-group col-md-4">
@@ -56,8 +60,8 @@
                                         asp-items="ViewBag.CourseList"></select>
                             </div>
                             <div class="form-group col-md-4">
-                                <label class="control-label">حالة الطالب للمادة</label>                                
-                                <input type="hidden" name="StStatusForCourse" value="@Model.StStatusForCourse" />                                                            
+                                <label class="control-label">حالة الطالب للمادة</label>
+                                <input type="hidden" name="StStatusForCourse" value="@Model.StStatusForCourse" />
                                 <select id="StStatusForCourse" asp-for="StStatusForCourse" name="StStatusForCourse" disabled class="form-control disabled text-center"
                                         asp-items="Html.GetEnumSelectList<StStatusForCourse>()">
                                     <option value="-1">-- الكل --</option>
@@ -70,12 +74,12 @@
                                 <label class="control-label">
                                     استعراض:
                                 </label>
-                                <input id="batchGrades" name="batchGrades"   class="form-control" type="file" tabindex="14">
+                                <input id="batchGrades" name="batchGrades" class="form-control" type="file" tabindex="14">
                                 <span class="form-text text-muted">أنواع الملفات المسموح بها :  xlsx, xls.</span>
                             </div>
-                            <div class="card-footer">                                
-                                    <button type="submit" id="BtnUploadFile" class="btn btn-secondary col-2 btn-sm">استيراد</button>                                  
-                                
+                            <div class="card-footer">
+                                <button type="submit" id="BtnUploadFile" class="btn btn-secondary col-2 btn-sm">استيراد</button>
+
                             </div>
                         </div>
                     </form>

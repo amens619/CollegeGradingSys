@@ -2412,5 +2412,23 @@ namespace CollegeGradingSys.Controllers
             return stAcademicDataList;
 
         }
+
+
+        private bool IsCurrentYearClosed(Term term)
+        {
+            var currentYear = _AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true);
+            var StAcademicOfAllStInCurrentYear = _StAcademicDataRepository.List().Where(x => x.AcademicYear.Id == currentYear.Id);
+
+
+            var stAs = StAcademicOfAllStInCurrentYear.Where(x => x.StStatus == StStatus.مقيد && x.Term == term).ToList();
+            if (stAs != null)
+            {
+                if (stAs.Count > 0)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

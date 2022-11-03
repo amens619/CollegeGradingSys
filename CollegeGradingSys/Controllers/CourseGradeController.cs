@@ -645,7 +645,14 @@ namespace CollegeGradingSys.Controllers
                 var academicID = courseGrade.StAcademicData.StPersonalData.AcademicID;
                 string xlsxErrorMSG="";
 
-                var xlsxCourseGrade = xlsxCourseGrades.SingleOrDefault(x => x.XlsxAcademicID == academicID);
+                var CG = xlsxCourseGrades.Where(x => x.XlsxAcademicID == academicID);
+                if (CG.Count() > 1 )
+                {
+                    ViewBag.Message = "رقم القيد ("+ academicID.ToString() + ") مكرر لأكثر من طالب .... يرجى حذف كل الارقام المكررة لتكملة ادخال باقي درجات الطلاب";
+                    return View(vmodel);
+                }
+
+                var xlsxCourseGrade = CG.FirstOrDefault();
 
                 if (xlsxCourseGrade is not null)
                 {

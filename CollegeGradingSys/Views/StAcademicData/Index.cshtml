@@ -65,30 +65,41 @@
                     </div>
                     <hr class="my-4">
                 </div>
-                        <div class="container">
-                            <input type="submit" value="تصفية" class="btn btn-secondary btn-sm" />
-                            <a asp-action="Index" class="btn btn-secondary btn-sm" asp-route-id=-1>إلغاء التصفية</a>
-                            @if (Model.StStatus == StStatus.مقيد)
-                            {
-                                <input type="submit" value="كشف المقيدين" class="btn btn-success btn-sm" formaction="@Url.Action("ExportStAcademicDataToExcel")" formmethod="get" />
-                            }
-                            @if (Model.StStatus == StStatus.متخرج)
-                            {                               
-                                <input type="submit" value="كشف الخريجين" class="btn btn-success btn-sm" formaction="@Url.Action("ExportGraduateStToExcel")" formmethod="get" />
-                            }
-                            @if (Model.IsCurrentYear)
-                            {
-                                @*@if (Model.IsStEnrollmentClosed)
+                <div class="container">
+                    <input type="submit" value="تصفية" class="btn btn-secondary btn-sm" />
+                    <a asp-action="Index" class="btn btn-secondary btn-sm" asp-route-id=-1>إلغاء التصفية</a>
+                    @if (Model.StStatus == null)
+                    {
+                        @if (Model.IsCurrentYearClosed)
+                        {
+                            <input type="submit" value="بيان درجات" class="btn btn-success btn-sm" formaction="@Url.Action("ExportStAcademicDataToExcel")" formmethod="get" />
+                        }
+                        else
+                        {
+                            <a tabindex="0" class="btn btn-success btn-sm" role="button" data-bs-toggle="popover" data-bs-placement="left" data-bs-trigger="focus" title="عذرا" data-bs-content="يجب إدخال جميع درجات المواد لجميع الطلاب واكمال بيانات جميع السجلات الطلابية">بيان درجات</a>
+                        }
+                    }
+                    @if (Model.StStatus == StStatus.مقيد)
+                    {
+                        <input type="submit" value="كشف المقيدين" class="btn btn-success btn-sm" formaction="@Url.Action("ExportStAcademicDataToExcel")" formmethod="get" />
+                    }
+                    @if (Model.StStatus == StStatus.متخرج)
+                    {
+                        <input type="submit" value="كشف الخريجين" class="btn btn-success btn-sm" formaction="@Url.Action("ExportGraduateStToExcel")" formmethod="get" />
+                    }
+                    @if (Model.IsCurrentYear)
+                    {
+                        @*@if (Model.IsStEnrollmentClosed)
             {*@
-                                <input type="submit" value="تقييد جميع طلاب العام الماضي" class="btn btn-primary btn-sm" formaction="@Url.Action("AddAcademicDataForAllSts")" formmethod="get" />
-                                @*}
+                        <input type="submit" value="تقييد جميع طلاب العام الماضي" class="btn btn-primary btn-sm" formaction="@Url.Action("AddAcademicDataForAllSts")" formmethod="get" />
+                        @*}
             else
             {
                  <a tabindex="0" class="btn btn-primary btn-sm" role="button" data-bs-toggle="popover" data-bs-placement="left" data-bs-trigger="focus" title="عذرا" data-bs-content="يجب إضافة دفعة جديدة قبل تقييد الطلاب">تقييد جميع طلاب العام الماضي</a>
             }*@
 
-                            }
-                        </div>
+                    }
+                </div>
 
 
                     }
