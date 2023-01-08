@@ -25,7 +25,7 @@ namespace CollegeGradingSys.ViewModels
 
         [Display(Name = "المصدر")]
         [Required(ErrorMessage = " الرجاء إدخال المصدر .")]
-        [StringLength(60, MinimumLength = 3, ErrorMessage = "لا يمكن أن يكون رقم الجلوس أطول من 60 رقم.")]
+        [StringLength(60, MinimumLength = 2, ErrorMessage = "الرجاء ادخال المصدر بطول بين  2-60 حرف .")]
         public string Source { get; set; }
 
         [Required(ErrorMessage = " الرجاء ادخال رقم الجلوس .")]

@@ -24,7 +24,7 @@ namespace CollegeGradingSys.Models
         public float Average { get; set; }
         [Display(Name = "المصدر")]
         [Required]
-        [StringLength(60, MinimumLength = 3, ErrorMessage = "لا يمكن أن يكون رقم الجلوس أطول من 60 رقم.")]
+        [StringLength(60, MinimumLength = 2, ErrorMessage = "الرجاء ادخال المصدر بطول بين  2-60 حرف .")]
         public string Source { get; set; }
         [Display(Name = "رقم الجلوس ")]
         public int SeatNo { get; set; }
