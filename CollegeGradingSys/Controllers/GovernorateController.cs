@@ -8,8 +8,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using cloudscribe.Pagination.Models;
+using Microsoft.AspNetCore.Authorization;
+
 namespace CollegeGradingSys.Controllers
 {
+    [Authorize(Roles = "Admin,Owner")]
     public class GovernorateController : Controller
     {
         private readonly ICollegeGradingSysRepository<Governorate> GovernorateRepository;
@@ -64,6 +67,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: GovernorateController/Create
+        [Authorize(Policy = "CreateGovernoratePolicy")]
         public ActionResult Create()
         {
 
@@ -78,6 +82,7 @@ namespace CollegeGradingSys.Controllers
         // POST: GovernorateController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "CreateGovernoratePolicy")]
         public ActionResult Create(NationalityGovernorateViewModel  model)
         {
             try
@@ -123,6 +128,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: GovernorateController/Edit/5
+        [Authorize(Policy = "EditGovernoratePolicy")]
         public ActionResult Edit(int id)
         {
             if (id == null || id == 0)
@@ -148,6 +154,7 @@ namespace CollegeGradingSys.Controllers
         // POST: GovernorateController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "EditGovernoratePolicy")]
         public ActionResult Edit(int id,NationalityGovernorateViewModel model)
         {
             try
@@ -184,6 +191,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: GovernorateController/Delete/5
+        [Authorize(Policy = "DeleteGovernoratePolicy")]
         public ActionResult Delete(int id)
         {
             if (id == null || id == 0)
@@ -202,6 +210,7 @@ namespace CollegeGradingSys.Controllers
         // POST: GovernorateController/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "DeleteGovernoratePolicy")]
         public IActionResult DeleteConfirmed(int id)
         {
             try

@@ -2,42 +2,54 @@
 
 @{
     ViewData["Title"] = "إضافة تخصص جديد";
+    ViewData["PageName"] = "إدارة تخصصات";
+    //ViewData["SubPageName"] = "إضافة قسم جديد";
+
 }
-<div class="card mb-4">
-    <div class="card-body">
-        <div class="bg-white">
-            <h5 class="mb-4">  <span style="margin-left:6px;" data-feather="plus"></span>إدارة الكليات</h5>
-            <h6 class="m-1">إضافة كلية جديدة</h6>
-            <hr class="mb-4 mt-0">
-            <div class="row col-md-12">
-                <form asp-action="Create">
-                    @if (ViewBag.Message != null)
-                    {
-                        <h5 class="alert alert-danger">@ViewBag.Message</h5>
-                    }
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <div class="row">
-                        <div class="form-group col-md-6">
-                            <label asp-for="SpecializationName" class="control-label"></label>
-                            <input asp-for="SpecializationName" class="form-control" placeholder="ادخل اسم التخصص" />
-                            <span asp-validation-for="SpecializationName" class="text-danger"></span>
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <form asp-action="Create">
+            @if (ViewBag.Message != null)
+            {
+                <h5 class="alert alert-danger">@ViewBag.Message</h5>
+            }
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="row">
+                <div class="col-md-8 px-0 offset-md-2">
+                    <div class="card">
+                        <div class="card-header ui-sortable-handle" style="cursor: move;">
+                            <h3 class="card-title">
+                                إضافة تخصص جديد
+                            </h3>
                         </div>
-                        <div class="form-group col-md-6">
-                            <label asp-for="DepartmentId" class="control-label"></label>
-                            <select asp-for="DepartmentId" class="form-control text-center"
-                                    asp-items="@(new SelectList(Model.Departments,"Id","DepartmentName"))"></select>
-                            <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label asp-for="SpecializationName" class="control-label"></label>
+                                    <input asp-for="SpecializationName" class="form-control" placeholder="ادخل اسم التخصص" />
+                                    <span asp-validation-for="SpecializationName" class="text-danger"></span>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label asp-for="DepartmentId" class="control-label"></label>
+                                    <select asp-for="DepartmentId" class="form-control text-center"
+                                            asp-items="@(new SelectList(Model.Departments,"Id","DepartmentName"))"></select>
+                                    <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer">
+                            <input type="submit" value="إضافة" class="btn col-2 btn-success btn-sm" />
+                            <a class="btn btn-secondary  btn-sm" asp-action="Index">القائمة الرئسية</a>
                         </div>
                     </div>
-                    <div class="form-group mt-4">
-                        <input type="submit" value="إضافة" class="btn col-2 btn-primary btn-sm" />
-                        <a class="btn btn-secondary  btn-sm" asp-action="Index">القائمة الرئسية</a>
-                    </div>
-                </form>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
-</div>
+</section>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

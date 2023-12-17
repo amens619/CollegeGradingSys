@@ -1,5 +1,6 @@
 ﻿using CollegeGradingSys.Models;
 using CollegeGradingSys.Models.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Controllers
 {
+    [Authorize(Roles = "Admin,Owner")]
     public class CollegeController : Controller
     {
         private readonly ICollegeGradingSysRepository<College> CollegeRepository;
@@ -35,6 +37,7 @@ namespace CollegeGradingSys.Controllers
         //}
 
         // GET: CollegeController/Create
+        [Authorize(Policy = "CreateCollegePolicy")]
         public ActionResult Create()
         {
 
@@ -44,6 +47,7 @@ namespace CollegeGradingSys.Controllers
         // POST: CollegeController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "CreateCollegePolicy")]
         public ActionResult Create(College college)
         {
             try
@@ -70,6 +74,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: CollegeController/Edit/5
+        [Authorize(Policy = "EditCollegePolicy")]
         public ActionResult Edit(int id)
         {
             if (id == null || id == 0)
@@ -87,6 +92,7 @@ namespace CollegeGradingSys.Controllers
         // POST: CollegeController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "EditCollegePolicy")]
         public ActionResult Edit(int id,College model)
         {
             try
@@ -122,6 +128,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: CollegeController/Delete/5
+        [Authorize(Policy = "DeleteCollegePolicy")]
         public ActionResult Delete(int id)
         {
             var college = CollegeRepository.Find(id);
@@ -132,6 +139,7 @@ namespace CollegeGradingSys.Controllers
         // POST: StAcademicData/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "DeleteCollegePolicy")]
         public IActionResult DeleteConfirmed(int id)
         {        
             try

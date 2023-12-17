@@ -1,207 +1,139 @@
 ﻿@model CollegeGradingSys.ViewModels.HomeIndexData
+@inject UserManager<IdentityUser> UserManager
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService authorizationService
 @{
-    ViewData["Title"] = "الصفحة الرئيسية";
+    ViewData["Title"] = "الرئيسية";
+    ViewData["PageName"] = "الصفحة الرئيسية";
+    //ViewData["SubPageName"] = "-";
 }
 
-<div class="row   order-md-last">
 
-    <div class="row mt-0">
-        <h5 class="mb-4">  <span style="margin-left:6px;" data-feather="home"></span>الصفحة الرئيسية</h5>
 
-        @*<div class="  col-md-3 ">
-                <div class="card shadow-sm border-0">
-                    <div class="row g-0">
-                        <div class="col-md-8">
-                            <div class="card-body  text-center">
-                                <h5 class="card-title">@Model.AcademicYearName</h5>
-                                <p class="card-text "><small class="text-muted">العام الاكاديمي الحالي</small></p>
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+       
+           
+
+            <div class="row g-3">
+                <div class="row g-3 m-0 p-0 col-md-8 ">
+                    <div class="col-sm-6 mt-0 ">
+                        <div class="card shadow-sm py-4 border-0">
+                            <div class="row g-0">
+                                <div class="col-md-8">
+                                    <div class="card-body  text-center">
+                                        <h5 class="card-title">@Model.AcademicYearName</h5>
+                                        <p class="card-text "><small class="text-muted">العام الاكاديمي الحالي</small></p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 m-auto">
+
+                                    <img src="~/images/yearAcademic.jpg" style="width: 50px ; height:50px ;" class="rounded mx-auto d-block" />
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-4 m-auto">
-
-                            <img src="~/images/yearAcademic.jpg" style="width: 50px ; height:50px ;" class="rounded mx-auto d-block" />
+                            @*<div class="card-body">
+                                    <div class="bg-white p-3">
+                                        <h6>فرع حضرموت</h6>
+                                    </div>
+                                </div>*@
                         </div>
                     </div>
-                </div>
-            </div>*@
-        @*<div class="col-md-3">
-                <div class="card shadow-sm border-0">
-                    <div class="row g-0">
-                        <div class="col-md-8">
-                            <div class="card-body  text-center">
-                                @switch (Model.StudentsNO)
-                                {
-                                    case 1:
-                                        <h5 class="card-title"> طالب واحد</h5>
-                                        break;
-                                    case 2:
-                                        <h5 class="card-title">طالبين</h5>
-                                        break;
-                                    case int n when (n < 11 && n >= 3):
-                                        <h5 class="card-title">@Model.StudentsNO<spen> طلاب</spen></h5>
-                                        break;
-                                    default:
-                                        <h5 class="card-title">@Model.StudentsNO<spen> طالب</spen></h5>
-                                        break;
-                                }
+                    <div class="col-sm-6 mt-0 ">
+                        <div class="card shadow-sm py-4 border-0">
+                            <div class="row g-0">
+                                <div class="col-md-8">
+                                    <div class="card-body  text-center">
+                                        @switch (Model.StudentsNO)
+                                        {
+                                            case 1:
+                                                <h5 class="card-title"> طالب واحد</h5>
+                                                break;
+                                            case 2:
+                                                <h5 class="card-title">طالبين</h5>
+                                                break;
+                                            case int n when (n < 11 && n >= 3):
+                                                <h5 class="card-title">@Model.StudentsNO<spen> طلاب</spen></h5>
+                                                break;
+                                            default:
+                                                <h5 class="card-title">@Model.StudentsNO<spen> طالب</spen></h5>
+                                                break;
+                                        }
 
 
 
-                                <p class="card-text"><small class="text-muted">عدد الطلاب المسجلين</small></p>
+                                        <p class="card-text"><small class="text-muted">عدد الطلاب المسجلين</small></p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 m-auto">
+                                    <img src="~/images/studentIcon.jpg" style="width: 50px ; height:50px ;" class="rounded mx-auto d-block" />
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-4 m-auto">
-                            <img src="~/images/studentIcon.jpg" style="width: 50px ; height:50px ;" class="rounded mx-auto d-block" />
+                            @*<div class="card-body">
+                                    <div class="bg-white p-3">
+                                        <h6>فرع حضرموت</h6>
+                                    </div>
+                                </div>*@
                         </div>
                     </div>
-                </div>
-            </div>*@
-        @*<div class="col-md-3 ">
-                <div class="card shadow-sm border-0">
-                    <div class="row g-0">
-                        <div class="col-md-8">
-                            <div class="card-body  text-center">
-                                <h5 class="card-title">82 طالب</h5>
-                                <p class="card-text"><small class="text-muted">عدد الطلاب الخريجين</small></p>
+                    <div class="col-sm-6 mt-1 ">
+                        <div class="card shadow-sm py-4 border-0">
+                            <div class="row g-0">
+                                <div class="col-md-8">
+                                    <div class="card-body  text-center">
+                                        <h5 class="card-title">82 طالب</h5>
+                                        <p class="card-text"><small class="text-muted">عدد الطلاب الخريجين</small></p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 m-auto">
+                                    <img src="~/images/graduationIcon.jpg" style="width: 50px ; height:50px ;" class="rounded mx-auto d-block" />
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4 m-auto">
-                            <img src="~/images/graduationIcon.jpg" style="width: 50px ; height:50px ;" class="rounded mx-auto d-block" />
-                        </div>
                     </div>
-                </div>
-            </div>*@
-        @*<div class="col-md-3 ">
-                <div class="card shadow-sm border-0">
-                    <div class="row g-0">
-                        <div class="col-md-8">
-                            <div class="card-body  text-center">
-                                <h5 class="card-title">11 طالب</h5>
-                                <p class="card-text"><small class="text-muted">عدد الطلاب المنسحبين</small></p>
+                    <div class="col-sm-6 mt-1 ">
+                        <div class="card shadow-sm  py-4 border-0">
+                            <div class="row g-0 ">
+                                <div class="col-md-8">
+                                    <div class="card-body  text-center">
+                                        <h5 class="card-title">11 طالب</h5>
+                                        <p class="card-text"><small class="text-muted">عدد الطلاب المنسحبين</small></p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 m-auto">
+                                    <img src="~/images/dropoutSchoolIcon.jpg" style="width: 50px ; height:50px ;" class="rounded mx-auto d-block" />
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4 m-auto">
-                            <img src="~/images/dropoutSchoolIcon.jpg" style="width: 50px ; height:50px ;" class="rounded mx-auto d-block" />
-                        </div>
                     </div>
-                </div>
-            </div>*@
-    </div>
-
-    <div class="row g-3">
-        <div class="row g-3 m-0 p-0 col-md-8 ">
-            <div class="col-sm-6 mt-0 ">
-                <div class="card shadow-sm py-4 border-0">
-                    <div class="row g-0">
-                        <div class="col-md-8">
-                            <div class="card-body  text-center">
-                                <h5 class="card-title">@Model.AcademicYearName</h5>
-                                <p class="card-text "><small class="text-muted">العام الاكاديمي الحالي</small></p>
-                            </div>
-                        </div>
-                        <div class="col-md-4 m-auto">
-
-                            <img src="~/images/yearAcademic.jpg" style="width: 50px ; height:50px ;" class="rounded mx-auto d-block" />
-                        </div>
-                    </div>
-                    @*<div class="card-body">
-                            <div class="bg-white p-3">
-                                <h6>فرع حضرموت</h6>
+                    @*<div class="col-sm-12 mt-0 ">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body">
+                                    <div class="bg-white p-3">
+                                        <h6>فرع حضرموت</h6>
+                                    </div>
+                                </div>
                             </div>
                         </div>*@
                 </div>
-            </div>
-            <div class="col-sm-6 mt-0 ">
-                <div class="card shadow-sm py-4 border-0">
-                    <div class="row g-0">
-                        <div class="col-md-8">
-                            <div class="card-body  text-center">
-                                @switch (Model.StudentsNO)
-                                {
-                                    case 1:
-                                        <h5 class="card-title"> طالب واحد</h5>
-                                        break;
-                                    case 2:
-                                        <h5 class="card-title">طالبين</h5>
-                                        break;
-                                    case int n when (n < 11 && n >= 3):
-                                        <h5 class="card-title">@Model.StudentsNO<spen> طلاب</spen></h5>
-                                        break;
-                                    default:
-                                        <h5 class="card-title">@Model.StudentsNO<spen> طالب</spen></h5>
-                                        break;
-                                }
-
-
-
-                                <p class="card-text"><small class="text-muted">عدد الطلاب المسجلين</small></p>
-                            </div>
-                        </div>
-                        <div class="col-md-4 m-auto">
-                            <img src="~/images/studentIcon.jpg" style="width: 50px ; height:50px ;" class="rounded mx-auto d-block" />
-                        </div>
-                    </div>
-                    @*<div class="card-body">
-                            <div class="bg-white p-3">
-                                <h6>فرع حضرموت</h6>
-                            </div>
-                        </div>*@
-                </div>
-            </div>
-            <div class="col-sm-6 mt-1 ">
-                <div class="card shadow-sm py-4 border-0">
-                    <div class="row g-0">
-                        <div class="col-md-8">
-                            <div class="card-body  text-center">
-                                <h5 class="card-title">82 طالب</h5>
-                                <p class="card-text"><small class="text-muted">عدد الطلاب الخريجين</small></p>
-                            </div>
-                        </div>
-                        <div class="col-md-4 m-auto">
-                            <img src="~/images/graduationIcon.jpg" style="width: 50px ; height:50px ;" class="rounded mx-auto d-block" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6 mt-1 ">
-                <div class="card shadow-sm  py-4 border-0">
-                    <div class="row g-0 ">
-                        <div class="col-md-8">
-                            <div class="card-body  text-center">
-                                <h5 class="card-title">11 طالب</h5>
-                                <p class="card-text"><small class="text-muted">عدد الطلاب المنسحبين</small></p>
-                            </div>
-                        </div>
-                        <div class="col-md-4 m-auto">
-                            <img src="~/images/dropoutSchoolIcon.jpg" style="width: 50px ; height:50px ;" class="rounded mx-auto d-block" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @*<div class="col-sm-12 mt-0 ">
+                <div class="col-md-4  mt-0 order-md-last">
                     <div class="card shadow-sm border-0">
                         <div class="card-body">
-                            <div class="bg-white p-3">
-                                <h6>فرع حضرموت</h6>
+
+                            <div class="text-right ">
+                                <img src="~/images/CollegeIcon.jpg" style="width: 40% ; height:40% ;" class="rounded mx-auto d-block" />
+                            </div>
+                            <div class="text-center">
+                                <h5 class="">الجُمْهُوْرِيَّةُ اليَمَنِيَّة</h5>
+                                <p class="card-text"><small class="text-muted">جامعة الايمان - فرع حضرموت </small></p>
                             </div>
                         </div>
                     </div>
-                </div>*@
-        </div>
-        <div class="col-md-4  mt-0 order-md-last">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-
-                    <div class="text-right ">
-                        <img src="~/images/CollegeIcon.jpg" style="width: 40% ; height:40% ;" class="rounded mx-auto d-block" />
-                    </div>
-                    <div class="text-center">
-                        <h5 class="">الجُمْهُوْرِيَّةُ اليَمَنِيَّة</h5>
-                        <p class="card-text"><small class="text-muted">جامعة الايمان - فرع حضرموت </small></p>
-                    </div>
                 </div>
+
             </div>
         </div>
+    
 
-    </div>
-</div>
+</section>
+<!-- /.content -->

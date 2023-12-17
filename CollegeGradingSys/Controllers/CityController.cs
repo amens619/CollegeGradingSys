@@ -1,6 +1,7 @@
 ﻿using CollegeGradingSys.Models;
 using CollegeGradingSys.Models.Repositories;
 using CollegeGradingSys.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Controllers
 {
+    [Authorize(Roles = "Admin,Owner")]
     public class CityController : Controller
     {
         private readonly ICollegeGradingSysRepository<City> CityRepository;

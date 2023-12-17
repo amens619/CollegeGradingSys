@@ -1,50 +1,67 @@
 ﻿@model IEnumerable<CollegeGradingSys.Models.Department>
 
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService authorizationService
+
 @{
     ViewData["Title"] = "إدارة الأقسام";
+    ViewData["PageName"] = "إدارة الأقسام";
+    ViewData["SubPageName"] = "القائمة الرئسية";
 }
 
-<div class="card mb-4">
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <p>
+            @if ((await authorizationService.AuthorizeAsync(User, "CreateDepartmentPolicy")).Succeeded)
+            {
+                <a asp-action="Create" class="btn btn-secondary  col-2 btn-sm "><i class="fas fa-plus mr-3"></i>جديد</a>
+            }
+        </p>
+        <div class="card  col-md-10 mb-4">
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 40%;">
+                                @Html.DisplayNameFor(model => model.DepartmentName)
+                            </th>
+                            <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 40%;">
+                                @Html.DisplayNameFor(model => model.College.CollegeName)
+                            </th>
+                            <th style="width: 20%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center td-font-size">
+                                    @Html.DisplayFor(modelItem => item.DepartmentName)
+                                </td>
+                                <td class="text-center td-font-size">
+                                    @Html.DisplayFor(modelItem => item.College.CollegeName)
+                                </td>
+                                <td class="text-center">
+                                    @if ((await authorizationService.AuthorizeAsync(User, "EditDepartmentPolicy")).Succeeded)
+                                    {
+                                        <a asp-action="Edit" class="btn btn-outline-success btn-sm align-self-center" asp-route-id="@item.Id">
+                                            <i class="fas fa-edit" width="17" height="17"></i>
+                                        </a>
+                                    }
+                                    @if ((await authorizationService.AuthorizeAsync(User, "DeleteDepartmentPolicy")).Succeeded)
+                                    {
+                                        <a asp-action="Delete" class="btn btn-outline-danger btn-sm align-self-center" asp-route-id="@item.Id">
+                                            <i class="fas fa-trash-alt" width="17" height="17"></i>
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
 
-    <div class="card-body">
-        <div class="bg-white">
-            <h5 class="mb-4">  <span style="margin-left:6px;" data-feather="list"></span>إدارة الأقسام</h5>
-            <h6 class="m-1">القائمة الرئسية</h6>
-            <hr class="mb-4 mt-0">
-            <p>
-                <a class="btn btn-secondary col-2 btn-sm" asp-action="Create">جديد</a>
-            </p>
-            <table class="table table-bordered">
-                <thead class="table-light">
-                    <tr>
-                        <th>
-                            @Html.DisplayNameFor(model => model.DepartmentName)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.College.CollegeName)
-                        </th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.DepartmentName)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.College.CollegeName)
-                        </td>
-                        <td>
-                            <a asp-action="Edit" class="btn btn-primary btn-sm align-self-center" asp-route-id="@item.Id">تعديل</a>
-                            <a asp-action="Delete" class="btn btn-danger btn-sm align-self-center" asp-route-id="@item.Id">حذف</a>
-                        </td>
-                    </tr>
-                    }
-                </tbody>
-            </table>
-
+            </div>
         </div>
     </div>
-</div>
+</section>

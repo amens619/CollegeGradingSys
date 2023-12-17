@@ -19,6 +19,8 @@ namespace CollegeGradingSys.ViewModels
 
         public bool IsCurrentYear { get; set; }
         public string courseName { get; set; }
+
+        public Course  Course { get; set; }
         //==========================      
 
 

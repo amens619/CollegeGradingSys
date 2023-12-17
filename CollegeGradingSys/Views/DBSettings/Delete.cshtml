@@ -1,0 +1,45 @@
+﻿@model CollegeGradingSys.Models.DBSettings
+
+@{
+    ViewData["Title"] = "حذف";
+    ViewData["PageName"] = "النسخ الاحتياطي لقاعدة البيانات";
+    ViewData["SubPageName"] = "حذف نسخة";
+}
+ <!-- Main content -->
+<section class="content">
+    <div class="container-fluid "> 
+        <div class="row">
+             <div class="card card-outline px-0 card-danger col-md-8 offset-md-2">
+                <div class="card-body">
+                    <div  class="row mx-3 ">
+                        <h4>هل تريد بالفعل حذف النسخ الاحتياطي لقاعدة البيانات ؟!!</h4>
+                        <div class="col-12">
+                           <hr />
+                            @if (ViewBag.Message != null)
+                            {
+                                <h5 class="alert alert-danger">@ViewBag.Message</h5>
+                            }
+                            <div class="row  my-5">
+                                <div class="col-sm-4">
+                                    @Html.DisplayNameFor(model => model.BackupName)
+                                </div>
+                                <div class="col-sm-8">
+                                    @Html.DisplayFor(model => model.BackupName)
+                                </div>
+                            </div>   
+                          
+                            
+                        </div>
+                    </div>
+                </div>
+                  <div class="card-footer">
+                            <form asp-action="Delete">
+                                <input type="hidden" asp-for="Id" />
+                                <input type="submit" value="حذف" class="btn btn-danger btn-sm " />
+                                <a class="btn btn-secondary  btn-sm" asp-action="Index">إلغاء الامر</a>
+                            </form>
+                        </div>
+            </div>
+         </div>
+    </div>        
+</section>

@@ -1,0 +1,35 @@
+﻿@model CollegeGradingSys.ViewModels.CreateRoleViewModel
+
+
+@{
+    ViewData["Title"] = "اضافة دور او مسؤولية";
+    ViewData["PageName"] = "حسابات المستخدمين";
+    ViewData["SubPageName"] = "اضافة دور او مسؤولية";
+}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="bg-white">           
+            <div class="row col-md-6">
+        <form method="post" >
+            <div asp-validation-summary="All" class="text-danger"></div>
+             <div class="form-group col">
+                <label asp-for="RoleName" class="control-label"></label>
+                <input asp-for="RoleName" class="form-control" />
+                <span asp-validation-for="RoleName" class="text-danger"></span>
+            </div>
+            
+           
+             <hr class="mb-4 mt-2">
+        <div class="form-group mt-4">
+            <input type="submit" value="انشاء مسؤولية" class="btn col-2 btn-primary btn-sm" />
+            <a class="btn btn-secondary  btn-sm" asp-action="ListRoles">القائمة الرئسية</a>
+        </div>
+        </form>
+         </div>
+        </div>
+    </div>
+</div>
+
+
+

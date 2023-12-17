@@ -1,4 +1,5 @@
 ﻿
+using CollegeGradingSys.Helper;
 using CollegeGradingSys.Models;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,9 @@ namespace CollegeGradingSys.ViewModels
 
         [Display(Name = "المستوى")]
         public Level Level { get; set; }
+
+        [Display(Name = "الجنس المخصص للمادة")]
+        public Course_sGender Course_sGender { get; set; }
 
         [Display(Name = "الفصل الدراسي")]
         public Term Term { get; set; }

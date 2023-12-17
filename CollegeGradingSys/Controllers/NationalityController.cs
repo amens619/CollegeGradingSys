@@ -1,5 +1,6 @@
 ﻿using CollegeGradingSys.Models;
 using CollegeGradingSys.Models.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Controllers
 {
+    [Authorize(Roles = "Admin,Owner")]
     public class NationalityController : Controller
     {
         private readonly ICollegeGradingSysRepository<Nationality> _NationalityRepository;
@@ -38,6 +40,7 @@ namespace CollegeGradingSys.Controllers
         //}
 
         // GET: NationalityController/Create
+        [Authorize(Policy = "CreateNationalityPolicy")]
         public ActionResult Create()
         {
 
@@ -47,6 +50,7 @@ namespace CollegeGradingSys.Controllers
         // POST: NationalityController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "CreateNationalityPolicy")]
         public ActionResult Create(Nationality nationality)
         {
             try
@@ -88,6 +92,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: NationalityController/Edit/5
+        [Authorize(Policy = "EditNationalityPolicy")]
         public ActionResult Edit(int id)
         {
             if (id == null || id == 0)
@@ -106,6 +111,7 @@ namespace CollegeGradingSys.Controllers
         // POST: NationalityController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "EditNationalityPolicy")]
         public ActionResult Edit(int id,Nationality model)
         {
             try
@@ -153,6 +159,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: NationalityController/Delete/5
+        [Authorize(Policy = "DeleteNationalityPolicy")]
         public ActionResult Delete(int id)
         {
             var nationality = _NationalityRepository.Find(id);
@@ -162,6 +169,7 @@ namespace CollegeGradingSys.Controllers
         // POST: NationalityController/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "DeleteNationalityPolicy")]
         public IActionResult DeleteConfirmed(int id)
         {
             try

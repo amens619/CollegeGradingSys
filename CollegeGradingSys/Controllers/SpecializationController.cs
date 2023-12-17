@@ -1,6 +1,7 @@
 ﻿using CollegeGradingSys.Models;
 using CollegeGradingSys.Models.Repositories;
 using CollegeGradingSys.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Controllers
 {
+    [Authorize(Roles = "Admin,Owner")]
     public class SpecializationController : Controller
     {
         private readonly ICollegeGradingSysRepository<Specialization> SpecializationRepository;
@@ -43,6 +45,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: SpecializationController/Create
+        [Authorize(Policy = "CreateSpecializationPolicy")]
         public ActionResult Create()
         {
 
@@ -57,6 +60,7 @@ namespace CollegeGradingSys.Controllers
         // POST: SpecializationController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "CreateSpecializationPolicy")]
         public ActionResult Create(DepartmentSpecializationViewModel  model)
         {
             try
@@ -97,6 +101,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: SpecializationController/Edit/5
+        [Authorize(Policy = "EditSpecializationPolicy")]
         public ActionResult Edit(int id)
         {
             if (id == null || id == 0)
@@ -122,6 +127,7 @@ namespace CollegeGradingSys.Controllers
         // POST: SpecializationController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "EditSpecializationPolicy")]
         public ActionResult Edit(int id,DepartmentSpecializationViewModel model)
         {
             try
@@ -158,6 +164,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: SpecializationController/Delete/5
+        [Authorize(Policy = "DeleteSpecializationPolicy")]
         public ActionResult Delete(int id)
         {
             var specialization = SpecializationRepository.Find(id);
@@ -168,6 +175,7 @@ namespace CollegeGradingSys.Controllers
         // POST: SpecializationController/Delete/5       
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "DeleteSpecializationPolicy")]
         public IActionResult DeleteConfirmed(int id)
         {
             try

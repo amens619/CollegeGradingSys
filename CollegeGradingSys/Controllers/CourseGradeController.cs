@@ -435,11 +435,11 @@ namespace CollegeGradingSys.Controllers
                         if (Grade is not null)
                         {
                             var cultureInfo = new CultureInfo("en");
-                            if (!(decimal.TryParse(Grade,
-                                NumberStyles.AllowDecimalPoint,
-                                cultureInfo, out var modelGrade)) || !(modelGrade >= 0 && modelGrade <= 100))
+                            if (!(int.TryParse(Grade,
+                                NumberStyles.Integer,
+                                cultureInfo, out var modelGrade)) || !(modelGrade >= 0 && modelGrade <= model.BigGrade))
                             {
-                                ModelState.AddModelError(nameof(model.Grade), " يجب إدخال  درجة المادة رقماً بين 0 - 100.");
+                                ModelState.AddModelError(nameof(model.Grade), " يجب إدخال  درجة المادة رقماً صحيحاً بين 0 -" + model.BigGrade);
 
                                 return PartialView("_Edit", model);
                             }
@@ -448,7 +448,7 @@ namespace CollegeGradingSys.Controllers
                         }
                         else
                         {
-                            ModelState.AddModelError(nameof(model.Grade), " يجب إدخال  درجة المادة رقماً بين 0 - 100.");
+                            ModelState.AddModelError(nameof(model.Grade), " يجب إدخال  درجة المادة رقماً صحيحاً بين 0 - " + model.BigGrade);
 
                             return PartialView("_Edit", model);
                         }
@@ -463,7 +463,6 @@ namespace CollegeGradingSys.Controllers
                     _CourseGradeRepository.Update(id, oldcourseGrade);
                     if (model.IsSubCourse is true )
                     {
-
                         var ParentCourseGrade = _CourseGradeRepository.List()
                             .Where(x => x.StAcademicData.Id == oldcourseGrade.StAcademicData.Id)
                             .SingleOrDefault(x => x.Course.Id == oldcourseGrade.Course.ParentId);
@@ -478,7 +477,7 @@ namespace CollegeGradingSys.Controllers
                             }
 
                         }
-                        ParentCourseGrade.Grade = sumGradeSubCourses / ParentCourseGrade.Course.SubCourses.Count;
+                        ParentCourseGrade.Grade = sumGradeSubCourses;
                         ParentCourseGrade.StStatusForCourse = ParentCourseGrade.Grade >= ParentCourseGrade.Course.SmallGrade ? StStatusForCourse.ناجح : StStatusForCourse.راسب;
                         //CourseGrade ParentCourseGrade = new()
                         //{
@@ -559,7 +558,9 @@ namespace CollegeGradingSys.Controllers
         public IActionResult BatchCourseGradeUpload(IFormFile batchGrades, int? BatchId, int? AcademicYearId, StStatusForCourse? stStatusForCourse, Term? term, Level? level, bool? CourseType, int? CourseId)
         {
 
-
+            var course = new Course();
+            
+           
 
             var model = getAllbatchCourseGradeViewModel(BatchId,AcademicYearId,stStatusForCourse,term,level,CourseType,CourseId);
             var vmodel = new BatchCourseGradeUploadVM()
@@ -570,10 +571,12 @@ namespace CollegeGradingSys.Controllers
                 Level = model.Level,
                 StStatusForCourse = model.StStatusForCourse,
                 Term = model.Term,
+                 Course = model.Course,
                  CourseGrades = new List<CourseGradeVM>()
-           
+            
 
             };
+
             
             List<XlsxCourseGrade> xlsxCourseGrades = new List<XlsxCourseGrade>();
             if (ModelState.IsValid)
@@ -607,11 +610,11 @@ namespace CollegeGradingSys.Controllers
                                     if(txtXlsxGrade  is not null)
                                     {
                                         var cultureInfo = new CultureInfo("en");
-                                        if (!(decimal.TryParse(txtXlsxGrade,
-                                        NumberStyles.AllowDecimalPoint,
-                                        cultureInfo, out var xlsxGrade)) || !(xlsxGrade >= 0 && xlsxGrade <= 100))
+                                        if (!(int.TryParse(txtXlsxGrade,
+                                        NumberStyles.Integer,
+                                        cultureInfo, out var xlsxGrade)) || !(xlsxGrade >= 0 && xlsxGrade <= vmodel.Course.BigGrade))
                                         {
-                                            xlsxCourseGrade.XlsxErrorMSG = " لن يتم تغير الدرجة ... يجب إدخال  درجة المادة رقماً بين 0 - 100.";
+                                            xlsxCourseGrade.XlsxErrorMSG = " لن يتم تغير الدرجة ... يجب إدخال  درجة المادة رقماً بين 0 - " + vmodel.Course.BigGrade;
                                         }
                                         else
                                         {
@@ -683,10 +686,7 @@ namespace CollegeGradingSys.Controllers
             return View(vmodel);
         }
         public IActionResult BatchUserUpload(IFormFile batchUsers)
-        {
-
-            
-
+        {    
             return View();
         }
 
@@ -740,6 +740,7 @@ namespace CollegeGradingSys.Controllers
             return Batches;
         }
 
+        
         private AllbatchCourseGradeViewModel getAllbatchCourseGradeViewModel(int? BatchId, int? AcademicYearId, StStatusForCourse? stStatusForCourse, Term? term, Level? level, bool? CourseType, int? CourseId)
         {
             term ??= Term.الأول;
@@ -747,7 +748,7 @@ namespace CollegeGradingSys.Controllers
             int courseId = CourseId ?? 0;
 
             var model = new AllbatchCourseGradeViewModel();
-
+            
             var AcademicYearsList = _AcademicYearRepository.List().OrderByDescending(x => x.AcademicYearStart).ToList();
 
             if (AcademicYearsList != null)
@@ -772,6 +773,7 @@ namespace CollegeGradingSys.Controllers
                         ViewData["CourseId"] = courseId;
                         ViewData["CourseList"] = new SelectList(courses, "Id", "CourseName", CourseId ?? 0);
                         model.courseName = courses.SingleOrDefault(x => x.Id == courseId).CourseName;
+                        model.Course = courses.SingleOrDefault(x => x.Id == courseId);
                     }
 
                 }

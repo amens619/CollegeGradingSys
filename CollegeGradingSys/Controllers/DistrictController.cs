@@ -1,6 +1,7 @@
 ﻿using CollegeGradingSys.Models;
 using CollegeGradingSys.Models.Repositories;
 using CollegeGradingSys.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Controllers
 {
+    [Authorize(Roles = "Admin,Owner")]
     public class DistrictController : Controller
     {
         private readonly ICollegeGradingSysRepository<District> DistrictRepository;
@@ -36,6 +38,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: DistrictController/Create
+        [Authorize(Policy = "CreateUserPolicy")]
         public ActionResult Create()
         {
 

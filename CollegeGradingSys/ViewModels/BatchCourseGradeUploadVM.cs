@@ -20,6 +20,7 @@ namespace CollegeGradingSys.ViewModels
 
         public bool IsCurrentYear { get; set; }
         public string CourseName { get; set; }
+        public Course Course { get; set; }
         //==========================      
 
         public IFormFile BatchGrades  { get; set; }

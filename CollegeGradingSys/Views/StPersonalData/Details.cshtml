@@ -5,21 +5,25 @@
     ViewData["Title"] = "التفصيل";
 }
 
-<div class="card mb-4">
-    <div class="card-body">
-        <div class="bg-white">
-            <h5 class="mb-4">  <span style="margin-left:6px;" data-feather="edit"></span>البيانات الشخصية للطالب</h5>
-            <h6 class="m-1">التفصيل</h6>
-            <hr class="mb-2 mt-0">
-            <div class=" row my-5 col-md-12">
-
-                <div class=" col-md-6">
-                    <div class="card m-2">
-                        <div class="card-title mx-2 mt-2">
-                            <h6>البيانات الاساسية </h6>
-                            <hr />
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-7">
+                <div class="card">
+                    <div class="card-header ui-sortable-handle" style="cursor: move;">
+                        <h3 class="card-title">
+                            البيانات الشخصية للطالب
+                        </h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-success btn-sm" data-card-widget="collapse" title="Collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
                         </div>
-                        <div class="card-body row">
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <div class="row">
                             <div class="col-sm-4 my-2">
                                 @Html.DisplayNameFor(model => model.AcademicID)
                             </div>
@@ -79,21 +83,31 @@
                                 @Html.DisplayFor(model => model.EnrollmentYear.AcademicYearNameH)
 
                             </div>
-                            <div class="my-2">
-                                <a asp-action="Edit" class="btn btn-primary btn-sm align-self-center" asp-route-id="@Model.AcademicID">تعديل</a>
-                            </div>
                         </div>
                     </div>
+                    <div class="card-footer">
+                        <a asp-action="Edit" class="btn btn-success btn-sm align-self-center" asp-route-id="@Model.AcademicID">تعديل</a>
+                    </div>
                 </div>
-                @if (@Model.StHighSchoolData != null)
-                {
-                    <div class="col-md-6">
-                        <div class="card m-2  ">
-                            <div class="card-title mx-2 mt-2">
-                                <h6>بيانات شهادة الثانوية</h6>
-                                <hr />
+            </div>
+
+            @if (@Model.StHighSchoolData != null)
+            {
+                <div class="col-md-5">
+                    <div class="card">
+                        <div class="card-header ui-sortable-handle" style="cursor: move;">
+                            <h3 class="card-title">
+                                بيانات شهادة الثانوية
+                            </h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-success btn-sm" data-card-widget="collapse" title="Collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
                             </div>
-                            <div class="card-body row">
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            <div class="row">
                                 <div class="col-sm-4 my-2">
                                     @Html.DisplayNameFor(model => model.StHighSchoolData.CertificateType)
                                 </div>
@@ -136,37 +150,39 @@
                                 <div class="col-sm-7 my-2">
                                     @Html.DisplayFor(model => model.StHighSchoolData.Note)
                                 </div>
-                                <div class="my-2">
-                                    <!-- Modal placeholder -->
-                                    <div id="modal-placeholder"></div>
-
-                                    <button type="button" class="btn btn-primary btn-sm align-self-center" data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Edit","StHighSchoolData", new { id = Model.AcademicID })">
-                                        تعديل
-                                    </button>
-                                    <button type="button" class="btn btn-danger align-self-center btn-sm" data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Delete","StHighSchoolData", new { id = Model.AcademicID })">
-                                        حذف
-                                    </button>
-                                </div>
                             </div>
                         </div>
+                        <div class="card-footer">
+                            <!-- Modal placeholder -->
+                            <div id="modal-placeholder"></div>
+
+                            <button type="button" class="btn btn-success btn-sm align-self-center" data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Edit","StHighSchoolData", new { id = Model.AcademicID })">
+                                تعديل
+                            </button>
+                            <button type="button" class="btn btn-danger align-self-center btn-sm" data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Delete","StHighSchoolData", new { id = Model.AcademicID })">
+                                حذف
+                            </button>
+                        </div>
                     </div>
-                }
-                else
+                </div>
+
+
+            }
+            else
+            {
+                @if (ViewData["AcademicID"] != null)
                 {
-                    @if (ViewData["AcademicID"] != null)
-                    {
-                        <p>
+                    <p>
 
-                        </p>
-                    }
+                    </p>
                 }
-
-            </div>
-            <hr class="mb-2 mt-4">
-            <div class="m-2">
-                <a class="btn btn-secondary  btn-sm" asp-action="Index">القائمة الرئسية</a>
-            </div>
+            }
 
         </div>
-    </div>
-</div>
+        <div class="row">
+            <div class="col-12 mb-4">
+                <a class="btn btn-secondary  btn-sm" asp-action="Index">القائمة الرئسية</a>
+            </div>
+        </div>
+    </div>          
+</section>

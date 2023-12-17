@@ -17,6 +17,8 @@ using System.Threading.Tasks;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 namespace CollegeGradingSys
 {
@@ -41,14 +43,201 @@ namespace CollegeGradingSys
                 options.SupportedUICultures = supportedCultures;
             });
             //=======================================
-            services.AddMvc();
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CreateUserPolicy",
+                   policy => policy.RequireClaim("Create User"));
+
+                options.AddPolicy("DeleteUserPolicy",
+                    policy => policy.RequireClaim("Delete User"));
+
+                options.AddPolicy("EditUserPolicy",
+                   policy => policy.RequireClaim("Edit User"));
+
+                options.AddPolicy("ManageUserRolesPolicy",
+                   policy => policy.RequireClaim("Manage User Roles"));
+
+                options.AddPolicy("ManageUserClaimsPolicy",
+                   policy => policy.RequireClaim("Manage User Claims"));
+
+                options.AddPolicy("CreateBackupPolicy",
+                  policy => policy.RequireClaim("Create Backup"));
+
+                options.AddPolicy("DeleteBackupPolicy",
+                   policy => policy.RequireClaim("Delete Backup"));
+
+                options.AddPolicy("CreateCollegePolicy",
+                  policy => policy.RequireClaim("Create College"));
+
+                options.AddPolicy("DeleteCollegePolicy",
+                    policy => policy.RequireClaim("Delete College"));
+
+                options.AddPolicy("EditCollegePolicy",
+                   policy => policy.RequireClaim("Edit College"));
+
+
+                options.AddPolicy("CreateDepartmentPolicy",
+                policy => policy.RequireClaim("Create Department"));
+
+                options.AddPolicy("DeleteDepartmentPolicy",
+                    policy => policy.RequireClaim("Delete Department"));
+
+                options.AddPolicy("EditDepartmentPolicy",
+                   policy => policy.RequireClaim("Edit Department"));
+
+
+                options.AddPolicy("CreateSpecializationPolicy",
+               policy => policy.RequireClaim("Create Specialization"));
+
+                options.AddPolicy("DeleteSpecializationPolicy",
+                    policy => policy.RequireClaim("Delete Specialization"));
+
+                options.AddPolicy("EditSpecializationPolicy",
+                   policy => policy.RequireClaim("Edit Specialization"));
+
+                options.AddPolicy("CreateNationalityPolicy",
+             policy => policy.RequireClaim("Create Nationality"));
+
+                options.AddPolicy("DeleteNationalityPolicy",
+                    policy => policy.RequireClaim("Delete Nationality"));
+
+                options.AddPolicy("EditNationalityPolicy",
+                   policy => policy.RequireClaim("Edit Nationality"));
+
+
+                options.AddPolicy("CreateGovernoratePolicy",
+                    policy => policy.RequireClaim("Create Governorate"));
+
+                options.AddPolicy("DeleteGovernoratePolicy",
+                    policy => policy.RequireClaim("Delete Governorate"));
+
+                options.AddPolicy("EditGovernoratePolicy",
+                   policy => policy.RequireClaim("Edit Governorate"));
+
+
+                options.AddPolicy("CreateAcademicYearPolicy",
+                   policy => policy.RequireClaim("Create AcademicYear"));
+
+                options.AddPolicy("DeleteAcademicYearPolicy",
+                    policy => policy.RequireClaim("Delete AcademicYear"));
+
+                options.AddPolicy("EditAcademicYearPolicy",
+                   policy => policy.RequireClaim("Edit AcademicYear"));
+
+                options.AddPolicy("DetailsAcademicYearPolicy",
+                   policy => policy.RequireClaim("Details AcademicYear"));
+
+                options.AddPolicy("CreateBatchPolicy",
+               policy => policy.RequireClaim("Create Batch"));
+
+                options.AddPolicy("DeleteBatchPolicy",
+                    policy => policy.RequireClaim("Delete Batch"));
+
+                options.AddPolicy("EditBatchPolicy",
+                   policy => policy.RequireClaim("Edit Batch"));
+                
+              options.AddPolicy("CreateCoursePolicy",
+               policy => policy.RequireClaim("Create Course"));
+
+                options.AddPolicy("DeleteCoursePolicy",
+                    policy => policy.RequireClaim("Delete Course"));
+
+                options.AddPolicy("EditCoursePolicy",
+                   policy => policy.RequireClaim("Edit Course"));
+
+                options.AddPolicy("DetailsCoursePolicy",
+                  policy => policy.RequireClaim("Details Course"));
+
+
+                options.AddPolicy("CreateStPersonalDataPolicy",
+                 policy => policy.RequireClaim("Create StPersonalData"));               
+
+                options.AddPolicy("EditStPersonalDataPolicy",
+                policy => policy.RequireClaim("Edit StPersonalData"));
+
+                options.AddPolicy("DetailsStPersonalDataPolicy",
+                policy => policy.RequireClaim("Details StPersonalData"));                
+
+                options.AddPolicy("DeleteStPersonalDataPolicy",
+                policy => policy.RequireClaim("Delete StPersonalData"));
+
+                options.AddPolicy("ExportSthighSchoolToExcelPolicy",
+               policy => policy.RequireClaim("Export SthighSchoolToExcel"));
+                
+                options.AddPolicy("ExportAcceptedStToExcelPolicy",
+               policy => policy.RequireClaim("Export AcceptedStToExcel"));
+
+
+
+                
+                options.AddPolicy("ExportStsGradesToExcelPolicy",
+              policy => policy.RequireClaim("Export StsGradesToExcel"));
+
+                options.AddPolicy("ExportStAcademicDataToExcelPolicy",
+            policy => policy.RequireClaim("Export StAcademicDataToExcel"));
+
+                options.AddPolicy("ExportGraduateStToExcelPolicy",
+            policy => policy.RequireClaim("Export GraduateStToExcel"));
+
+                options.AddPolicy("AddAcademicDataForAllStsPolicy",
+             policy => policy.RequireClaim("Add AcademicDataForAllSts"));
+
+                options.AddPolicy("AllStAcademicDatasPolicy",
+               policy => policy.RequireClaim("All StAcademicData"));
+
+              options.AddPolicy("GraduationCertificatePolicy",
+               policy => policy.RequireClaim("Graduation Certificate"));
+
+                options.AddPolicy("GraduationStatementPolicy",
+               policy => policy.RequireClaim("Graduation Statement"));
+
+                options.AddPolicy("StudyConfirmationPolicy",
+               policy => policy.RequireClaim("Study Confirmation"));
+
+            options.AddPolicy("StatementAfterComprehensivePolicy",
+               policy => policy.RequireClaim("Statement AfterComprehensive"));
+
+            options.AddPolicy("StatementThreeYearsPolicy",
+             policy => policy.RequireClaim("Statement ThreeYears"));
+
+                options.AddPolicy("EditStAcademicDataPolicy",
+                         policy => policy.RequireClaim("Edit StAcademicData"));
+
+
+
+
+                options.AddPolicy("AllStCourseGradePolicy",
+         policy => policy.RequireClaim("All StCourseGrade"));
+            });
+            //==========================================
+            //services.AddMvc();
+
+            services.AddMvc(options =>
+            {
+                var policy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();
+                options.Filters.Add(new AuthorizeFilter(policy));
+            });
             //===============================
             services.AddRazorPages()
-    .AddMvcOptions(options =>
-    {
-        options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(
-            _ => "The field is required.");
-    });
+            .AddMvcOptions(options =>
+            {
+                options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(
+                    _ => "The field is required.");
+            });
+            services.AddIdentity<IdentityUser, IdentityRole>(
+
+               options => {
+                   options.SignIn.RequireConfirmedEmail = false;
+                    //options.SignIn.RequireConfirmedAccount = true;
+                    options.Password.RequiredLength = 10;
+                   options.Password.RequireUppercase = false;
+                   options.Password.RequireLowercase = false;
+                   options.Password.RequireDigit = false;
+               })
+
+               .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddMvcCore().AddMvcOptions(options =>
             {
                 options.ModelBindingMessageProvider.SetNonPropertyAttemptedValueIsInvalidAccessor(s => "The provided value is invalid.");
@@ -78,6 +267,7 @@ namespace CollegeGradingSys
             services.AddTransient<ICollegeGradingSysRepository<Course>, CourseDbRepository>();
             services.AddTransient<ICollegeGradingSysRepository<CourseGrade>, CourseGradeDbRepository>();
             services.AddTransient<ICollegeGradingSysRepository<Batch>, BatchDbRepository>();
+            services.AddTransient<ICollegeGradingSysRepository<DBSettings>, DBSettingsDbRepository>();
             services.AddTransient<ICollegeGradingSysRepository<StHighSchoolData>, StHighSchoolDataDbRepository>();
             services.AddTransient<ICollegeGradingSysRepository<StAcademicData>, StAcademicDataDbRepository>();
 
@@ -86,8 +276,8 @@ namespace CollegeGradingSys
                     Configuration.GetConnectionString("SqlCon")));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            //services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            //    .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews();
             services.AddCloudscribePagination();
         }

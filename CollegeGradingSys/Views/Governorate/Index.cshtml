@@ -1,5 +1,8 @@
 ﻿@model cloudscribe.Pagination.Models.PagedResult<Governorate>
 
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService authorizationService
+
 @{
     ViewData["Title"] = "إدارة المحافظات /المناطق";
     ViewData["Controller"] = "Governorate";
@@ -7,51 +10,65 @@
 }
 
 
-<div class="card mb-4">
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <p>
+            @if ((await authorizationService.AuthorizeAsync(User, "CreateGovernoratePolicy")).Succeeded)
+            {
+                <a asp-action="Create" class="btn btn-secondary  col-2 btn-sm "><i class="fas fa-plus mr-3"></i>جديد</a>
+            }
 
-    <div class="card-body">
-        <div class="bg-white">
-            <h5 class="mb-4">  <span style="margin-left:6px;" data-feather="list"></span>إدارة المحافظات /المناطق</h5>
-            <h6 class="m-1">القائمة الرئسية</h6>
-            <hr class="mb-4 mt-0">
-            <p>
-                <a class="btn btn-secondary col-2 btn-sm" asp-action="Create">جديد</a>
-            </p>
-            <table class="table table-bordered">
-                <thead class="table-light">
-                    <tr>
+        </p>
+        <div class="card  col-md-10 mb-4">
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
 
-                        <th>
-                            المحافظة/المنطقة
-                        </th>
-                        <th>
-                            الدولة
-                        </th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.Data)
-                    {
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.GovernorateName)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Nationality.CountryName)
-                        </td>
-                        <td>
-                            <a asp-action="Edit" class="btn btn-primary btn-sm align-self-center" asp-route-id="@item.Id">تعديل</a>
-                            <a asp-action="Delete" class="btn btn-danger btn-sm align-self-center" asp-route-id="@item.Id">حذف</a>
-                        </td>
-                    </tr>
-                    }
-                </tbody>
-            </table>
+                            <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 40%;">
+                                المحافظة/المنطقة
+                            </th>
+                            <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 40%;">
+                                الدولة
+                            </th>
+                            <th style="width: 20%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Data)
+                        {
+                            <tr>
+                                <td class="text-center td-font-size">
+                                    @Html.DisplayFor(modelItem => item.GovernorateName)
+                                </td>
+                                <td class="text-center td-font-size">
+                                    @Html.DisplayFor(modelItem => item.Nationality.CountryName)
+                                </td>
+                                <td class="text-center">
+                                    @if ((await authorizationService.AuthorizeAsync(User, "EditGovernoratePolicy")).Succeeded)
+                                    {
+                                        <a asp-action="Edit" class="btn btn-outline-success btn-sm align-self-center" asp-route-id="@item.Id">
+                                            <i class="fas fa-edit" width="17" height="17"></i>
+                                        </a>
+                                    }
+                                    @if ((await authorizationService.AuthorizeAsync(User, "DeleteGovernoratePolicy")).Succeeded)
+                                    {
+                                        <a asp-action="Delete" class="btn btn-outline-danger btn-sm align-self-center" asp-route-id="@item.Id">
+                                            <i class="fas fa-trash-alt" width="17" height="17"></i>
+                                        </a>
+                                    }
+                                </td>
 
-            <partial name="_PaginationPartial" model="Model" view-data="ViewData" />
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <partial name="_PaginationPartial" model="Model" view-data="ViewData" />
 
 
+            </div>
         </div>
     </div>
-</div>
+</section>

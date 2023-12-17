@@ -1,6 +1,7 @@
 ﻿using CollegeGradingSys.Models;
 using CollegeGradingSys.Models.Repositories;
 using CollegeGradingSys.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Controllers
 {
+    [Authorize(Roles = "Admin,Owner")]
     public class AcademicYearController : Controller
     {
         private readonly ICollegeGradingSysRepository<AcademicYear> AcademicYearRepository;
@@ -38,6 +40,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: AcademicYearController/Details/5
+        [Authorize(Policy = "DetailsAcademicYearPolicy")]
         public ActionResult Details(int id)
         {
             var academicYear = AcademicYearRepository.Find(id);
@@ -45,6 +48,8 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: AcademicYearController/Create
+        
+       [Authorize(Policy = "CreateAcademicYearPolicy")]
         public ActionResult Create()
         {
             if (!IsCurrentYearClosed())
@@ -57,6 +62,7 @@ namespace CollegeGradingSys.Controllers
         // POST: AcademicYearController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "CreateAcademicYearPolicy")]
         public ActionResult Create(AcademicYear academicYear)
         {
             if (!IsCurrentYearClosed())
@@ -110,8 +116,13 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: AcademicYearController/Edit/5
+        [Authorize(Policy = "EditAcademicYearPolicy")]
         public ActionResult Edit(int id)
         {
+            if (!IsCurrentYearClosed())
+            {
+                return NotFound();
+            }
             if (id == null || id == 0)
             {
                 return NotFound();
@@ -127,8 +138,13 @@ namespace CollegeGradingSys.Controllers
         // POST: AcademicYearController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "EditAcademicYearPolicy")]
         public ActionResult Edit(int id,AcademicYear academicYear)
         {
+            if (!IsCurrentYearClosed())
+            {
+                return NotFound();
+            }
             try
             {
                 if (academicYear.AcademicYearStart >= academicYear.AcademicYearEnd)
@@ -146,6 +162,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: AcademicYearController/Delete/5
+        [Authorize(Policy = "DeleteAcademicYearPolicy")]
         public ActionResult Delete(int id)
         {
             if (id == null || id == 0)
@@ -164,6 +181,7 @@ namespace CollegeGradingSys.Controllers
         // POST: AcademicYearController/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "DeleteAcademicYearPolicy")]
         public IActionResult DeleteConfirmed(int id)
         {
             try

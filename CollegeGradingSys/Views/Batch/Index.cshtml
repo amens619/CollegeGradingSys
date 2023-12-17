@@ -1,75 +1,96 @@
 ﻿@model CollegeGradingSys.ViewModels.BatchIndexData
 
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService authorizationService
+
 @{
     ViewData["Title"] = "إدارة الدفعات";
+    ViewData["PageName"] = "إدارة الدفعات";
+    ViewData["SubPageName"] = "القائمة الرئسية";
 }
 
-<div class="card mb-4">
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <p>
+            @if ((await authorizationService.AuthorizeAsync(User, "CreateBatchPolicy")).Succeeded)
+            {
+                <a asp-action="Create" class="btn btn-secondary  col-2 btn-sm "><i class="fas fa-plus mr-3"></i>جديد</a>
+            }
+        </p>
+        @using (Html.BeginForm("Index", "Batch", FormMethod.Get))
+        {
+        <div class="card mb-4">
 
-    <div class="card-body">
-        <div class="bg-white">
-            <h5 class="mb-4">  <span style="margin-left:6px;" data-feather="list"></span>إدارة الدفعات</h5>
-            <h6 class="m-1">القائمة الرئسية</h6>
-            <hr class="mb-4 mt-0">
-            <p>
-                <a class="btn btn-secondary col-2 btn-sm" asp-action="Create">جديد</a>
-            </p>
-
-            <div class="card mb-4">
-                <div class="card-body col-md-12">
-                    @using (Html.BeginForm("Index", "Batch", FormMethod.Get))
-                    {
-                        
-                            <div class="form-group pb-2 col-md-4">
-                                <label asp-for="SpecializationId" class="control-label"></label>
-                                <select asp-for="SpecializationId" class="form-control text-center" asp-items="ViewBag.SpecializationId"></select>
-                            </div>
+            <div class="card-body">
 
 
-                        
-                        <input type="submit" value="تصفية" class="btn btn-primary btn-sm" />
-                        <a asp-action="Index" class="btn btn-primary btn-sm" asp-route-id=-1>إلغاء التصفية</a>
-                    }
-
+                <div class="form-group pb-2 col-md-4">
+                    <label asp-for="SpecializationId" class="control-label"></label>
+                    <select asp-for="SpecializationId" class="form-control text-center" asp-items="ViewBag.SpecializationId"></select>
                 </div>
             </div>
-
-            <table class="table table-bordered">
-                <thead class="table-light">
-                    <tr>
-                        <th class="col-2 text-center">
-                            اسم الدفعة
-                        </th>
-                        <th class="col-2 text-center">
-                            التخصص
-                        </th>
-                        <th class="col-6 text-center">
-                            ملاحظات
-                        </th>
-                        <th class="col-2 text-center"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.Batches)
-                    {
-                        <tr>
-                            <td class="text-center">
-                                @Html.DisplayFor(modelItem => item.BatchName)
-                            </td>
-                            <td class="text-center">
-                                @Html.DisplayFor(modelItem => item.Specialization.SpecializationName)
-                            </td>
-                            <td class="text-center">
-                                @Html.DisplayFor(modelItem => item.Note)
-                            </td>
-                            <td class="text-center">
-                                <a asp-action="Edit" class="btn btn-primary btn-sm align-self-center" asp-route-id="@item.Id">تعديل</a>
-                                <a asp-action="Delete" class="btn btn-danger btn-sm align-self-center" asp-route-id="@item.Id">حذف</a>                                
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+            <div class="card-footer">
+                <input type="submit" value="تصفية" class="btn btn-success btn-sm" />
+                <a asp-action="Index" class="btn btn-success btn-sm" asp-route-id=-1>إلغاء التصفية</a>
+            </div>
         </div>
-    </div>
-</div>
+        }
+            <div class="row">
+                <div class=" col-12">
+                    <div class="card">
+
+                        <div class="card-body">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 30%;">
+                                            اسم الدفعة
+                                        </th>
+                                        <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 30%;">
+                                            التخصص
+                                        </th>
+                                        <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 30%;">
+                                            ملاحظات
+                                        </th>
+                                        <th style="width: 20%;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.Batches)
+                                    {
+                                        <tr>
+                                            <td class="text-center td-font-size">
+                                                @Html.DisplayFor(modelItem => item.BatchName)
+                                            </td>
+                                            <td class="text-center td-font-size">
+                                                @Html.DisplayFor(modelItem => item.Specialization.SpecializationName)
+                                            </td>
+                                            <td class="text-center td-font-size">
+                                                @Html.DisplayFor(modelItem => item.Note)
+                                            </td>
+                                            <td class="text-center">
+                                                @if ((await authorizationService.AuthorizeAsync(User, "EditBatchPolicy")).Succeeded)
+                                                {
+                                                    <a asp-action="Edit" class="btn btn-outline-success btn-sm align-self-center" asp-route-id="@item.Id">
+                                                        <i class="fas fa-edit" width="17" height="17"></i>
+                                                    </a>
+                                                }
+                                                @if ((await authorizationService.AuthorizeAsync(User, "DeleteBatchPolicy")).Succeeded)
+                                                {
+                                                    <a asp-action="Delete" class="btn btn-outline-danger btn-sm align-self-center" asp-route-id="@item.Id">
+                                                        <i class="fas fa-trash-alt" width="17" height="17"></i>
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</section>
+<!-- /.content -->

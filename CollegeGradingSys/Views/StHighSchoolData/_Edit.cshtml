@@ -5,7 +5,9 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                     <h5 class="modal-title" id="addContactLabel">تعديل بيانات الثانوية</h5>
                 </div>
                 <div class="modal-body row">
@@ -52,9 +54,9 @@
                         <span asp-validation-for="Note" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">إلغاء الأمر</button>
-                    <button type="button" data-save="modal" class="btn btn-primary btn-sm">حفظ</button>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" data-save="modal" class="btn btn-success btn-sm">حفظ</button>
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">إلغاء الأمر</button>
                 </div>
             </div>
         </div>

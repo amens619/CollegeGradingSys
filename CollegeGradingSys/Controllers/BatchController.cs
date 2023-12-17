@@ -9,9 +9,11 @@ using CollegeGradingSys.Data;
 using CollegeGradingSys.Models;
 using CollegeGradingSys.Models.Repositories;
 using CollegeGradingSys.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CollegeGradingSys.Controllers
 {
+    [Authorize(Roles = "Admin,Owner")]
     public class BatchController : Controller
     {
        
@@ -67,6 +69,8 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: Batche/Create
+        
+        [Authorize(Policy = "CreateBatchPolicy")]
         public IActionResult Create()
         {
 
@@ -79,6 +83,7 @@ namespace CollegeGradingSys.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "CreateBatchPolicy")]
         public  IActionResult Create([Bind("Id,BatchName,SpecializationId,Note")] BatchCreateData  batchCreateData)
         {
             ViewData["SpecializationId"] = new SelectList(FillSelectSpecializationsList("-- اختر --"), "Id", "SpecializationName");
@@ -120,6 +125,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: Batche/Edit/5
+        [Authorize(Policy = "EditBatchPolicy")]
         public async Task<IActionResult> Edit(int id)
         {
             if (id == null)
@@ -152,6 +158,7 @@ namespace CollegeGradingSys.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "EditBatchPolicy")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,BatchName,SpecializationId,Note")] BatchCreateData studentBatchVM)
         {
             if (id == null)
@@ -203,6 +210,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: Batche/Delete/5
+        [Authorize(Policy = "DeleteBatchPolicy")]
         public async Task<IActionResult> Delete(int id)
         {
             if (id == null)
@@ -222,6 +230,7 @@ namespace CollegeGradingSys.Controllers
         // POST: Batche/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "DeleteBatchPolicy")]
         public IActionResult DeleteConfirmed(int id)
         {
             try

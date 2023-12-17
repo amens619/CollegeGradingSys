@@ -1,6 +1,8 @@
-﻿using CollegeGradingSys.Models;
+﻿using CollegeGradingSys.Helper;
+using CollegeGradingSys.Models;
 using CollegeGradingSys.Models.Repositories;
 using CollegeGradingSys.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -13,6 +15,7 @@ using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Controllers
 {
+    [Authorize(Roles = "Admin,Owner")]
     public class CourseController : Controller
     {
         private readonly ICollegeGradingSysRepository<Course> CourseRepository;
@@ -63,6 +66,8 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: CourseController/Create
+
+        //[Authorize(Policy = " CreateCoursePolicy")]
         public ActionResult Create()
         {
 
@@ -70,6 +75,7 @@ namespace CollegeGradingSys.Controllers
 
             model.BigGrade = "100";
             model.SmallGrade = "60";
+            model.Course_sGender = Course_sGender.كلاالجنسين;
             FullAllLists();
             return PartialView("_Create", model);
         }
@@ -82,6 +88,7 @@ namespace CollegeGradingSys.Controllers
         // POST: CourseController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        //[Authorize(Policy = " CreateCoursePolicy")]
         public ActionResult Create(CreateCourseViewModel model)
         {
             ModelState.ClearValidationState(nameof(model));
@@ -176,6 +183,7 @@ namespace CollegeGradingSys.Controllers
                         SmallGrade = newSmallGrade,
                         IsSubCourse = model.IsSubCourse,
                         Level = model.Level,
+                        Course_sGender = model.Course_sGender,
                         ParentId = model.ParentId,
                         Term = model.Term,
                         Note = model.Note,
@@ -199,6 +207,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: CourseController/Edit/5
+        //[Authorize(Policy = " EditCoursePolicy")]
         public ActionResult Edit(int id)
         {
             var course = CourseRepository.Find(id);
@@ -213,6 +222,7 @@ namespace CollegeGradingSys.Controllers
                 Level = course.Level,
                 Term = course.Term,
                 IsSubCourse = course.IsSubCourse,
+                Course_sGender= course.Course_sGender,
                 Note = course.Note,
                 ParentId = course.ParentId,
                 SpecializationId = course.Specialization.Id,
@@ -225,6 +235,7 @@ namespace CollegeGradingSys.Controllers
         // POST: CourseController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        //[Authorize(Policy = " EditCoursePolicy")]
         public ActionResult Edit(int id, EditCourseViewModel model)
         {
             ModelState.ClearValidationState(nameof(model));
@@ -285,7 +296,7 @@ namespace CollegeGradingSys.Controllers
             }
             else
             {
-                var course1 = CourseRepository.List().SingleOrDefault(x => x.CourseName == model.CourseName);
+                var course1 = CourseRepository.List().FirstOrDefault(x => x.CourseName == model.CourseName);
                 if (course1 != null && course1.Id != model.Id)
                 {
                     ModelState.AddModelError(nameof(model.CourseName), "لقد تم إيجاد مادة بنفس اسم .. الرجاء كتابة اسم آخر ");                   
@@ -323,6 +334,7 @@ namespace CollegeGradingSys.Controllers
                 course.Level = model.Level;
                 course.Term = model.Term;
                 course.IsSubCourse = model.IsSubCourse;
+                course.Course_sGender = model.Course_sGender;
                 course.Note = model.Note;
                 course.ParentId = model.ParentId;
                 course.Specialization = specialization;
@@ -339,6 +351,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: CourseController/Delete/5
+        [Authorize(Policy = " DeleteCoursePolicy")]
         public ActionResult Delete(int id)
         {
             if (id == null || id == 0)
@@ -358,6 +371,7 @@ namespace CollegeGradingSys.Controllers
         // POST: CourseController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = " DeleteCoursePolicy")]
         public ActionResult Delete(int id,Course course)
         {
             //ModelState.ClearValidationState(nameof(course));

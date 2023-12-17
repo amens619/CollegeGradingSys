@@ -1,6 +1,7 @@
 ﻿using CollegeGradingSys.Models;
 using CollegeGradingSys.Models.Repositories;
 using CollegeGradingSys.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Controllers
 {
+    [Authorize(Roles = "Admin,Owner")]
     public class DepartmentController : Controller
     {
         private readonly ICollegeGradingSysRepository<Department> DepartmentRepository;
@@ -40,6 +42,7 @@ namespace CollegeGradingSys.Controllers
         //}
 
         // GET: DepartmentController/Create
+        [Authorize(Policy = "CreateDepartmentPolicy")]
         public ActionResult Create()
         {
 
@@ -54,6 +57,7 @@ namespace CollegeGradingSys.Controllers
         // POST: DepartmentController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "CreateDepartmentPolicy")]
         public ActionResult Create(CollegeDepartmentViewModel  model)
         {
             try
@@ -96,6 +100,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: DepartmentController/Edit/5
+        [Authorize(Policy = "EditDepartmentPolicy")]
         public ActionResult Edit(int id)
         {
             if (id == null || id == 0)
@@ -121,6 +126,7 @@ namespace CollegeGradingSys.Controllers
         // POST: DepartmentController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "EditDepartmentPolicy")]
         public ActionResult Edit(int id,CollegeDepartmentViewModel model)
         {
             try
@@ -156,6 +162,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: DepartmentController/Delete/5
+        [Authorize(Policy = "DeleteDepartmentPolicy")]
         public ActionResult Delete(int id)
         {
             if (id == null || id == 0)
@@ -174,6 +181,7 @@ namespace CollegeGradingSys.Controllers
         // POST: DepartmentController/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "DeleteDepartmentPolicy")]
         public IActionResult DeleteConfirmed(int id)
         {
             try

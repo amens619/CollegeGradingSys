@@ -1,23 +1,56 @@
-﻿<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+﻿@inject SignInManager<IdentityUser> signInManger ;
+<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="">
-    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-    <meta name="generator" content="Hugo 0.84.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@ViewData["Title"] - نظام إدارة الدرجات</title>
-    <link href="~/css/sidebars.css" rel="stylesheet" />
+    <!--  <link href="~/css/sidebars.css" rel="stylesheet" /> -->
+    @if (IsSectionDefined("AcademicYearCss"))
+    {
+        @RenderSection("AcademicYearCss", required: true)
+    }
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="~/admin/plugins/fontawesome-free/css/all.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- Tempusdominus Bootstrap 4 -->
+    <link rel="stylesheet" href="~/admin/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
 
+    <!-- <link href="~/lib/twitter-bootstrap/css/bootstrap.css" rel="stylesheet" />  -->
+    <!-- iCheck -->
+    <link rel="stylesheet" href="~/admin/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <!-- JQVMap -->
+    <link rel="stylesheet" href="~/admin/plugins/jqvmap/jqvmap.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="~/admin/dist/css/adminlte_rtl.css">
+    <!-- overlayScrollbars -->
+    <link rel="stylesheet" href="~/admin/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+    <!-- Daterange picker -->
+    <link rel="stylesheet" href="~/admin/plugins/daterangepicker/daterangepicker.css">
+    <!-- summernote -->
+    <link rel="stylesheet" href="~/admin/plugins/summernote/summernote-bs4.min.css">
+    <!-- Bootstrap 4 RTL -->
+    <link rel="stylesheet" href="https://cdn.rtlcss.com/bootstrap/v4.2.1/css/bootstrap.min.css">
+    <!-- Custom style for RTL -->
+    <link rel="stylesheet" href="~/admin/dist/css/custom.css">
+    <link href="~/css/vanillaSelectBox.css" rel="stylesheet" />
 
-    <link href="~/lib/twitter-bootstrap/css/bootstrap.css" rel="stylesheet" />
-
-    @*<script src="https://unpkg.com/feather-icons"></script>*@
-    <link rel="stylesheet" href="~/css/site.css" />
+    @*<link rel="stylesheet" href="~/css/site.css" />*@
     <!-- Custom styles for this template -->
-    <link href="~/css/dashboard.rtl.css" rel="stylesheet" />
+    @*<link href="~/css/dashboard.rtl.css" rel="stylesheet" />*@
+
     <style>
-        .bd-placeholder-img {
+        .card-header {
+            background-color: transparent;
+        }
+
+        .custom-file-input ~ .custom-file-label::after {
+            content: "استعراض";
+        }
+        /*    .bd-placeholder-img {
             font-size: 1.125rem;
             text-anchor: middle;
             -webkit-user-select: none;
@@ -25,143 +58,308 @@
             user-select: none;
         }
 
-        /* media (min-width: 768px) {
+
+
+
+        media (min-width: 768px) {
           .bd-placeholder-img-lg {
             font-size: 3.5rem;
           }
         }*/
     </style>
-
-
-
-    @*<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    *@
 </head>
-<body>
-    <heade>
+<body class="hold-transition sidebar-mini layout-navbar-fixed">
+    <div class="wrapper">
 
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow border-bottom      box-shadow ">
-            <a class="navbar-brand navbarbrand col-md-3 bg-dark col-lg-2 text-warning me-0 px-3" asp-area="" asp-controller="Home" asp-action="Index">نظام إدارة الدرجات</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            @*<div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
+        <!-- Preloader -->
+        <div class="preloader flex-column justify-content-center align-items-center" @*style="height: 0px;"*@>
+            <img class="animation__shake" src="~/images/favicon.ico" alt="نظام إدارة الدرجات" height="60" width="60">
+        </div>
 
+        <!-- Navbar -->
+
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <!-- Left navbar links -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                </li>
+
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a href="#" class="nav-link">حول</a>
+                </li>
+            </ul>
+
+            <!-- Right navbar links -->
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <!-- /.navbar -->
+        <!-- Main Sidebar Container -->
+        <aside class="main-sidebar sidebar-dark-secondary elevation-4">
+            <!-- Brand Logo -->
+            <a class="brand-link " style="background-color: #3C7C72" asp-controller="Home" asp-action="Index">
+                <img src="~/images/favicon.ico" alt="نظام إدارة الدرجات" class="brand-image img-circle elevation-3" style="opacity: .8">
+                <span class="brand-text font-weight-light">نظام إدارة الدرجات</span>
+            </a>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Sidebar user panel (optional) -->
+                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <partial name="_LoginPartial" />
-                </div>*@
-
-        </nav>
-
-    </heade>
-    <div>
-        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-white sidebar collapse">
-            <div class="position-sticky pt-3">
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link  text-success active" asp-area="" asp-controller="Home" asp-action="Index">
-                            <span class="text-success" data-feather="home"></span>
-                            الصفحة الرئيسية
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <button class="btn btn-toggle align-items-center  collapsed mainmenu" data-bs-toggle="collapse" data-bs-target="#dashboard-collapse" aria-expanded="true">
-                            <span data-feather="settings"></span>
-                            الاعدادات العامة
-                        </button>
-                        <div class="collapse" id="dashboard-collapse">
-                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                                <li><a href="~/College" class="link-dark rounded">إدارة الكليات</a></li>
-                                <li><a href="~/Department" class="link-dark rounded">إدارة الاقسام</a></li>
-                                <li><a href="~/Specialization" class="link-dark rounded">إدارة التخصصات</a></li>
-                                <li><a href="~/Nationality" class="link-dark rounded">إدارة الدول والجنسيات</a></li>
-                                <li><a href="~/Governorate" class="link-dark rounded">إدارة المحافظات</a></li>
-                                @*<li><a href="~/District" class="link-dark rounded">إدارة المديريات</a></li>
-                                <li><a href="~/City" class="link-dark rounded">إدارة المدن</a></li>*@
-                                <li><a href="~/AcademicYear" class="link-dark rounded">إدارة العام الجامعي</a></li>
-                                <li><a href="~/Batch" class="link-dark rounded">إدارة الدفعات</a></li>
-                                <li><a href="~/Course" class="link-dark rounded">إدارة المواد </a></li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <button class="btn btn-toggle align-items-center rounded collapsed mainmenu" data-bs-toggle="collapse" data-bs-target="#St-collapse" aria-expanded="true">
-                            <span data-feather="users"></span>
-                            ادارة الطلاب
-                        </button>
-                        <div class="collapse" id="St-collapse">
-                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                                <li><a asp-controller="/StPersonalData" asp-action="Index" class="link-dark rounded" asp-route-IsSelectCurrentYear="True">البيانات الشخصية</a></li>
-                                <li><a asp-controller="/StAcademicData" asp-action="Index" class="link-dark rounded" asp-route-IsSelectCurrentYear="True">البيانات الأكاديمية</a></li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <button class="btn btn-toggle align-items-center rounded collapsed mainmenu" data-bs-toggle="collapse" data-bs-target="#Grading-collapse" aria-expanded="true">
-                            <span data-feather="edit"></span>
-                            ادارةالدرجات
-                        </button>
-                        <div class="collapse" id="Grading-collapse">
-                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                                @*<li><a href="~/CourseGrade" class="link-dark rounded">درجات الطالب</a></li>*@
-                                <li><a href="~/CourseGrade/AllbatchCourseGrade" class="link-dark rounded">درجات لمادة دراسية للدفعة</a></li>
-                                <li><a asp-controller="/CourseGrade"  asp-action="AllbatchCourseGradeFailed" class="link-dark rounded" asp-route-IsSelectCurrentYear="True">درجات الطلاب لمادة دراسية تكميلية</a></li>
-                            </ul>
-                        </div>
-
-                    </li>
-                    @*<li class="nav-item">
-                        <a class="nav-link mainmenu" href="#">
-                            <span data-feather="bar-chart-2"></span>
-                            التقارير
-                        </a>
-                    </li>*@
-                </ul>
-
-            </div>
-
-        </nav>
-        <main role="main" class=" me-sm-auto   p-3 bg-light mainDiv  ">
-            <div class="container-fluid   p-0 justify-content-md-end">
-                @RenderBody()
-            </div>
-            <div class="position-fixed bottom-0 start-0 p-3" style="z-index: 11">
-                <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="toast-header">
-                        @*<img src="..." class="rounded me-2" alt="...">*@
-                        <strong class="me-auto">Bootstrap</strong>
-                        <small>11 mins ago</small>
-                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                    <div class="toast-body">
-                        Hello, world! This is a toast message.
-                    </div>
                 </div>
-            </div>
 
-        </main>
-        
-        <footer class="border-top footer col-md-9 text-muted ">           
-            <div class="container">
-                &copy; 2022 - نظام إدارة الدرجات  @*<a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>*@
+
+                <!-- Sidebar Menu -->
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <!-- Add icons to the links using the .nav-icon class
+                             with font-awesome or any other icon font library -->
+                        <li class="nav-item @Html.IfAnyPageActive(new string[] {"Adminstration","DBSettings","College","Department","Specialization","Nationality","Governorate","AcademicYear","Batch","Course"}) ">
+
+                            <a href="#" class="nav-link @Html.IfAnyPageActive2(new string[] {"Adminstration","DBSettings","College","Department","Specialization","Nationality","Governorate","AcademicYear","Batch","Course"})">
+                                <i class="nav-icon fas fa-cog"></i>
+                                <p>
+                                    الاعدادات العامة
+                                    <i class="left  fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="~/Adminstration/ListUsers" style="font-size:small" class="nav-link @Html.IfPageActive("Adminstration")">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>حسابات المستخدمين</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="~/DBSettings" style="font-size:small" class="nav-link @Html.IfPageActive("DBSettings")">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>الخزن</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="~/College" style="font-size:small" class="nav-link @Html.IfPageActive("College")">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>إدارة الكليات</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="~/Department" style="font-size:small" class="nav-link @Html.IfPageActive("Department")">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>إدارة الاقسام</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="~/Specialization" style="font-size:small" class="nav-link @Html.IfPageActive("Specialization")">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>إدارة التخصصات</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="~/Nationality" style="font-size:small" class="nav-link @Html.IfPageActive("Nationality")">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>إدارة الدول والجنسيات</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="~/Governorate" style="font-size:small" class="nav-link @Html.IfPageActive("Governorate")">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>إدارة المحافظات</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="~/AcademicYear" style="font-size:small" class="nav-link @Html.IfPageActive("AcademicYear")">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>إدارة العام الجامعي</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="~/Batch" style="font-size:small" class="nav-link @Html.IfPageActive("Batch")">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>إدارة الدفعات</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="~/Course" style="font-size:small" class="nav-link @Html.IfPageActive("Course")">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>إدارة المواد</p>
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li class="nav-header">  ادارة الطلاب</li>
+                        <li class="nav-item">
+                            <a asp-controller="/StPersonalData" asp-action="Index" style="font-weight:100" asp-route-IsSelectCurrentYear="True" class="nav-link @Html.IfPageActive("StPersonalData")">
+                                <i class="nav-icon fas fa-th"></i>
+                                <p>
+                                    البيانات الشخصية
+
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="/StAcademicData" asp-action="Index" style="font-weight:100" asp-route-IsSelectCurrentYear="True" class="nav-link @Html.IfPageActive("StAcademicData")">
+                                <i class="nav-icon fas fa-th"></i>
+                                <p>
+                                    البيانات الأكاديمية
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-header">ادارةالدرجات</li>
+                        <li class="nav-item">
+                            <a asp-controller="/CourseGrade" asp-action="AllbatchCourseGrade" style="font-weight:100" class="nav-link @Html.IfPageActive("CourseGrade","AllbatchCourseGrade")">
+                                <i class="nav-icon fas fa-th"></i>
+                                <p>
+                                    درجات لمادة دراسية للدفعة
+
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="/CourseGrade"  style="font-weight:100" asp-action="AllbatchCourseGradeFailed" asp-route-IsSelectCurrentYear="True" class="nav-link @Html.IfPageActive("CourseGrade","AllbatchCourseGradeFailed")">
+                                <i class="nav-icon fas fa-th"></i>
+                                <p>
+                                    درجات الطلاب لمادة دراسية تكميلية
+                                </p>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                <!-- /.sidebar-menu -->
+            </div>
+            <!-- /.sidebar -->
+        </aside>
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <div class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h4 class="m-0">@ViewData["PageName"]</h4>
+                        </div><!-- /.col -->
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item">@ViewData["SubPageName"]</li>
+
+                            </ol>
+                        </div><!-- /.col -->
+                    </div><!-- /.row -->
+                </div><!-- /.container-fluid -->
+            </div>
+            <!-- /.content-header -->
+            @RenderBody()
+        </div>
+        <!-- /.content-wrapper -->
+        <footer class="main-footer">
+
+            <strong>Copyright &copy; 2022 <a class="text-success" href=""></a>.</strong>
+            All rights reserved.
+
+            <div class="float-right d-none d-sm-inline-block">
+                <b>Version</b> 2.0
             </div>
         </footer>
+
+        <!-- Control Sidebar -->
+        <aside class="control-sidebar control-sidebar-dark">
+            <!-- Control sidebar content goes here -->
+        </aside>
+        <!-- /.control-sidebar -->
     </div>
+    <!-- ./wrapper -->
+    <!-- jQuery -->
+    <script src="~/admin/plugins/jquery/jquery.min.js"></script>
+    <!-- jQuery UI 1.11.4 -->
+    <script src="~/admin/plugins/jquery-ui/jquery-ui.min.js"></script>
+    <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+    <script>
+        $.widget.bridge('uibutton', $.ui.button)
+    </script>
+    <!-- Bootstrap 4 -->
+    <script src="~/admin/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- ChartJS -->
+    <script src="~/admin/plugins/chart.js/Chart.min.js"></script>
+    <!-- Sparkline -->
+    <script src="~/admin/plugins/sparklines/sparkline.js"></script>
+    <!-- JQVMap -->
+    <script src="~/admin/plugins/jqvmap/jquery.vmap.min.js"></script>
+    <script src="~/admin/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
+    <!-- jQuery Knob Chart -->
+    <script src="~/admin/plugins/jquery-knob/jquery.knob.min.js"></script>
+    <!-- daterangepicker -->
+    <script src="~/admin/plugins/moment/moment.min.js"></script>
+    <script src="~/admin/plugins/daterangepicker/daterangepicker.js"></script>
+    <!-- Tempusdominus Bootstrap 4 -->
+    <script src="~/admin/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+    <!-- Summernote -->
+    <script src="~/admin/plugins/summernote/summernote-bs4.min.js"></script>
+    <!-- overlayScrollbars -->
+    <script src="~/admin/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="~/admin/dist/js/adminlte.js"></script>
+    @*<!-- AdminLTE for demo purposes -->
+        <script src="~/admin/dist/js/demo.js"></script>*@
+    @*<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+        <script src="~/admin/dist/js/pages/dashboard.js"></script>*@
+
+
+
 
     @*<script src="~/lib/jquery/dist/jquery.min.js"></script>*@
-    <script src="~/lib/jquery/jquery.js"></script>
-    <script src="~/lib/popper.js/umd/popper.js"></script>
-    @*<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>*@
-    <script src="~/lib/twitter-bootstrap/js/bootstrap.js"></script>
-
-    @*<script src="~/js/dashboard.js"></script>*@
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    @* <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>*@
+    @*<script src="~/lib/twitter-bootstrap/js/bootstrap.min.js"></script>
     <script src="~/js/sidebars.js"></script>
-    <script src="~/lib/feather-icons/feather.js"></script>
-    <script>
+    <script src="~/lib/feather-icons/feather.js"></script>*@
+    @*<script>
         feather.replace()
-    </script>
-
+    </script>*@
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/vanillaSelectBox.js"></script>
+    @if (IsSectionDefined("AcademicYearScripts"))
+    {
+        @RenderSection("AcademicYearScripts", required: true)
+    }
+    @if (IsSectionDefined("FileTypeScripts"))
+    {
+        @RenderSection("FileTypeScripts", required: true)
+    }
+    @if (IsSectionDefined("OtherSourceScripts"))
+    {
+        @RenderSection("OtherSourceScripts", required: true)
+    }
+    @if (IsSectionDefined("StudyAndSurveyScripts"))
+    {
+        @RenderSection("StudyAndSurveyScripts", required: true)
+    }
+    @if (IsSectionDefined("ContractScripts"))
+    {
+        @RenderSection("ContractScripts", required: true)
+    }
+    @if (IsSectionDefined("AdministrativeDocsTemplatesScripts"))
+    {
+        @RenderSection("AdministrativeDocsTemplatesScripts", required: true)
+    }
+    @if (IsSectionDefined("GuidPoliciesScripts"))
+    {
+        @RenderSection("GuidPoliciesScripts", required: true)
+    }
+    @if (IsSectionDefined("ProjectScripts"))
+    {
+        @RenderSection("ProjectScripts", required: true)
+    }
+
+    @*  <script src="~/lib/bootstrap-multiselect/js/bootstrap-multiselect.js" ></script>*@
     <script>
         $(document).ready(function () {
             $(".mainmenu").click(function () {
@@ -180,8 +378,45 @@
                     //$(this).setAttribute("aria-expanded", "true");
                 }
             });
+
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)
+
+
+
+    @*<script src="~/lib/jquery/jquery.js"></script>
+    <script src="~/lib/popper.js/umd/popper.js"></script>
+    <script src="~/lib/twitter-bootstrap/js/bootstrap.js"></script>
+    <script src="~/js/sidebars.js"></script>
+    <script src="~/lib/feather-icons/feather.js"></script>*@
+    @*<script>
+        feather.replace()
+    </script>*@
+
+    @*<script src="~/js/site.js" asp-append-version="true"></script>*@
+    @*<script>
+        $(document).ready(function () {
+            $(".mainmenu").click(function () {
+
+                //var gggg = $(this).attr('aria-expanded');
+                //alert(gggg);
+                //var sss = $(this).find('[aria-expanded]').attr('aria-expanded');
+                //alert(sss);
+                //if ($(this).attr('aria-expanded') == "true") {
+                //    //alert("display");
+                //    document.getElementsByClassName('mainmenu').setAttribute("aria-expanded", "true");
+                //    $(this).setAttribute("aria-expanded", "true");
+                //} else {
+                //    //alert("display none");
+                //    document.getElementsByClassName('mainmenu').setAttribute("aria-expanded", "false");
+                //    //$(this).setAttribute("aria-expanded", "true");
+                //}
+            });
+        });
+    </script>*@
+   @* @await RenderSectionAsync("Scripts", required: false)*@
+
+
 </body>
 </html>

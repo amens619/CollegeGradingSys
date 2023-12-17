@@ -2,35 +2,42 @@
 
 @{
     ViewData["Title"] = "حذف دفعة";
+    ViewData["PageName"] = "إدارة الدفعات";
+    //ViewData["SubPageName"] = "القائمة الرئسية";
 }
-<div class="card mb-4">
-    <div class="card-body">
-        <div class="bg-white">
-            <h5 class="mb-4">  <span style="margin-left:6px;" data-feather="delete"></span>إدارة الدفعات</h5>
-            <h6 class="m-1">حذف دفعة</h6>
-            <hr class="mb-4 mt-0">
-            <div class="row">
-                <h4>هل تريد بالفعل حذف الدفعة ؟!!</h4>
-                <div>
-                    <hr />
-                    @if (ViewBag.Message != null)
-                    {
-                        <h5 class="alert alert-danger">@ViewBag.Message</h5>
-                    }
-                    <div class="row my-5">
-                        <div class="col-sm-2 my-2">
-                            @Html.DisplayNameFor(model => model.BatchName)
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid ">
+        <div class="row">
+            <div class="card card-outline px-0 card-danger col-md-8 offset-md-2">
+                <div class="card-body">
+                    <div class="row mx-3 ">
+                        <h4>هل تريد بالفعل حذف الدفعة ؟!!</h4>
+                        <div class="col-12">
+                            <hr />
+                            @if (ViewBag.Message != null)
+                            {
+                                <h5 class="alert alert-danger">@ViewBag.Message</h5>
+                            }
+                            <div class="row my-4">
+                                <div class="col-sm-3 my-2">
+                                    @Html.DisplayNameFor(model => model.BatchName)
+                                </div>
+                                <div class="col-sm-9 my-2">
+                                    @Html.DisplayFor(model => model.BatchName)
+                                </div>
+                                <div class="col-sm-3 my-2">
+                                    @Html.DisplayNameFor(model => model.Note)
+                                </div>
+                                <div class="col-sm-9 my-2">
+                                    @Html.DisplayFor(model => model.Note)
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-sm-10 my-2">
-                            @Html.DisplayFor(model => model.BatchName)
-                        </div>
-                        <div class="col-sm-2 my-2">
-                            @Html.DisplayNameFor(model => model.Note)
-                        </div>
-                        <div class="col-sm-10 my-2">
-                            @Html.DisplayFor(model => model.Note)
-                        </div>
+
                     </div>
+                </div>
+                <div class="card-footer">
                     <form asp-action="Delete">
                         <input type="hidden" asp-for="Id" />
                         <input type="submit" value="حذف" class="btn btn-danger btn-sm " />
@@ -41,4 +48,4 @@
             </div>
         </div>
     </div>
-</div>
+</section>

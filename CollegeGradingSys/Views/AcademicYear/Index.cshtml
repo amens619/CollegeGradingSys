@@ -1,90 +1,161 @@
 ﻿@model CollegeGradingSys.ViewModels.AcademicYearVM
 
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService authorizationService
+
 @{
     ViewData["Title"] = "إدارة العام الجامعي";
+    ViewData["PageName"] = "إدارة العام الجامعي";
+    ViewData["SubPageName"] = "القائمة الرئسية";
 }
 
-<div class="card mb-4">
+@section AcademicYearCss {
 
-    <div class="card-body">
-        <div class="bg-white">
-            <h5 class="mb-4">  <span style="margin-left:6px;" data-feather="list"></span>إدارة العام الجامعي</h5>
-            <h6 class="m-1">القائمة الرئسية</h6>
-            <hr class="mb-4 mt-0">
-            <p>
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="~/admin/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="~/admin/plugins/toastr/toastr.min.css">
+    <!-- Theme style -->
+    <!--<link rel="stylesheet" href="~/admin/dist/css/adminlte.min.css">-->
+
+}
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <p>
+            @if ((await authorizationService.AuthorizeAsync(User, "CreateAcademicYearPolicy")).Succeeded)
+            {
+
+
                 @if (Model.IsCurrentYearClosed)
                 {
-                <a asp-action="Create" class="btn btn-secondary btn-sm">عام جديد</a>
+                    <a asp-action="Create" class="btn btn-secondary  col-2 btn-sm "><i class="fas fa-plus mr-3"></i>عام جديد</a>
                 }
                 else
-        {
-            <a tabindex="0" class="btn btn-secondary btn-sm" role="button" data-bs-toggle="popover" data-bs-placement="left" data-bs-trigger="focus" title="عذرا" data-bs-content="يجب اقفال العام السابق  بإدخال جميع درجات المواد لجميع الطلاب واكمال بيانات جميع السجلات الطلابية">عام جديد</a>
-        }
-                
-            </p>
-            <table class="table table-bordered">
-                <thead class="table-light">
-                    <tr>
-                        <th>
-                            العام الدراسي
-                        </th>
-                        <th>
-                            العام الدراسي بالهجري
-                        </th>
-                        <th>
-                            تاريخ نهاية العامwe
-                        </th>
-                        <th>
-                            تاريخ نهاية العام
-                        </th>
-                        <th>العام الحالي</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.AcademicYears)
-                    {
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.AcademicYearName)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.AcademicYearNameH)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.AcademicYearStart)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.AcademicYearEnd)
-                        </td>
-
-                        @if (item.IsCurrentYear)
+                {
+                    <a class="btn btn-secondary swalDefaultError  col-2 btn-sm "><i class="fas fa-plus mr-3"></i>عام جديد</a>
+                    @*<a tabindex="0" class="btn btn-secondary swalDefaultError btn-sm" role="button" data-bs-toggle="popover" data-bs-placement="left" data-bs-trigger="focus" title="عذرا" data-bs-content="يجب اقفال العام السابق  بإدخال جميع درجات المواد لجميع الطلاب واكمال بيانات جميع السجلات الطلابية">عام جديد</a>*@
+                }
+            }
+        </p>
+        <div class="card  col-md-10 mb-4">
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 10%;">
+                                العام الدراسي
+                            </th>
+                            <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 10%;">
+                                العام الدراسي بالهجري
+                            </th>
+                            <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 10%;">
+                                تاريخ بداية العام
+                            </th>
+                            <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 10%;">
+                                تاريخ نهاية العام
+                            </th>
+                            <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 10%;">
+                                العام الحالي
+                            </th>
+                            <th style="width: 20%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.AcademicYears)
                         {
-                            <td>
-                                <span class="badge bg-warning">العام الاكاديمي الحالي</span>
-                            </td>
-                            <td>
-                                @*<a asp-action="Index" class="btn btn-secondary btn-sm" asp-controller="Batch" asp-route-id="@item.Id">الدفعات</a>*@
-                                <a asp-action="Edit" class="btn btn-primary btn-sm align-self-center" asp-route-id="@item.Id">تعديل</a>
-                                <a asp-action="Details" class="btn btn-warning btn-sm" asp-route-id="@item.Id">تفاصيل</a>
-                                <a asp-action="Delete" class="btn btn-danger btn-sm align-self-center" asp-route-id="@item.Id">حذف</a>
-                            </td>
-                        }
-                        else
-                        {
-                            <td>
-                                
-                            </td>
-                            <td>
-                                @*<a asp-action="Index" class="btn btn-secondary btn-sm" asp-controller="Batch" asp-route-id="@item.Id">الدفعات</a>*@
-                                <a asp-action="Details" class="btn btn-warning btn-sm" asp-route-id="@item.Id">تفاصيل</a>
-                            </td>
-                        }
+                            <tr>
+                                <td class="text-center td-font-size">
+                                    @Html.DisplayFor(modelItem => item.AcademicYearName)
+                                </td>
+                                <td class="text-center td-font-size">
+                                    @Html.DisplayFor(modelItem => item.AcademicYearNameH)
+                                </td>
+                                <td class="text-center td-font-size">
+                                    @Html.DisplayFor(modelItem => item.AcademicYearStart)
+                                </td>
+                                <td class="text-center td-font-size">
+                                    @Html.DisplayFor(modelItem => item.AcademicYearEnd)
+                                </td>
 
-                    </tr>
-                    }
-                </tbody>
-            </table>
+                                @if (item.IsCurrentYear)
+                                {
+                                    <td class="text-center td-font-size">
+                                        <span class="badge bg-warning">العام الاكاديمي الحالي</span>
+                                    </td>
+                                    <td class="text-center td-font-size">
+                                        @if ((await authorizationService.AuthorizeAsync(User, "EditAcademicYearPolicy")).Succeeded)
+                                        {
+                                            <a asp-action="Edit" class="btn bg-olive btn-sm align-self-center" asp-route-id="@item.Id">
+                                                <i class="fas fa-edit" width="17" height="17"></i>
+                                            </a>
+                                        }
+                                        @if ((await authorizationService.AuthorizeAsync(User, "DetailsAcademicYearPolicy")).Succeeded)
+                                        {
+
+                                            <a asp-action="Details" class="btn btn-outline-warning btn-sm align-self-center" asp-route-id="@item.Id">
+                                                <i class="fas fa-eye" width="17" height="17"></i>
+                                            </a>
+                                        }
+                                        @if ((await authorizationService.AuthorizeAsync(User, "DeleteAcademicYearPolicy")).Succeeded)
+                                        {
+                                            <a asp-action="Delete" class="btn btn-outline-danger btn-sm align-self-center" asp-route-id="@item.Id">
+                                                <i class="fas fa-trash-alt" width="17" height="17"></i>
+                                            </a>
+                                        }
+
+
+
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>
+                                    </td>
+                                    <td class="text-center td-font-size">
+                                        @if ((await authorizationService.AuthorizeAsync(User, "DetailsAcademicYearPolicy")).Succeeded)
+                                        {
+
+                                            <a asp-action="Details" class="btn btn-outline-warning btn-sm align-self-center" asp-route-id="@item.Id">
+                                                <i class="fas fa-eye" width="17" height="17"></i>
+                                            </a>
+                                        }
+                                    </td>
+                                }
+
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
         </div>
     </div>
-</div>
+</section>
+@section AcademicYearScripts {
+    <!-- jQuery -->
+    <script src="~/admin/plugins/jquery/jquery.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="~/admin/plugins/sweetalert2/sweetalert2.min.js"></script>
+    <!-- Toastr -->
+    <script src="~/admin/plugins/toastr/toastr.min.js"></script>
+
+    <script>
+        $(function () {
+            var Toast = Swal.mixin({
+                toast: true,
+                position: 'top-start',
+                showConfirmButton: false,
+                timer: 6000
+            });
+
+            $('.swalDefaultError').click(function () {
+                Toast.fire({
+                    icon: 'error',
+                    
+                    title: 'يجب اقفال العام السابق  بإدخال جميع درجات المواد لجميع الطلاب واكمال بيانات جميع السجلات الطلابية'
+                })
+            });
+        });
+    </script>
+}

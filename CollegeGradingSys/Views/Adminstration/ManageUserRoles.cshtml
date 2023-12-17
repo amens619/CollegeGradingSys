@@ -1,0 +1,47 @@
+﻿@model List<UserRolesViewModel>
+
+@{
+    var userId = ViewBag.userId;
+    ViewData["PageName"] = "حسابات المستخدمين";
+    ViewData["SubPageName"] = "إضافة/حذف مسؤولية لهذه المستخدم";
+}
+ <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">  
+          <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <form   method="post">
+                    <div class="card card-outline card-success">
+                         <div class="card-header ui-sortable-handle" style="cursor: move;">                  
+                            <h3 class="card-title">
+                                إضافة/حذف مسؤولية لهذه المستخدم 
+                            </h3>                           
+                        </div>
+                            <!-- /.card-header -->
+                       
+                         <div class="card-body">
+                             @for (var i = 0; i < Model.Count; i++)
+                            {
+                               <div class="form-check m-1" >
+                                   <input type="hidden" asp-for="@Model[i].RoleId"  />
+                                   <input type="hidden" asp-for="@Model[i].RoleName"  /> 
+                                 
+                                   <div class="custom-control custom-checkbox">
+                                      <input asp-for="@Model[i].IsSelected" class="custom-control-input custom-control-input-success" type="checkbox"  >
+                                      <label asp-for="@Model[i].IsSelected" class="custom-control-label"> @Model[i].RoleName</label>
+                                    </div>                                 
+                               </div>
+
+                            }
+                        </div>
+                         <div class="card-footer">
+                              <input type="submit" value="تعديل" class="btn col-2 btn-success btn-sm" />
+                            <a class="btn btn-secondary   btn-sm" asp-action="EditUser" asp-route-id="@userId">إلغاء الامر</a>
+                        </div>
+                    </div>
+                </form>
+           </div>
+        </div>
+     </div>
+  </section>
+    <!-- /.content -->

@@ -1,0 +1,86 @@
+﻿@model CollegeGradingSys.ViewModels.EditeRoleViewModel
+
+
+@{
+    ViewData["Title"] = "تعديل دور او مسؤولية";
+    ViewData["PageName"] = "حسابات المستخدمين";
+    ViewData["SubPageName"] = "تعديل دور او مسؤولية";
+}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="bg-white">           
+            <div class="row col-md-6">
+        <form method="post" >
+            <div asp-validation-summary="All" class="text-danger"></div>
+              <div class="form-group col">
+                <label asp-for="Id" class="control-label"></label>
+                <input asp-for="Id" disabled class="form-control" />
+               
+            </div>
+             <div class="form-group col">
+                <label asp-for="RoleName" class="control-label"></label>
+                <input asp-for="RoleName" class="form-control" />
+                <span asp-validation-for="RoleName" class="text-danger"></span>
+            </div>
+             <div class="form-group mt-4">
+            <input type="submit" value="تعديل" class="btn col-2 btn-primary btn-sm" />
+            <a class="btn btn-secondary  btn-sm" asp-action="ListRoles">إلغاء الامر</a>
+        </div>
+
+         <hr class="mb-4 mt-2">  
+        </form>
+              <div class="card p-0">
+                    <div class="card-header">
+                                المستخدمين لهذا الدور او المسؤولية 
+                            </div>
+                <div class="card-body">                   
+                   
+                    @if(@Model.Users.Any()){
+                     <table class="table table-bordered">
+                         <thead class="table-light">
+                             <tr>
+                               
+                                <th scope="col" class=" col text-center" style="vertical-align: middle;">
+                                   المستخدمين لهذه المسؤولية
+                                </th>
+                               
+                            </tr>
+                    </thead>
+                    <tbody>
+                @foreach (var user in Model.Users) {
+                        <tr>
+                           
+                            <td class="text-center" >
+                                @Html.DisplayFor(modelItem => user)
+                            </td>
+                          
+                        </tr>
+                }
+                    </tbody>
+                </table>
+                    }
+                    else{
+                       
+                            <div class=" mb-4">
+                                 <h6 class="card-title mb-4">
+                                       لا يوجد مستخدمين لهذا الدور او المسؤولية 
+                                    </h6>
+                            </div>
+                          
+                    }
+                   </div> 
+                    <div class="card-footer ">
+                        <a asp-action="EditUserInRole" asp-controller="Adminstration" class="btn btn-primary" style="width:auto" asp-route-roleId="@Model.Id">إضافة/حذف مستخدمين</a>                       
+                    </div>
+            </div>
+           
+           
+       
+         </div>
+        </div>
+    </div>
+</div>
+
+
+

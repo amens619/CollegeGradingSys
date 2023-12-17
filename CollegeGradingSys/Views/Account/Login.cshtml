@@ -1,0 +1,112 @@
+﻿@model CollegeGradingSys.ViewModels.LoginViewModel
+
+
+@{
+    Layout = "_LoginLayout";
+    ViewData["Title"] = "تسجيل الدخول";
+}
+
+<div class="login-box">
+  <!-- /.login-logo -->
+  <div class="card card-outline card-success">
+    <div class="card-header text-center">
+        <h3>نظام إدارة الدرجات</h3>
+    </div>
+    <div class="card-body">
+      <p class="login-box-msg">قم بتسجيل الدخول لبدء الجلسة الخاصة بك </p>
+
+      <form  method="post">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="input-group mb-3">
+          <input type="email" asp-for="Email"  class="form-control" placeholder="البريد الاكتروني" style="border-top-right-radius:0.25em  ; border-bottom-right-radius: 0.25em ;border-top-left-radius: 0; border-bottom-left-radius: 0;">
+          <div class="input-group-append">
+            <div class="input-group-text" style="border-top-left-radius:0.25em  ; border-bottom-left-radius: 0.25em ;border-top-right-radius: 0; border-bottom-right-radius: 0;">
+              <span class="fas fa-envelope"></span>
+            </div>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input type="password" asp-for="Password"  class="form-control" placeholder="كلمة المرور" style="border-top-right-radius:0.25em  ; border-bottom-right-radius: 0.25em ;border-top-left-radius: 0; border-bottom-left-radius: 0;">
+          <div class="input-group-append">
+            <div class="input-group-text" style="border-top-left-radius:0.25em  ; border-bottom-left-radius: 0.25em ;border-top-right-radius: 0; border-bottom-right-radius: 0;">
+              <span class="fas fa-lock"></span>
+            </div>
+          </div>
+        </div>
+        <div class="row" dir="ltr">         
+          <div class="col-8 "  >
+               <div class="custom-control custom-checkbox">
+                          <input class="custom-control-input custom-control-input-info" asp-for="RememberMe"  type="checkbox"  >
+                          <label for="RememberMe" class="custom-control-label">تذكر كلمة المرور</label>
+               </div>
+            @*<div class="form-check">
+                <input type="checkbox" class="custom-control-input custom-control-input-danger" id="exampleCheck1">
+                <label class="form-check-label mx-4" for="exampleCheck1">تذكر كلمة المرور</label>
+            </div>*@
+           @* <div class="icheck-info">
+              <input type="checkbox"  asp-for="RememberMe" id="remember">
+              <label for="remember" class="mx-3">
+                تذكر كلمة المرور
+              </label>
+            </div>*@
+          </div>
+          <!-- /.col -->
+            <div class="col-4">
+                 <button type="submit" class="btn btn-outline-success btn-block">تسجيل</button>
+            </div>
+          <!-- /.col -->
+        </div>
+      </form> 
+
+      <p class="mb-1">
+        <a href="forgot-password.html" class="text-success">نسيت كلمة المرور</a>
+      </p>     
+    </div>
+    <!-- /.card-body -->
+  </div>
+  <!-- /.card -->
+</div>
+
+
+@*<div class="card mb-4">
+    <div class="card-body">
+        <div class="bg-white">
+            <h6 class="mb-4">  <span style="margin-left:6px;" data-feather="plus"></span> حسابات المستخدمين</h6>
+            <h6 class="m-1">تسجيل الدخول</h6>
+            <hr class="mb-4 mt-0">
+            <div class="row col-md-6">
+        <form method="post" >
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group col">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+             <div class="form-group col">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+             <div class="form-group col">
+               <div class="checkbox">
+                   <label asp-for="RememberMe" >
+                       <input  asp-for="RememberMe" />
+                       @Html.DisplayNameFor(m => m.RememberMe)
+                   </label>
+               </div>
+            </div>
+             <hr class="mb-4 mt-2">
+        <div class="form-group mt-4">
+            <input type="submit" value="تسجيل" class="btn col-2 btn-primary btn-sm" />
+              
+        </div>
+        </form>
+         </div>
+        </div>
+    </div>
+</div>*@
+  @* <div>
+                 <a asp-action="ForgotPassword">نسيت كلمة المرور ؟</a>
+            </div> *@  
+
+

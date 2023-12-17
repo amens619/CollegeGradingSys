@@ -1,4 +1,5 @@
-﻿using CollegeGradingSys.Models;
+﻿using CollegeGradingSys.Helper;
+using CollegeGradingSys.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -10,6 +11,10 @@ namespace CollegeGradingSys.ViewModels
     public class EditCourseViewModel
     {
         public int Id { get; set; }
+
+
+        [Display(Name = "الجنس المخصص للمادة")]
+        public Course_sGender Course_sGender { get; set; }
 
         [Display(Name = "المستوى")]
         public Level Level { get; set; }

@@ -1,203 +1,261 @@
 ﻿@model CollegeGradingSys.ViewModels.StPersonalDataFilteringIndexData
 <link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService authorizationService
+
+
 @{
     ViewData["Title"] = "البيانات الشخصية للطلاب";
     ViewData["Controller"] = "StPersonalData";
     ViewData["Action"] = "Index";
+    ViewData["PageName"] = "البيانات الشخصية للطلاب";
+    ViewData["SubPageName"] = "القائمة الرئسية";
 }
 
 
-<div class="card mb-4">
-
-    <div class="card-body">
-        <div class="bg-white">
-            <h5 class="mb-4">  <span style="margin-left:6px;" data-feather="list"></span>البيانات الشخصية للطلاب</h5>
-            <h6 class="m-1">القائمة الرئسية</h6>
-            <hr class="mb-4 mt-0">
-            @if (ViewBag.Message != null)
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        @if (ViewBag.Message != null)
+        {
+            <h5 class="alert alert-danger">@ViewBag.Message</h5>
+        }
+        <p>
+            @if ((await authorizationService.AuthorizeAsync(User, "CreateStPersonalDataPolicy")).Succeeded)
             {
-                <h5 class="alert alert-danger">@ViewBag.Message</h5>
+                <a class="btn btn-secondary col-2 btn-sm" asp-action="Create"><i class="fas fa-plus mr-3"></i>إضافة طالب جديد</a>
             }
-            <p>
-                <a class="btn btn-secondary col-2 btn-sm" asp-action="Create">إضافة طالب جديد</a>
-            </p>
-
+        </p>
+        @using (Html.BeginForm("Index", "StPersonalData", FormMethod.Get))
+        {
             <div class="card mb-4">
 
                 <div class="card-body">
-                    @using (Html.BeginForm("Index", "StPersonalData", FormMethod.Get))
-                    {
-                        <div class="row ">
-                            <div class="form-group col-md-6">
-                                <label class="control-label"> الاسم</label>
-                                <input id="StNameSearch" value="@ViewBag.CurrentFilter" name="SearchString" class="form-control " />
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label class="control-label"> رقم القيد </label>
-                                <input id="SearchAcademicID" value="@ViewBag.CurrentAcademicID" name="SearchAcademicID" class="form-control " />
-                            </div>
+
+                    <div class="row ">
+                        <div class="form-group col-md-6">
+                            <label class="control-label"> الاسم</label>
+                            <input id="StNameSearch" value="@ViewBag.CurrentFilter" name="SearchString" class="form-control " />
                         </div>
-                        <div class="card my-3 col-mb-6">
-                            <div class="card-body">
-                                @if (ViewBag.IsSelectCurrentYear)
-                                {
-                                    <div class="form-group mb-2 mt-0 col-md-6">
-                                        <label class="control-label">العام</label>
-                                        <select id="AcademicYearId" name="AcademicYearId" disabled class="form-control  disabled text-center "
-                                                asp-items="ViewBag.AcademicYearId"></select>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="form-group mb-2 col-md-6">
-                                        <label class="control-label">العام</label>
-                                        <select id="AcademicYearId" name="AcademicYearId" class="form-control text-center "
-                                                asp-items="ViewBag.AcademicYearId"></select>
-                                    </div>
-                                }
-                                <div class="form-group form-check my-2 col-md-6">
-                                    <label class="form-check-label">
-                                        <input class="form-check-input" name="IsSelectCurrentYear" type="checkbox" asp-for="IsSelectCurrentYear" />
-                                        <span>البحث في السنة الحالية ؟!!!      </span>
-                                    </label>
-                                </div>
-                                <div class="col-md-1 mb-0 mt-2">
-                                    <input type="submit" value="تطبيق" class="btn btn-primary btn-sm" />
-                                </div>
-
-                            </div>
-
+                        <div class="form-group col-md-6">
+                            <label class="control-label"> رقم القيد </label>
+                            <input id="SearchAcademicID" value="@ViewBag.CurrentAcademicID" name="SearchAcademicID" class="form-control " />
                         </div>
-
-
-
-
-
-                        <input type="submit" value="تصفية" class="btn btn-secondary btn-sm" />
-                        <a asp-action="Index" class="btn btn-secondary btn-sm" asp-route-id=-1>إلغاء التصفية</a>
-                        <input type="submit" value="تصدير المقبولين" class="btn btn-success btn-sm" formaction="@Url.Action("ExportAcceptedStToExcel")" formmethod="get" />
-                        <input type="submit" value="تصدير من واقع الثانوية العامة" class="btn btn-success btn-sm" formaction="@Url.Action("ExportSthighSchoolToExcel")" formmethod="get" />
-                    }
-                </div>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="col-1 text-center" style="vertical-align: middle;">
-                                رقم القيد
-                            </th>
-                            <th scope="col" class="col-1" style="vertical-align: middle;">
-                                اسم الطالب
-                            </th>
-                            <th scope="col" class="col-1 text-center" style="vertical-align: middle;">
-                                الرقم الوطني (الهوية )
-                            </th>
-                            <th scope="col" class="col-1 text-center" style="vertical-align: middle;">
-                                الجنس
-                            </th>
-                            <th scope="col" class="col-1 text-center" style="vertical-align: middle;">
-                                سنة الالتحاق ميلادي
-                            </th>
-                            <th scope="col" class="col-1 text-center" style="vertical-align: middle;">
-                                سنة الالتحاق هجري
-                            </th>
-
-                            <th scope="col" class="col-1 text-center" style="vertical-align: middle;">
-                                تاريخ الميلاد
-                            </th>
-                            <th scope="col" class="col-1 text-center" style="vertical-align: middle;">
-                                نوع شهادة الثانوية
-                            </th>
-                            <th scope="col" class="col-1 text-center" style="vertical-align: middle;">
-                                سنة الشهادة
-                            </th>
-
-                            <th scope="col" class="col-1 text-center" style="vertical-align: middle;">
-                                المعدل (النسبة)
-                            </th>
-                            <th class="col-2 text-center" scope="col" style="vertical-align: middle;"></th>
-
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model.pagedResult.Data)
-                        {
-                            string selectedRow = "";
-                            if (item.AcademicID == (int?)ViewData["AcademicID"])
+                    </div>
+                    <div class="card my-3 col-mb-6">
+                        <div class="card-body">
+                            @if (ViewBag.IsSelectCurrentYear)
                             {
-                                selectedRow = "table-success";
-                            }
-                        <tr class="@selectedRow">
-                            <th scope="row" class="text-center" style="vertical-align: middle;">
-                                @Html.DisplayFor(modelItem => item.AcademicID)
-                            </th>
-                            <td class="text-center" style="vertical-align: middle;">
-                                @Html.DisplayFor(modelItem => item.StName)
-                            </td>
-                            <td class="text-center" style="vertical-align: middle;">
-                                @Html.DisplayFor(modelItem => item.IdentificatioNO)
-                            </td>
-                            <td class="text-center" style="vertical-align: middle;">
-                                @Html.DisplayFor(modelItem => item.Sex)
-                            </td>
-                            <td class="text-center" style="vertical-align: middle;">
-                                @Html.DisplayFor(modelItem => item.EnrollmentYear.AcademicYearName)
-                            </td>
-                            <td class="text-center" style="vertical-align: middle;">
-                                @Html.DisplayFor(modelItem => item.EnrollmentYear.AcademicYearNameH)
-                            </td>
-                            <td class="text-center" style="vertical-align: middle;">
-                                @Html.DisplayFor(modelItem => item.BirthDate)
-                            </td>
-                            @if (item.StHighSchoolData != null)
-                            {
-
-                                <td class="text-center" style="vertical-align: middle;">
-                                    @Html.DisplayFor(modelItem => item.StHighSchoolData.CertificateType)
-                                </td>
-                                <td class="text-center" style="vertical-align: middle;">
-                                    @Html.DisplayFor(modelItem => item.StHighSchoolData.CertificateYear)
-
-                                </td>
-                                <td class="text-center" style="vertical-align: middle;">
-                                    @Html.DisplayFor(modelItem => item.StHighSchoolData.Average)
-
-                                </td>
-
+                                <div class="form-group mb-2 mt-0 col-md-6">
+                                    <label class="control-label">العام</label>
+                                    <select id="AcademicYearId" name="AcademicYearId" disabled class="form-control  disabled text-center "
+                                            asp-items="ViewBag.AcademicYearId"></select>
+                                </div>
                             }
                             else
                             {
-                                <!-- Modal placeholder -->
-                                <div id="modal-placeholder"></div>
-
-                                <!-- Button trigger modal -->
-
-                                <td class="align-items-center" colspan="3" style="vertical-align: middle;">
-                                    لا توجد بيانات شهادة الثانوية
-                                    <button type="button" class="btn btn-outline-secondary align-self-center btn-sm" data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Create","StHighSchoolData", new { id = item.AcademicID })">
-                                        إضافة
-                                    </button>
-                                    @*<a asp-action="Create" class="" asp-controller= asp-route-id="@item.AcademicID"></a>*@
-                                </td>
+                                <div class="form-group mb-2 col-md-6">
+                                    <label class="control-label">العام</label>
+                                    <select id="AcademicYearId" name="AcademicYearId" class="form-control text-center "
+                                            asp-items="ViewBag.AcademicYearId"></select>
+                                </div>
                             }
+                            <div class="form-group form-check my-2 col-md-6">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="IsSelectCurrentYear" type="checkbox" asp-for="IsSelectCurrentYear" />
+                                    <span>البحث في السنة الحالية ؟!!!      </span>
+                                </label>
+                            </div>
+                            <div class="col-md-1 mb-0 mt-2">
+                                <input type="submit" value="تطبيق" class="btn btn-primary btn-sm" />
+                            </div>
+
+                        </div>
+
+                    </div>
 
 
-                            <td class="text-center " style="vertical-align: middle;">
-                                <a asp-action="AllStAcademicDatas" asp-controller="StAcademicData" class="btn m-1 btn-secondary btn-sm" asp-route-id="@item.AcademicID">السجل الاكاديمي</a>
-                                <a asp-action="Details" class="btn m-1 btn-warning btn-sm" asp-route-id="@item.AcademicID">تفاصيل</a>
-                                <a asp-action="Delete" class="btn m-1 btn-danger btn-sm" asp-route-id="@item.AcademicID">حذف</a>
-                            </td>
-                        </tr>
-                        }
-                    </tbody>
-                </table>
+                </div>
+
+                <div class="card-footer">
+                    <input type="submit" value="تصفية" class="btn btn-secondary btn-sm" />
+                    <a asp-action="Index" class="btn btn-secondary btn-sm" asp-route-id=-1>إلغاء التصفية</a>
+                    @if ((await authorizationService.AuthorizeAsync(User, "ExportAcceptedStToExcelPolicy")).Succeeded)
+                    {
+                        <input type="submit" value="تصدير المقبولين" class="btn btn-success btn-sm" formaction="@Url.Action("ExportAcceptedStToExcel")" formmethod="get" />
+                    }
+                    @if ((await authorizationService.AuthorizeAsync(User, "ExportSthighSchoolToExcelPolicy")).Succeeded)
+                    {
+                        <input type="submit" value="تصدير من واقع الثانوية العامة" class="btn btn-success btn-sm" formaction="@Url.Action("ExportSthighSchoolToExcel")" formmethod="get" />
+                    }
+
+                    </div>
             </div>
-            <br />
-            <partial name="_PaginationPartial" model="Model.pagedResult" view-data="ViewData" />
+        }
+        <div class="row">
+            <div class=" col-12">
+                <div class="card">
 
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th class="col-1 text-center" style="vertical-align: middle;">
+                                            رقم القيد
+                                        </th>
+                                        <th scope="col" class="col-1" style="vertical-align: middle;">
+                                            اسم الطالب
+                                        </th>
+                                        <th scope="col" class="col-1 text-center" style="vertical-align: middle;">
+                                            الرقم الوطني (الهوية )
+                                        </th>
+                                        <th scope="col" class="col-1 text-center" style="vertical-align: middle;">
+                                            الجنس
+                                        </th>
+                                        <th scope="col" class="col-1 text-center" style="vertical-align: middle;">
+                                            سنة الالتحاق ميلادي
+                                        </th>
+                                        <th scope="col" class="col-1 text-center" style="vertical-align: middle;">
+                                            سنة الالتحاق هجري
+                                        </th>
+
+                                        <th scope="col" class="col-1 text-center" style="vertical-align: middle;">
+                                            تاريخ الميلاد
+                                        </th>
+                                        <th scope="col" class="col-1 text-center" style="vertical-align: middle;">
+                                            نوع شهادة الثانوية
+                                        </th>
+                                        <th scope="col" class="col-1 text-center" style="vertical-align: middle;">
+                                            سنة الشهادة
+                                        </th>
+
+                                        <th scope="col" class="col-1 text-center" style="vertical-align: middle;">
+                                            المعدل (النسبة)
+                                        </th>
+                                        <th class="col-2 text-center" scope="col" style="vertical-align: middle;"></th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.pagedResult.Data)
+                                    {
+                                        string selectedRow = "";
+                                        if (item.AcademicID == (int?)ViewData["AcademicID"])
+                                        {
+                                            selectedRow = "table-success";
+                                        }
+                                        <tr class="@selectedRow">
+                                            <th scope="row" class="text-center" style="vertical-align: middle;">
+                                                @Html.DisplayFor(modelItem => item.AcademicID)
+                                            </th>
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                @Html.DisplayFor(modelItem => item.StName)
+                                            </td>
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                @Html.DisplayFor(modelItem => item.IdentificatioNO)
+                                            </td>
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                @Html.DisplayFor(modelItem => item.Sex)
+                                            </td>
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                @Html.DisplayFor(modelItem => item.EnrollmentYear.AcademicYearName)
+                                            </td>
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                @Html.DisplayFor(modelItem => item.EnrollmentYear.AcademicYearNameH)
+                                            </td>
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                @Html.DisplayFor(modelItem => item.BirthDate)
+                                            </td>
+                                            @if (item.StHighSchoolData != null)
+                                            {
+
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    @Html.DisplayFor(modelItem => item.StHighSchoolData.CertificateType)
+                                                </td>
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    @Html.DisplayFor(modelItem => item.StHighSchoolData.CertificateYear)
+
+                                                </td>
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    @Html.DisplayFor(modelItem => item.StHighSchoolData.Average)
+
+                                                </td>
+
+                                            }
+                                            else
+                                            {
+                                                <!-- Modal placeholder -->
+                                                <div id="modal-placeholder"></div>
+
+                                                <!-- Button trigger modal -->
+
+                                                <td class="align-items-center" colspan="3" style="vertical-align: middle;">
+                                                    لا توجد بيانات شهادة الثانوية
+                                                    <button type="button" class="btn btn-outline-secondary align-self-center btn-sm" data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Create","StHighSchoolData", new { id = item.AcademicID })">
+                                                        إضافة
+                                                    </button>
+                                                    @*<a asp-action="Create" class="" asp-controller= asp-route-id="@item.AcademicID"></a>*@
+                                                </td>
+                                            }
+
+
+                                            <td class="text-center " style="vertical-align: middle;">
+                                                @if ((await authorizationService.AuthorizeAsync(User, "AllStAcademicDatasPolicy")).Succeeded)
+                                                {
+                                                    <a asp-action="AllStAcademicDatas" asp-controller="StAcademicData" class="btn m-1 btn-secondary btn-sm" asp-route-id="@item.AcademicID">السجل الاكاديمي</a>
+                                                }
+                                                @if ((await authorizationService.AuthorizeAsync(User, "EditStPersonalDataPolicy")).Succeeded)
+                                                {
+                                                    <a asp-action="Edit" class="btn btn-outline-success btn-sm align-self-center" asp-route-id="@item.AcademicID">
+                                                        <i class="fas fa-edit" width="17" height="17"></i>
+                                                    </a>
+                                                }
+                                                @if ((await authorizationService.AuthorizeAsync(User, "DetailsStPersonalDataPolicy")).Succeeded)
+                                                {
+                                                    <a asp-action="Details" class="btn btn-outline-warning btn-sm align-self-center" asp-route-id="@item.AcademicID">
+                                                        <i class="fas fa-eye" width="17" height="17"></i>
+                                                    </a>
+                                                }
+                                                @if ((await authorizationService.AuthorizeAsync(User, "DeleteStPersonalDataPolicy")).Succeeded)
+                                                {
+                                                    <a asp-action="Delete" class="btn btn-outline-danger btn-sm align-self-center" asp-route-id="@item.AcademicID">
+                                                        <i class="fas fa-trash-alt" width="17" height="17"></i>
+                                                    </a>
+                                                }
+
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <br />
+                        <partial name="_PaginationPartial" model="Model.pagedResult" view-data="ViewData" />
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-        
-</div>
+</section>
+<!-- /.content -->
+
+
+@section ProjectScripts {
+
+@*<script>
+    $(document).ready(function () {
+        $("#StNameSearch").autocomplete({
+            source: 'StPersonalData/GetStNameList'
+        });
+
+        $("#SearchAcademicID").autocomplete({
+            source: 'StPersonalData/GetAcademicIDList'
+        });
+
+       
+
+    });
+</script>*@
+   }

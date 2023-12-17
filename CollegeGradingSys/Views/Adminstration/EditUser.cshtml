@@ -1,0 +1,1137 @@
+﻿@model CollegeGradingSys.ViewModels.EditeUserViewModel
+@using Microsoft.AspNetCore.Authorization
+
+@inject IAuthorizationService authorizationService
+
+
+@{
+    ViewData["Title"] = "تعديل حساب ";
+    ViewData["PageName"] = "حسابات المستخدمين";
+    ViewData["SubPageName"] = "تعديل حساب";
+}
+
+ <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">  
+          <div class="row">
+            <div class="col-md-4 offset-md-1">
+                <div class="card mb-4">
+                     <form method="post" >
+                         <div class="card-header ui-sortable-handle" style="cursor: move;">                  
+                            <h3 class="card-title">
+                                تعديل حساب المستخدم
+                            </h3>
+                            <div class="card-tools">                  
+                                <button type="button" class="btn btn-success btn-sm" data-card-widget="collapse" title="Collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                            <!-- /.card-header -->
+                        <div class="card-body">
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <input asp-for="Id" type="hidden" class="form-control" />                                                    
+                           
+                            <div class="input-group mb-3">
+                                    <input type="email" asp-for="Email"  class="form-control" placeholder="البريد الاكتروني" style="border-top-right-radius:0.25em  ; border-bottom-right-radius: 0.25em ;border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                    <div class="input-group-append">
+                                    <div class="input-group-text" style="border-top-left-radius:0.25em  ; border-bottom-left-radius: 0.25em ;border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                                        <span class="fas fa-envelope"></span>
+                                    </div>
+                                    </div>
+                            </div>                                    
+                           
+                        </div>
+                        <div class="card-footer ">
+                            <input type="submit" value="تعديل" class="btn col-2 btn-success btn-sm" />
+                            <a class="btn btn-secondary  btn-sm" asp-action="ListUsers">إلغاء الامر</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+       
+              
+           
+            <div class="col-md-6">
+                <div class="card p-0 ">
+                    <div class="card-header ui-sortable-handle" style="cursor: move;">                  
+                        <h3 class="card-title">
+                            الادوار او المسؤوليات لهذا المستخدم
+                        </h3>
+                        <div class="card-tools">                  
+                            <button type="button" class="btn btn-success btn-sm" data-card-widget="collapse" title="Collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                        <!-- /.card-header -->
+                    <div class="card-body">
+                        @if(@Model.Roles.Any())
+                        {
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>                               
+                                    <th scope="col" class=" col text-center" style="vertical-align: middle;">
+                                        المسؤوليات لهذا المستخدم
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (var role in Model.Roles) 
+                                {
+                                    <tr>
+                                        <td class="text-center" >
+                                            @Html.DisplayFor(modelItem => role)
+                                        </td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class=" mb-4">
+                                <h6 class="card-title mb-4">
+                                    لا يوجد مسؤوليات لهذا المستخدم  
+                                </h6>
+                            </div>
+                        }
+                    </div> 
+                    <div class="card-footer ">
+                        @if((await authorizationService.AuthorizeAsync(User, "ManageUserRolesPolicy")).Succeeded)
+                        {
+                                <a asp-action="ManageUserRoles" asp-controller="Adminstration" class="btn btn-success" style="width:auto" asp-route-userId="@Model.Id">إضافة/حذف مسؤوليات</a>    
+                        }  
+                    </div>
+                </div>
+    @*             <div class="card p-0  mt-2">
+                    <div class="card-header">
+                                الصلاحيات لهذا المستخدم
+                            </div>
+                    <div class="card-body">                   
+                   
+                        @if(@Model.Claims.Any()){
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                               
+                                    <th scope="col" class=" col text-center" style="vertical-align: middle;">
+                                        الصلاحيات لهذا المستخدم
+                                    </th>
+                              
+                                </tr>
+                        </thead>
+                        <tbody>
+                    @foreach (var claim in Model.Claims) {
+                            <tr>
+                           
+                                <td class="text-center" >
+                                    @Html.DisplayFor(modelItem => claim)
+                                </td>
+                          
+                            </tr>
+                    }
+                        </tbody>
+                    </table>
+                        }
+                        else{
+                       
+                                <div class=" mb-4">
+                                        <h5 class="card-title mb-4">
+                                            لا توجد صلاحيات لهذا المستخدم  
+                                        </h5>
+                                </div>
+                          
+                        }
+                        </div> 
+                    <div class="card-footer ">
+                        @if ((await authorizationService.AuthorizeAsync(User, "ManageUserClaimsPolicy")).Succeeded)
+                        {
+                            <a asp-action="ManageUserClaims" asp-controller="Adminstration" class="btn btn-primary" style="width:auto" asp-route-userId="@Model.Id">إضافة/حذف صلاحيات</a>
+                        }
+                    </div>
+                </div>*@
+            </div>
+            <div class="col-md-12 ">
+                <div class="card">
+                    <div class="card-header ui-sortable-handle" style="cursor: move;">                  
+                        <h3 class="card-title">
+                            الصلاحيات لهذا المستخدم
+                        </h3>
+                        <div class="card-tools">                  
+                            <button type="button" class="btn btn-success btn-sm" data-card-widget="collapse" title="Collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                            <!-- /.card-header -->
+                    <div class="card-body">
+                        @*  @for (var i = 0; i < Model.Claims.Count; i++)
+                        {
+                            <div class="form-check m-1" >
+                                <input type="hidden" asp-for="@Model.Claims[i].ClaimType"  />    
+                                <input type="hidden" asp-for="@Model.Claims[i].ClaimValue"  />  
+                                <input asp-for="@Model.Claims[i].IsSelected" disabled class="form-check-input" />
+                                <label class=" form-check-label td-font-size" asp-for="@Model.Claims[i].IsSelected">
+                                    @Model.Claims[i].ClaimValue
+                                </label>
+                            </div>
+
+                        }*@
+                        <table class="table table-bordered">
+                                <thead >
+                                    <tr>                         
+                                        <th scope="col" class=" col-3 text-center" style="vertical-align: middle;">
+                                                الشاشة 
+                                        </th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody> 
+                                @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin"))
+                                {
+                                    <tr >
+
+                                        <td class="text-start" >
+                                            تسجيل مستخدم جديد
+                                        </td>
+                                        <td class="text-start">   
+                                            <div class="row col-12 mx-3 ">
+                                                <div class="col-auto form-check m-1" >
+                                                    <input type="hidden" asp-for="@Model.Claims[0].ClaimType"  />    
+                                                    <input type="hidden" asp-for="@Model.Claims[0].ClaimValue"  />  
+                                                    <input asp-for="@Model.Claims[0].IsSelected" disabled  class="form-check-input " />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[0].IsSelected">
+                                                        @Model.Claims[0].ClaimValue
+                                                    </label>
+                                                </div>
+
+                                                <div class="col-auto form-check m-1" >
+                                                    <input type="hidden" asp-for="@Model.Claims[1].ClaimType"  />    
+                                                    <input type="hidden" asp-for="@Model.Claims[1].ClaimValue"  />  
+                                                    <input asp-for="@Model.Claims[1].IsSelected" disabled  class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[1].IsSelected">
+                                                        @Model.Claims[1].ClaimValue
+                                                    </label>
+                                                </div>
+
+                                                <div class="col-auto form-check m-1" >
+                                                    <input type="hidden" asp-for="@Model.Claims[2].ClaimType"  />    
+                                                    <input type="hidden" asp-for="@Model.Claims[2].ClaimValue"  />  
+                                                    <input asp-for="@Model.Claims[2].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[2].IsSelected" disabled>
+                                                        @Model.Claims[2].ClaimValue
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                        </td>
+                                    </tr>
+                                }
+                                 @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin"))
+                                {
+                                <tr >    
+                       
+                                            <td class="text-start" >
+                                            تعديل حساب
+                                        </td>                     
+                       
+                                        <td class="text-start">  
+                                            
+                                            <div class="row col-12 mx-3">
+                                                
+                                                    <div class="col-3 form-check m-1" >
+                                                    <input type="hidden" asp-for="@Model.Claims[3].ClaimType"  />    
+                                                    <input type="hidden" asp-for="@Model.Claims[3].ClaimValue"  /> 
+                                                   
+                                                    <input asp-for="@Model.Claims[3].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[3].IsSelected">
+                                                        @Model.Claims[3].ClaimValue
+                                                    </label>
+                                                    
+                                                    </div>
+                                                
+
+                                                <div class="col-3 form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[4].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[4].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[4].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[4].IsSelected">
+                                                @Model.Claims[4].ClaimValue
+                                            </label>
+                                            </div>
+                           
+                          
+                                            </div>
+                        
+                                        </td>
+                                    </tr>
+                                    }
+                                 @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin"))
+                                {
+                                        <tr >    
+                       
+                                            <td class="text-start" >
+                                            النسخ الاحتياطي لقاعدة البيانات
+                                        </td>                     
+                       
+                                        <td class="text-start">   
+                                            <div class="row col-12 mx-3">
+                                                    <div class="col-3 form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[5].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[5].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[5].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[5].IsSelected">
+                                                @Model.Claims[5].ClaimValue
+                                            </label>
+                                            </div>
+                         
+                                                <div class="col-3 form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[6].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[6].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[6].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[6].IsSelected">
+                                                @Model.Claims[6].ClaimValue
+                                            </label>
+                                            </div>
+                           
+                          
+                                            </div>
+                        
+                                        </td>
+                                    </tr>
+                                    }
+                                        @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin"))
+                                    {
+                                        <tr >    
+                       
+                                            <td class="text-start">
+                                                إدارة الكليات
+                                            </td>
+                      
+                       
+                                        <td class="text-start">   
+                                            <div class="row col-12 mx-3">
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[7].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[7].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[7].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[7].IsSelected">
+                                                @Model.Claims[7].ClaimValue
+                                            </label>
+                                            </div>
+                         
+                                                <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[8].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[8].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[8].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[8].IsSelected">
+                                                @Model.Claims[8].ClaimValue
+                                            </label>
+                                            </div>
+                           
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[9].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[9].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[9].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[9].IsSelected">
+                                                @Model.Claims[9].ClaimValue
+                                            </label>
+                                            </div>
+                                            </div>
+                        
+                                        </td>
+                                    </tr>
+                                    }
+                                     @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin"))
+                                    {
+                                    <tr >    
+                       
+                                        <td class="text-start">
+                                            إدارة الاقسام
+                                        </td>
+                      
+                       
+                                        <td class="text-start">   
+                                            <div class="row col-12 mx-3">
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[10].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[10].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[10].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[10].IsSelected">
+                                                @Model.Claims[10].ClaimValue
+                                            </label>
+                                            </div>
+                         
+                                                <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[11].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[11].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[11].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[11].IsSelected">
+                                                @Model.Claims[11].ClaimValue
+                                            </label>
+                                            </div>
+                           
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[12].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[12].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[12].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[12].IsSelected">
+                                                @Model.Claims[12].ClaimValue
+                                            </label>
+                                            </div>
+                                            </div>
+                        
+                                        </td>
+                                    </tr>
+                                    }
+                                 @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin"))
+                                {
+                                     <tr >    
+                       
+                                         <td class="text-start">
+                                             إدارة التخصصات
+                                         </td>
+                      
+                       
+                                        <td class="text-start">   
+                                            <div class="row col-12 mx-3">
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[13].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[13].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[13].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[13].IsSelected">
+                                                @Model.Claims[13].ClaimValue
+                                            </label>
+                                            </div>
+                         
+                                                <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[14].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[14].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[14].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[14].IsSelected">
+                                                @Model.Claims[14].ClaimValue
+                                            </label>
+                                            </div>
+                           
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[15].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[15].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[15].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[15].IsSelected">
+                                                @Model.Claims[15].ClaimValue
+                                            </label>
+                                            </div>
+
+
+
+
+                                            
+                                            </div>
+                        
+                                        </td>
+                                    </tr>
+                                    }
+                                     @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin"))
+                                    {
+                                        <tr >    
+                       
+                                            <td class="text-start">
+                                                إدارة الدول والجنسيات
+                                            </td>
+                      
+                       
+                                        <td class="text-start">   
+                                            <div class="row col-12 mx-3">
+
+                                                <div class="col-auto form-check m-1">
+                                                    <input type="hidden" asp-for="@Model.Claims[16].ClaimType" />
+                                                    <input type="hidden" asp-for="@Model.Claims[16].ClaimValue" />
+                                                    <input asp-for="@Model.Claims[16].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[16].IsSelected">
+                                                        @Model.Claims[16].ClaimValue
+                                                    </label>
+                                                </div>
+                                                <div class="col-auto form-check m-1">
+                                                    <input type="hidden" asp-for="@Model.Claims[17].ClaimType" />
+                                                    <input type="hidden" asp-for="@Model.Claims[17].ClaimValue" />
+                                                    <input asp-for="@Model.Claims[17].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[17].IsSelected">
+                                                        @Model.Claims[17].ClaimValue
+                                                    </label>
+                                                </div>
+                                                <div class="col-auto form-check m-1">
+                                                    <input type="hidden" asp-for="@Model.Claims[18].ClaimType" />
+                                                    <input type="hidden" asp-for="@Model.Claims[18].ClaimValue" />
+                                                    <input asp-for="@Model.Claims[18].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[18].IsSelected">
+                                                        @Model.Claims[18].ClaimValue
+                                                    </label>
+                                                </div>                                              
+
+                                            </div>
+                        
+                                        </td>
+                                    </tr>
+                                    }
+                                     @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin"))
+                                    {
+                                        <tr >    
+                       
+                                            <td class="text-start">
+                                                إدارة المحافظات
+                                            </td>
+                      
+                       
+                                        <td class="text-start">   
+                                            <div class="row col-12 mx-3">
+                                                <div class="col-auto form-check m-1">
+                                                    <input type="hidden" asp-for="@Model.Claims[19].ClaimType" />
+                                                    <input type="hidden" asp-for="@Model.Claims[19].ClaimValue" />
+                                                    <input asp-for="@Model.Claims[19].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[19].IsSelected">
+                                                        @Model.Claims[19].ClaimValue
+                                                    </label>
+                                                </div>
+                                                <div class="col-auto form-check m-1">
+                                                    <input type="hidden" asp-for="@Model.Claims[20].ClaimType" />
+                                                    <input type="hidden" asp-for="@Model.Claims[20].ClaimValue" />
+                                                    <input asp-for="@Model.Claims[20].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[20].IsSelected">
+                                                        @Model.Claims[20].ClaimValue
+                                                    </label>
+                                                </div>
+                                                <div class="col-auto form-check m-1">
+                                                    <input type="hidden" asp-for="@Model.Claims[21].ClaimType" />
+                                                    <input type="hidden" asp-for="@Model.Claims[21].ClaimValue" />
+                                                    <input asp-for="@Model.Claims[21].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[21].IsSelected">
+                                                        @Model.Claims[21].ClaimValue
+                                                    </label>
+                                                </div>
+                                                                                                
+                                            </div>
+                        
+                                        </td>
+                                    </tr>
+                                        }
+                                         @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin"))
+                                        {
+                                       
+                                                      <tr >    
+                       
+                                                          <td class="text-start">
+                                                              إدارة العام الجامعي
+                                                          </td>
+                      
+                       
+                                        <td class="text-start">   
+                                            <div class="row col-12 mx-3">
+
+                                                <div class="col-auto form-check m-1">
+                                                    <input type="hidden" asp-for="@Model.Claims[22].ClaimType" />
+                                                    <input type="hidden" asp-for="@Model.Claims[22].ClaimValue" />
+                                                    <input asp-for="@Model.Claims[22].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[22].IsSelected">
+                                                        @Model.Claims[22].ClaimValue
+                                                    </label>
+                                                </div>
+                                                <div class="col-auto form-check m-1">
+                                                    <input type="hidden" asp-for="@Model.Claims[23].ClaimType" />
+                                                    <input type="hidden" asp-for="@Model.Claims[23].ClaimValue" />
+                                                    <input asp-for="@Model.Claims[23].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[23].IsSelected">
+                                                        @Model.Claims[23].ClaimValue
+                                                    </label>
+                                                </div>
+                                                <div class="col-auto form-check m-1">
+                                                    <input type="hidden" asp-for="@Model.Claims[24].ClaimType" />
+                                                    <input type="hidden" asp-for="@Model.Claims[24].ClaimValue" />
+                                                    <input asp-for="@Model.Claims[24].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[24].IsSelected">
+                                                        @Model.Claims[24].ClaimValue
+                                                    </label>
+                                                </div>
+
+                                                <div class="col-auto form-check m-1">
+                                                    <input type="hidden" asp-for="@Model.Claims[25].ClaimType" />
+                                                    <input type="hidden" asp-for="@Model.Claims[25].ClaimValue" />
+                                                    <input asp-for="@Model.Claims[25].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[25].IsSelected">
+                                                        @Model.Claims[25].ClaimValue
+                                                    </label>
+                                                </div>
+                                              
+                                            </div>
+                        
+                                        </td>
+                                    </tr>
+                                    }
+                                     @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin"))
+                                    {
+                                        <tr >    
+                       
+                                            <td class="text-start">
+                                                إدارة الدفعات
+                                            </td>
+                      
+                       
+                                        <td class="text-start">   
+                                            <div class="row col-12 mx-3">
+                                                <div class="col-auto form-check m-1">
+                                                    <input type="hidden" asp-for="@Model.Claims[26].ClaimType" />
+                                                    <input type="hidden" asp-for="@Model.Claims[26].ClaimValue" />
+                                                    <input asp-for="@Model.Claims[26].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[26].IsSelected">
+                                                        @Model.Claims[26].ClaimValue
+                                                    </label>
+                                                </div>
+                                                <div class="col-auto form-check m-1">
+                                                    <input type="hidden" asp-for="@Model.Claims[27].ClaimType" />
+                                                    <input type="hidden" asp-for="@Model.Claims[27].ClaimValue" />
+                                                    <input asp-for="@Model.Claims[27].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[27].IsSelected">
+                                                        @Model.Claims[27].ClaimValue
+                                                    </label>
+                                                </div>
+
+                                                <div class="col-auto form-check m-1">
+                                                    <input type="hidden" asp-for="@Model.Claims[28].ClaimType" />
+                                                    <input type="hidden" asp-for="@Model.Claims[28].ClaimValue" />
+                                                    <input asp-for="@Model.Claims[28].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[28].IsSelected">
+                                                        @Model.Claims[28].ClaimValue
+                                                    </label>
+                                                </div>
+                                              
+                                            </div>
+                        
+                                        </td>
+                                    </tr>
+                                    }
+                                     @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin"))
+                                    {
+                                        <tr >    
+                       
+                                            <td class="text-start">
+                                                إدارة المواد
+                                            </td>
+                      
+                       
+                                        <td class="text-start">   
+                                            <div class="row col-12 mx-3">
+                                                <div class="col-auto form-check m-1">
+                                                    <input type="hidden" asp-for="@Model.Claims[29].ClaimType" />
+                                                    <input type="hidden" asp-for="@Model.Claims[29].ClaimValue" />
+                                                    <input asp-for="@Model.Claims[29].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[29].IsSelected">
+                                                        @Model.Claims[29].ClaimValue
+                                                    </label>
+                                                </div>
+
+                                                <div class="col-auto form-check m-1">
+                                                    <input type="hidden" asp-for="@Model.Claims[30].ClaimType" />
+                                                    <input type="hidden" asp-for="@Model.Claims[30].ClaimValue" />
+                                                    <input asp-for="@Model.Claims[30].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[30].IsSelected">
+                                                        @Model.Claims[30].ClaimValue
+                                                    </label>
+                                                </div>
+
+                                                <div class="col-auto form-check m-1">
+                                                    <input type="hidden" asp-for="@Model.Claims[31].ClaimType" />
+                                                    <input type="hidden" asp-for="@Model.Claims[31].ClaimValue" />
+                                                    <input asp-for="@Model.Claims[31].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[31].IsSelected">
+                                                        @Model.Claims[31].ClaimValue
+                                                    </label>
+                                                </div>
+
+                                                <div class="col-auto form-check m-1">
+                                                    <input type="hidden" asp-for="@Model.Claims[32].ClaimType" />
+                                                    <input type="hidden" asp-for="@Model.Claims[32].ClaimValue" />
+                                                    <input asp-for="@Model.Claims[32].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[32].IsSelected">
+                                                        @Model.Claims[32].ClaimValue
+                                                    </label>
+                                                </div>
+
+                                            
+                                            </div>
+                        
+                                        </td>
+                                    </tr>
+                                    }
+                                     @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin" || x == "Branch_Manager" || x == "Department_Manager" || x == "Editor" || x == "Employee" || x == "Department_Manager_For_All_Branches" || x == "Editor_For_All_Branches" || x == "Employee_For_All_Branches"  ))
+                                    {
+                                        <tr >    
+                       
+                                            <td class="text-start" >
+                                        نماذج استمارات ادارية
+                                        </td>
+                      
+                       
+                                        <td class="text-start">   
+                                            <div class="row col-12 mx-3">
+                                                   
+                         
+                                                @*<div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[36].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[36].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[36].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[36].IsSelected">
+                                                @Model.Claims[36].ClaimValue
+                                            </label>
+                                            </div>
+                           
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[37].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[37].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[37].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[37].IsSelected">
+                                                @Model.Claims[37].ClaimValue
+                                            </label>
+                                            </div>
+                             
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[38].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[38].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[38].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[38].IsSelected">
+                                                @Model.Claims[38].ClaimValue
+                                            </label>
+                                            </div>
+                         
+                                                <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[39].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[39].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[39].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[39].IsSelected">
+                                                @Model.Claims[39].ClaimValue
+                                            </label>
+                                            </div>
+                           
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[40].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[40].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[40].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[40].IsSelected">
+                                                @Model.Claims[40].ClaimValue
+                                            </label>
+                                            </div>
+                                             <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[41].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[41].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[41].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[41].IsSelected">
+                                                @Model.Claims[41].ClaimValue
+                                            </label>
+                                            </div>*@
+                         
+                                            </div>
+                        
+                                        </td>
+                                    </tr>
+                                    }
+                                     @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin" || x == "Branch_Manager" || x == "Department_Manager" || x == "Editor" || x == "Employee" || x == "Department_Manager_For_All_Branches" || x == "Editor_For_All_Branches" || x == "Employee_For_All_Branches"  ))
+                                    {
+                                        <tr >    
+                       
+                                            <td class="text-start" >
+                                        ادلة/سياسات
+                                        </td>
+                      
+                       
+                                        <td class="text-start">   
+                                            <div class="row col-12 mx-3">
+                                                   
+                                                @*<div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[42].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[42].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[42].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[42].IsSelected">
+                                                @Model.Claims[42].ClaimValue
+                                            </label>
+                                            </div>
+                           
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[43].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[43].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[43].IsSelected" disabled class="form-check-input" />
+                                            <label class="form-check-label  td-font-size" asp-for="@Model.Claims[43].IsSelected">
+                                                @Model.Claims[43].ClaimValue
+                                            </label>
+                                            </div>
+                             
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[44].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[44].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[44].IsSelected" disabled class="form-check-input" />
+                                            <label class="form-check-label  td-font-size" asp-for="@Model.Claims[44].IsSelected">
+                                                @Model.Claims[44].ClaimValue
+                                            </label>
+                                            </div>
+                         
+                                                <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[45].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[45].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[45].IsSelected" disabled class="form-check-input myCheck" />
+                                            <label class="form-check-label  td-font-size" asp-for="@Model.Claims[45].IsSelected">
+                                                @Model.Claims[45].ClaimValue
+                                            </label>
+                                            </div>
+                           
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[46].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[46].ClaimValue"  />  
+                                            <input  asp-for="@Model.Claims[46].IsSelected" disabled class="form-check-input  myCheck" />
+                                            <label class="form-check-label  td-font-size" asp-for="@Model.Claims[46].IsSelected">
+                                                @Model.Claims[46].ClaimValue
+                                            </label>
+                                            </div>
+                                             <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[47].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[47].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[47].IsSelected" disabled class="form-check-input" />
+                                            <label class="form-check-label  td-font-size" asp-for="@Model.Claims[47].IsSelected">
+                                                @Model.Claims[47].ClaimValue
+                                            </label>
+                                            </div>*@
+                                            </div>
+                        
+                                        </td>
+                                        </tr>
+                                        }
+                                         @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin" || x == "Branch_Manager" || x == "Department_Manager" || x == "Editor" || x == "Employee" || x == "Department_Manager_For_All_Branches" || x == "Editor_For_All_Branches" || x == "Employee_For_All_Branches"  ))
+                                        {
+                                            <tr >    
+                       
+                                            <td class="text-start  td-font-size" >
+                                        مصادر أخرى
+                                        </td>
+                      
+                       
+                                        <td class="text-start">   
+                                            <div class="row col-12 mx-3">
+                                                   
+                         
+                                                @*<div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[48].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[48].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[48].IsSelected" disabled class="form-check-input" />
+                                            <label class="form-check-label  td-font-size" asp-for="@Model.Claims[48].IsSelected">
+                                                @Model.Claims[48].ClaimValue
+                                            </label>
+                                            </div>
+                           
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[49].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[49].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[49].IsSelected" disabled class="form-check-input" />
+                                            <label class="form-check-label  td-font-size" asp-for="@Model.Claims[49].IsSelected">
+                                                @Model.Claims[49].ClaimValue
+                                            </label>
+                                            </div>
+                             
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[50].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[50].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[50].IsSelected" disabled class="form-check-input" />
+                                            <label class="form-check-label  td-font-size" asp-for="@Model.Claims[50].IsSelected">
+                                                @Model.Claims[50].ClaimValue
+                                            </label>
+                                            </div>
+                         
+                                                <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[51].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[51].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[51].IsSelected" disabled class="form-check-input" />
+                                            <label class="form-check-label  td-font-size" asp-for="@Model.Claims[51].IsSelected">
+                                                @Model.Claims[51].ClaimValue
+                                            </label>
+                                            </div>
+                           
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[52].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[52].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[52].IsSelected" disabled class="form-check-input" />
+                                            <label class="form-check-label  td-font-size" asp-for="@Model.Claims[52].IsSelected">
+                                                @Model.Claims[52].ClaimValue
+                                            </label>
+                                            </div>
+                                             <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[53].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[53].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[53].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[53].IsSelected">
+                                                @Model.Claims[53].ClaimValue
+                                            </label>
+                                            </div>*@
+                                            </div>
+                        
+                                        </td>
+                                    </tr>
+                                         }
+                                         @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin" || x == "Branch_Manager" || x == "Department_Manager" || x == "Editor" || x == "Employee" || x == "Department_Manager_For_All_Branches" || x == "Editor_For_All_Branches" || x == "Employee_For_All_Branches"  ))
+                                        {
+                                        <tr >    
+                       
+                                            <td class="text-start td-font-size" >
+                                        ملفات المشاريع
+                                        </td>
+                      
+                       
+                                        <td class="text-start">   
+                                            <div class="row col-12 mx-3">
+                                                   
+                         
+                                                @*<div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[54].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[54].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[54].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[54].IsSelected">
+                                                @Model.Claims[54].ClaimValue
+                                            </label>
+                                            </div>
+                           
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[55].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[55].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[55].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[55].IsSelected">
+                                                @Model.Claims[55].ClaimValue
+                                            </label>
+                                            </div>
+                             
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[56].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[56].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[56].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[56].IsSelected">
+                                                @Model.Claims[56].ClaimValue
+                                            </label>
+                                            </div>
+                         
+                                                <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[57].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[57].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[57].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[57].IsSelected">
+                                                @Model.Claims[57].ClaimValue
+                                            </label>
+                                            </div>
+                           
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[58].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[58].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[58].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[58].IsSelected">
+                                                @Model.Claims[58].ClaimValue
+                                            </label>
+                                            </div>
+                                             <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[59].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[59].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[59].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[59].IsSelected">
+                                                @Model.Claims[59].ClaimValue
+                                            </label>
+                                            </div>*@
+                                            </div>
+                        
+                                        </td>
+                                    </tr>
+                                         }
+                                         @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin" || x == "Branch_Manager" || x == "Department_Manager" || x == "Editor" || x == "Employee" || x == "Department_Manager_For_All_Branches" || x == "Editor_For_All_Branches" || x == "Employee_For_All_Branches"  ))
+                                        {
+                                        <tr >    
+                       
+                                            <td class="text-start td-font-size" >
+                                                دراسات/ مسوحات 
+                                        </td>
+                      
+                       
+                                        <td class="text-start">   
+                                            <div class="row col-12 mx-3">                                                  
+                         
+                                                @*<div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[60].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[60].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[60].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[60].IsSelected">
+                                                @Model.Claims[60].ClaimValue
+                                            </label>
+                                            </div>
+                           
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[61].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[61].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[61].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[61].IsSelected">
+                                                @Model.Claims[61].ClaimValue
+                                            </label>
+                                            </div>
+                             
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[62].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[62].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[62].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[62].IsSelected">
+                                                @Model.Claims[62].ClaimValue
+                                            </label>
+                                            </div>
+                         
+                                                <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[63].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[63].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[63].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[63].IsSelected">
+                                                @Model.Claims[63].ClaimValue
+                                            </label>
+                                            </div>
+                           
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[64].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[64].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[64].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[64].IsSelected">
+                                                @Model.Claims[64].ClaimValue
+                                            </label>
+                                            </div>
+                                             <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[65].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[65].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[65].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[65].IsSelected">
+                                                @Model.Claims[65].ClaimValue
+                                            </label>
+                                            </div>*@
+                                            </div>
+                        
+                                        </td>
+                                    </tr>
+                                    }
+                                     @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin"))
+                                    {
+                                     <tr >    
+                       
+                                            <td class="text-start td-font-size" >
+                                                 تصنيف الملفات
+                                        </td>
+                                         <td class="text-start">   
+                                            <div class="row col-12 mx-3">
+                                                   
+                         
+                                                @*<div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[66].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[66].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[66].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[66].IsSelected">
+                                                @Model.Claims[66].ClaimValue
+                                            </label>
+                                            </div>
+                           
+                                                    <div class="col-auto form-check m-1" >
+                                            <input type="hidden" asp-for="@Model.Claims[67].ClaimType"  />    
+                                            <input type="hidden" asp-for="@Model.Claims[67].ClaimValue"  />  
+                                            <input asp-for="@Model.Claims[67].IsSelected" disabled class="form-check-input" />
+                                            <label class=" form-check-label td-font-size" asp-for="@Model.Claims[67].IsSelected">
+                                                @Model.Claims[67].ClaimValue
+                                            </label>
+                                            </div>
+                                            <div class="col-auto form-check m-1" >
+                                                    <input type="hidden" asp-for="@Model.Claims[68].ClaimType"  />    
+                                                    <input type="hidden" asp-for="@Model.Claims[68].ClaimValue"  />  
+                                                    <input asp-for="@Model.Claims[68].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[68].IsSelected">
+                                                        @Model.Claims[68].ClaimValue
+                                                    </label>
+                                                </div>*@
+                                            </div>
+                        
+                                        </td>
+                                    </tr>
+                                    }
+                                     @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin"))
+                                {
+                                    <tr >    
+
+                                        <td class="text-start td-font-size" >
+                                            اقسام الفرع
+                                        </td>
+                                        <td class="text-start">   
+                                            <div class="row col-12 mx-3">
+
+                                                @*<div class="col-auto form-check m-1" >
+                                                    <input type="hidden" asp-for="@Model.Claims[69].ClaimType"  />    
+                                                    <input type="hidden" asp-for="@Model.Claims[69].ClaimValue"  />  
+                                                    <input asp-for="@Model.Claims[69].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[69].IsSelected">
+                                                        @Model.Claims[69].ClaimValue
+                                                    </label>
+                                                </div>
+
+                                                <div class="col-auto form-check m-1" >
+                                                    <input type="hidden" asp-for="@Model.Claims[70].ClaimType"  />    
+                                                    <input type="hidden" asp-for="@Model.Claims[70].ClaimValue"  />  
+                                                    <input asp-for="@Model.Claims[70].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[70].IsSelected">
+                                                        @Model.Claims[70].ClaimValue
+                                                    </label>
+                                                </div>
+                                                <div class="col-auto form-check m-1" >
+                                                    <input type="hidden" asp-for="@Model.Claims[71].ClaimType"  />    
+                                                    <input type="hidden" asp-for="@Model.Claims[71].ClaimValue"  />  
+                                                    <input asp-for="@Model.Claims[71].IsSelected" disabled class="form-check-input" />
+                                                    <label class=" form-check-label td-font-size" asp-for="@Model.Claims[71].IsSelected">
+                                                        @Model.Claims[71].ClaimValue
+                                                    </label>
+                                                </div>*@
+                                            </div>
+
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer ">
+                        @if ((await authorizationService.AuthorizeAsync(User, "ManageUserClaimsPolicy")).Succeeded)
+                        {
+                            <a asp-action="ManageUserClaims" asp-controller="Adminstration" class="btn btn-success" style="width:auto" asp-route-userId="@Model.Id">إضافة/حذف صلاحيات</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+     </div>
+  </section>
+    <!-- /.content -->
+@section Scripts {
+    <script>
+        
+    $("#BranchList").on("change", function () {           
+    var url = '@Url.Content("~/")' + "Adminstration/GetDepartmentesDropDown";
+    var ddlsource = "#BranchList";
+    var selectedId = '';
+    $.getJSON(url, { BranchID: $(ddlsource).val() }, function (data) {
+        var items = '';
+
+        $("#DepartmentesList").empty();
+        $.each(data, function (i, row) {
+            if (i == 0) {
+                selectedId = row.value;
+            }
+            items += "<option value='" + row.value + "'>" + row.text + "</option>";
+        });
+        $("#DepartmentesList").html(items);
+        //fullCourseList(selectedId);
+    })
+
+})
+    </script>
+   
+}
+
+   
+

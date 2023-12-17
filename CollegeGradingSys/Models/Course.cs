@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CollegeGradingSys.Helper;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -31,8 +32,11 @@ namespace CollegeGradingSys.Models
         [StringLength(100)]
         [DisplayFormat(NullDisplayText = "لا توجد ملاحظات")]
         public string Note { get; set; }
-        [Display(Name = "المادة الاساسية")]
 
+
+        public Course_sGender Course_sGender { get; set; }
+
+        [Display(Name = "المادة الاساسية")]
         public int? ParentId { get; set; }
 
         [Display(Name = "نوع المادة (فرعية/اساسية)")]      

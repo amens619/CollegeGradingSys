@@ -14,6 +14,7 @@ using System.IO;
 using OfficeOpenXml;
 using System.Drawing;
 using OfficeOpenXml.Style;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CollegeGradingSys.Controllers
 {
@@ -165,6 +166,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: StPersonalDataController/Create
+        [Authorize(Policy = "CreateStPersonalDataPolicy")]
         public ActionResult Create()
         {
             var currentYear = AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true); 
@@ -190,6 +192,7 @@ namespace CollegeGradingSys.Controllers
         // POST: StPersonalDataController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "CreateStPersonalDataPolicy")]
         public ActionResult Create(StPersonalDataViewModel model)
         {
             var currentYear = AcademicYearRepository.Find(model.EnrollmentYearId);
@@ -361,6 +364,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: StPersonalDataController/Edit/5
+        [Authorize(Policy = "EditStPersonalDataPolicy")]
         public ActionResult Edit(int id)
         {
 
@@ -394,6 +398,7 @@ namespace CollegeGradingSys.Controllers
         // POST: StPersonalDataController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "EditStPersonalDataPolicy")]
         public ActionResult Edit(int id,StPersonalDataViewModel model)
         {
             try
@@ -475,6 +480,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: StPersonalDataController/Delete/5
+        [Authorize(Policy = "DeleteStPersonalDataPolicy")]
         public ActionResult Delete(int id)
         {
             var  stPersonalData = StPersonalDataRepository.Find(id);
@@ -491,6 +497,7 @@ namespace CollegeGradingSys.Controllers
         // POST: StPersonalDataController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "DeleteStPersonalDataPolicy")]
         public ActionResult Delete(int AcademicID, StPersonalData model)
         {
             try
@@ -519,8 +526,9 @@ namespace CollegeGradingSys.Controllers
         }
 
 
-        
+
         //==============================================
+        [Authorize(Policy = "ExportAcceptedStToExcelPolicy")]
         public ActionResult ExportAcceptedStToExcel(bool IsSelectCurrentYear, int? AcademicYearId)
         {
             var StPersonalDatasR = StPersonalDataRepository.List();
@@ -1152,6 +1160,7 @@ namespace CollegeGradingSys.Controllers
         }
         //==============================================
 
+        [Authorize(Policy = "ExportSthighSchoolToExcelPolicy")]
         public ActionResult ExportSthighSchoolToExcel(bool IsSelectCurrentYear, int? AcademicYearId)
         {
             var StPersonalDatasR = StPersonalDataRepository.List();
@@ -1461,5 +1470,25 @@ namespace CollegeGradingSys.Controllers
             var currentYear = AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true);
             return (currentYear);
         }
+
+        //public JsonResult GetStNameList()
+        //{
+        //    string StNameSearch = HttpContext.Request.Query["term"].ToString();
+
+
+        //    var StNameList = StPersonalDataRepository.List().Where(p => p.StName.Contains(StNameSearch)).Select(x => x.StName).ToList();
+        //    return Json(StNameList.ToList());
+
+        //}
+
+        //public JsonResult GetAcademicIDList()
+        //{
+        //    string SearchAcademicID = HttpContext.Request.Query["term"].ToString();
+
+
+        //    var AcademicIDList = StPersonalDataRepository.List().Where(p => p.AcademicID.Contains(SearchAcademicID)).Select(x => x.AcademicID).ToList();
+        //    return Json(AcademicIDList.ToList());
+
+        //}
     }
 }

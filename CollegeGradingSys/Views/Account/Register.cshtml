@@ -1,0 +1,87 @@
+﻿@model CollegeGradingSys.ViewModels.RegisterViewModel
+
+
+@{
+    ViewData["Title"] = "تسجيل";
+}
+
+ <!-- Main content -->
+<section class="content">
+    <div class="container-fluid mb-2"> 
+        <div class="row">
+             <div class="card card-outline card-success col-md-4 offset-md-4">
+            <div class="card-header text-center">
+              <h3>حسابات المستخدمين</h3>
+            </div>
+             <div class="card-body">
+             <p class="login-box-msg">تسجيل مستخدم جديد </p>          
+           
+           
+                <form method="post" >
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    
+                   
+                    <div class="input-group mb-3">
+                      <input type="email" asp-for="Email"  class="form-control" placeholder="البريد الالكتروني" style="border-top-right-radius:0.25em  ; border-bottom-right-radius: 0.25em ;border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                      <div class="input-group-append">
+                        <div class="input-group-text" style="border-top-left-radius:0.25em  ; border-bottom-left-radius: 0.25em ;border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                          <span class="fas fa-envelope"></span>
+                        </div>
+                      </div>
+                     
+                    </div>
+                  
+                     
+                     
+                     <div class="input-group mb-3">
+                      <input type="password" asp-for="Password"  class="form-control" placeholder="كلمة المرور" style="border-top-right-radius:0.25em  ; border-bottom-right-radius: 0.25em ;border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                      <div class="input-group-append">
+                        <div class="input-group-text" style="border-top-left-radius:0.25em  ; border-bottom-left-radius: 0.25em ;border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                          <span class="fas fa-lock"></span>
+                        </div>
+                      </div>
+                      
+                     </div>
+                    @* <div class="form-group col">
+                        <label asp-for="Password" class="control-label"></label>
+                        <input asp-for="Password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>*@
+                     <div class="input-group mb-3">
+                      <input type="password" asp-for="ConfirmPassword"  class="form-control" placeholder="تأكيد كلمة المرور" style="border-top-right-radius:0.25em  ; border-bottom-right-radius: 0.25em ;border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                      <div class="input-group-append">
+                        <div class="input-group-text" style="border-top-left-radius:0.25em  ; border-bottom-left-radius: 0.25em ;border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                          <span class="fas fa-lock"></span>
+                        </div>
+                      </div>
+                    
+                     </div>
+                  
+                    <div class="row">
+                        <div class=" col-12 mb-4">
+                            <input type="submit" value="تسجيل" class="btn btn-outline-success col-2  btn-sm" />
+           
+                             <a class="btn btn-secondary  btn-sm " asp-controller="Adminstration" asp-action="ListUsers">القائمة الرئسية</a>
+                            
+                        </div>
+                    </div> 
+               
+            
+           
+                </form>
+             
+            </div>
+         </div>
+        </div>
+        
+        </div>
+</section>
+    <!-- /.content -->
+
+@section Scripts {
+    <script>
+        
+  
+    </script>
+   
+}

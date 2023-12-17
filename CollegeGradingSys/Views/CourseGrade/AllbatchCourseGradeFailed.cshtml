@@ -1,199 +1,211 @@
 ﻿@model CollegeGradingSys.ViewModels.AllbatchCourseGradeFailedViewModel
 
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService authorizationService
+
 @{
     ViewData["Title"] = "درجات الطلاب لمادة دراسية تكميلية";
+    ViewData["PageName"] = "ادارةالدرجات";
+    //ViewData["SubPageName"] = "درجات الطلاب لمادة دراسية تكميلية";
 }
 
 
-<div class="card mb-4">
-    <div class="card-body">
-        <div class="bg-white">
-            <h5 class="mb-4">  <span style="margin-left:6px;" data-feather="list"></span>ادارةالدرجات</h5>
-            <h6 class="m-1">درجات الطلاب لمادة دراسية تكميلية </h6>
-            <hr class="mb-4 mt-0">
-            <div class="card mb-4">
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="card mb-4">
+            <div class="card-header ">
+                <h3 class="card-title">
+                    درجات الطلاب لمادة دراسية تكميلية
+                </h3>
+            </div>
+            <!-- /.card-header -->
+
+            @using (Html.BeginForm("AllbatchCourseGradeFailed", "CourseGrade", FormMethod.Get))
+            {
                 <div class="card-body">
-                    @using (Html.BeginForm("AllbatchCourseGradeFailed", "CourseGrade", FormMethod.Get))
-                    {
-                        <div class="row ">
-                            <div class="form-group col-md-6">
-                                <label class="control-label"> الاسم</label>
-                                <input id="StNameSearch" value="@ViewBag.CurrentFilter" name="SearchString" class="form-control " />
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label class="control-label"> رقم القيد </label>
-                                <input id="SearchAcademicID" value="@ViewBag.SearchAcademicID" name="SearchAcademicID" class="form-control " />
-                            </div>
+                    <div class="row ">
+                        <div class="form-group col-md-6">
+                            <label class="control-label"> الاسم</label>
+                            <input id="StNameSearch" value="@ViewBag.CurrentFilter" name="SearchString" class="form-control " />
                         </div>
-                        <div class="row ">
-                            <div class="form-group col-md-3">
-                                <label asp-for="SpecializationId" class="control-label"></label>
-                                <select asp-for="SpecializationId" name="SpecializationId" id="SpecializationList" class="form-control text-center"
-                                        asp-items="ViewBag.Specializations">
-                                    <option value="-1">-- الكل --</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-md-3">
-                                <label class="control-label">المستوى</label>
-                                <select id="LevelList" asp-for="Level" name="Level" class="form-control text-center"
-                                        asp-items="Html.GetEnumSelectList<Level>()">
-                                    <option value="-1">-- الكل --</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-md-3">
-                                <label class="control-label">الفصل الدراسي</label>
-                                <select id="TermList" asp-for="Term" name="Term" class="form-control text-center"
-                                        asp-items="Html.GetEnumSelectList<Term>()">
-                                    <option value="-1">-- الكل --</option>
-                                </select>
-                            </div>
+                        <div class="form-group col-md-6">
+                            <label class="control-label"> رقم القيد </label>
+                            <input id="SearchAcademicID" value="@ViewBag.SearchAcademicID" name="SearchAcademicID" class="form-control " />
+                        </div>
+                    </div>
+                    <div class="row ">
+                        <div class="form-group col-md-3">
+                            <label asp-for="SpecializationId" class="control-label"></label>
+                            <select asp-for="SpecializationId" name="SpecializationId" id="SpecializationList" class="form-control text-center"
+                                    asp-items="ViewBag.Specializations">
+                                <option value="-1">-- الكل --</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label class="control-label">المستوى</label>
+                            <select id="LevelList" asp-for="Level" name="Level" class="form-control text-center"
+                                    asp-items="Html.GetEnumSelectList<Level>()">
+                                <option value="-1">-- الكل --</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label class="control-label">الفصل الدراسي</label>
+                            <select id="TermList" asp-for="Term" name="Term" class="form-control text-center"
+                                    asp-items="Html.GetEnumSelectList<Term>()">
+                                <option value="-1">-- الكل --</option>
+                            </select>
+                        </div>
 
-                            <div class="form-group col-md-3">
-                                <label class="control-label">المادة</label>
-                                <select id="CourseList" name="CourseId" class="form-control text-center"
-                                        asp-items="ViewBag.CourseList">
-                                    <option value="-1">-- الكل --</option>
-                                </select>
-
-                            </div>
+                        <div class="form-group col-md-3">
+                            <label class="control-label">المادة</label>
+                            <select id="CourseList" name="CourseId" class="form-control text-center"
+                                    asp-items="ViewBag.CourseList">
+                                <option value="-1">-- الكل --</option>
+                            </select>
 
                         </div>
-                        <div class="card my-3 col-mb-6">
-                            <div class="card-body">
-                                @if (ViewBag.IsSelectCurrentYear)
-                                {
-                                    <div class="form-group mb-2 mt-0 col-md-6">
-                                        <label class="control-label">العام</label>
-                                        <select name="AcademicYearId" disabled class="form-control  disabled text-center "
-                                                asp-items="ViewBag.AcademicYearsList">
-                                            
-                                        </select>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="form-group mb-2 col-md-6">
-                                        <label class="control-label">العام</label>
-                                        <select id="" name="AcademicYearId" class="form-control text-center "
-                                                asp-items="ViewBag.AcademicYearsList">
-                                            <option value="-1">-- الكل --</option>
-                                        </select>
-                                    </div>
-                                }
-                                <div class="form-group form-check my-2 col-md-6">
-                                    <label class="form-check-label">
-                                        <input class="form-check-input" name="IsSelectCurrentYear"  type="checkbox" asp-for="IsSelectCurrentYear" />
-                                        <span>البحث في السنة الحالية ؟!!!      </span>
-                                    </label>
-                                </div>
-                                <div class="col-md-1 mb-0 mt-2">
-                                    <input type="submit" value="تطبيق" class="btn btn-primary btn-sm" />
-                                </div>
 
-                            </div>
-
-                        </div>
-                        <hr class="my-4">
-                        <div class="container">
-                            <input type="submit" value="بحث" class="btn btn-secondary col-2 btn-sm" />
-                            @if (Model.isExportBtnEnable)
+                    </div>
+                    <div class="card my-3 col-mb-6">
+                        <div class="card-body">
+                            @if (ViewBag.IsSelectCurrentYear)
                             {
-                                <input type="submit" value="تصدير" class="btn btn-success btn-sm" formaction="@Url.Action("ExportCourseGradeToExcel")" formmethod="get" />
+                                <div class="form-group mb-2 mt-0 col-md-6">
+                                    <label class="control-label">العام</label>
+                                    <select name="AcademicYearId" disabled class="form-control  disabled text-center "
+                                            asp-items="ViewBag.AcademicYearsList">
+                                    </select>
+                                </div>
                             }
                             else
                             {
-                                <input type="submit" value="تصدير" class="btn disabled btn-success btn-sm" />
+                                <div class="form-group mb-2 col-md-6">
+                                    <label class="control-label">العام</label>
+                                    <select id="" name="AcademicYearId" class="form-control text-center "
+                                            asp-items="ViewBag.AcademicYearsList">
+                                        <option value="-1">-- الكل --</option>
+                                    </select>
+                                </div>
                             }
+                            <div class="form-group form-check my-2 col-md-6">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="IsSelectCurrentYear" type="checkbox" asp-for="IsSelectCurrentYear" />
+                                    <span>البحث في السنة الحالية ؟!!!      </span>
+                                </label>
+                            </div>
+                            <div class="col-md-1 mb-0 mt-2">
+                                <input type="submit" value="تطبيق" class="btn btn-primary btn-sm" />
+                            </div>
 
-                            <input type="submit" value="تحديث البيانات" class="btn fluid-left btn-secondary col-2 btn-sm" />
                         </div>
 
-
-                    }
+                    </div>
                 </div>
-            </div>
-            <div class="card mb-4">
-                <div class="card-body"> 
-                    <table class="table  table-bordered">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="auto" class="col-1 text-center" style="vertical-align: middle;">
-                                    م
-                                </th>
-                                <th scope="col" class=" col-1 text-center" style="vertical-align: middle;">
-                                    <span>رقم القيد</span>
-                                </th>
-                                <th scope="col" class=" col-3 text-center" style="vertical-align: middle;">
-                                    <span>اسم الطالب</span>
-                                </th>
-                                <th scope="col" class=" col-2 text-center" style="vertical-align: middle;">
-                                    اسم المادة
-                                </th>
-                                <th scope="col" class=" col-2 text-center" style="vertical-align: middle;">
-                                    الدرجة
-                                </th>                                
-                                <th scope="col" class=" col-2 text-center" style="vertical-align: middle;"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @{
-                                int no = 0;
-                            }
+                <div class="card-footer">
+                    <input type="submit" value="بحث" class="btn btn-secondary col-2 btn-sm" />
+                    @if (Model.isExportBtnEnable)
+                    {
+                        <input type="submit" value="تصدير" class="btn btn-success btn-sm" formaction="@Url.Action("ExportCourseGradeToExcel")" formmethod="get" />
+                    }
+                    else
+                    {
+                        <input type="submit" value="تصدير" class="btn disabled btn-success btn-sm" />
+                    }
 
-                            @foreach (var item in Model.CourseGrades)
-                            {
-                                no++;
-                                string selectedRow = "";
-                                if (item.Course.IsSubCourse == true)
-                                {
-                                    selectedRow = "bg-secondary";
+                    <input type="submit" value="تحديث البيانات" class="btn fluid-left btn-secondary col-2 btn-sm" />
+                </div>
+
+
+            }
+        </div>
+        <div class="row">
+            <div class=" col-12">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <table class="table  table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 2%;">
+                                        م
+                                    </th>
+                                    <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 15%;">
+                                        <span>رقم القيد</span>
+                                    </th>
+                                    <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 30%;">
+                                        <span>اسم الطالب</span>
+                                    </th>
+                                    <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 28%;">
+                                        اسم المادة
+                                    </th>
+                                    <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 15%;">
+                                        الدرجة
+                                    </th>
+                                    <th scope="col" style="width: 10%;"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    int no = 0;
                                 }
-                            <tr class="@selectedRow">
-                                <td class="text-center" style="vertical-align: middle;">
-                                    @no
-                                </td>
-                                <td class="text-center" style="vertical-align: middle;">
-                                    @Html.DisplayFor(modelItem => item.StAcademicData.StPersonalData.AcademicID)
-                                </td>
-                                <td class="text-center" style="vertical-align: middle;">
-                                    @Html.DisplayFor(modelItem => item.StAcademicData.StPersonalData.StName)
-                                </td>
-                                <td class="text-center" style="vertical-align: middle;">
-                                    @Html.DisplayFor(modelItem => item.Course.CourseName)
-                                </td>
-                                <td class="text-center" style="vertical-align: middle;">
-                                    @Html.DisplayFor(modelItem => item.Grade)
-                                </td>
-                                <td class="text-center" style="vertical-align: middle;">
 
-                                    @if (item.Course.SubCourses == null)
+                                @foreach (var item in Model.CourseGrades)
+                                {
+                                    no++;
+                                    string selectedRow = "";
+                                    if (item.Course.IsSubCourse == true)
                                     {
-                                        <!-- Modal placeholder -->
-                                        <div id="modal-placeholder"></div>
-                                        <button type="button" class="btn btn-primary btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Edit", "CourseGrade", new { id = item.Id })">
-                                            تعديل
-                                        </button>
-                                        @if (item.StAcademicData.AcademicYear.IsCurrentYear)
-                                        {
-                                            <a asp-action="Delete" class="btn btn-danger btn-sm align-self-center" asp-route-id="@item.Id">حذف</a>
-                                        }
+                                        selectedRow = "bg-secondary";
                                     }
-                                    </td>
-                            </tr>
-                            }
-                        </tbody>
-                    </table>
+                                    <tr class="@selectedRow">
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @no
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @Html.DisplayFor(modelItem => item.StAcademicData.StPersonalData.AcademicID)
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @Html.DisplayFor(modelItem => item.StAcademicData.StPersonalData.StName)
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @Html.DisplayFor(modelItem => item.Course.CourseName)
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            @Html.DisplayFor(modelItem => item.Grade)
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
 
+                                                <!-- Modal placeholder -->
+                                                <div id="modal-placeholder"></div>
+                                                <button type="button" class="btn btn-outline-success btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Edit", "CourseGrade", new { id = item.Id })">
+                                                    <i class="fas fa-edit" width="17" height="17"></i>
+                                                </button>
+                                                @if (item.StAcademicData.AcademicYear.IsCurrentYear)
+                                                {
+                                                    <a asp-action="Delete" class="btn btn-outline-danger btn-sm align-self-center" asp-route-id="@item.Id">
+                                                        <i class="fas fa-trash-alt" width="17" height="17"></i>
+                                                    </a>
+                                                }
+                                          
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+<!-- /.content -->
 
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <script>
+
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+        <script>
     $(document).ready(function () {
         $("#AcademicYearList").on("change", function () {
             var url = '@Url.Content("~/")' + "CourseGrade/GetBatchs";
@@ -215,15 +227,15 @@
 
         })
         $("#SpecializationList").on("change", function () {
-           
+
             fullCourseList();
         })
         $("#TermList").on("change", function () {
-           
+
             fullCourseList();
         })
         $("#LevelList").on("change", function () {
-           
+
             fullCourseList();
         })
         function fullCourseList(Id) {
@@ -233,10 +245,10 @@
             var SpecializationSource = "#SpecializationList";
             var Termsource = "#TermList";
             var Levelsource = "#LevelList";
-            
+
             $.getJSON(url, { SpecializationId: $(SpecializationSource).val(), level: $(Levelsource).val(), term: $(Termsource).val()}, function (data) {
                 var items = ' ';
-                
+
                 $("#CourseList").empty();
                 items += "<option value=' - 1'>-- الكل --</option>";
                 $.each(data, function (i, row) {
@@ -246,7 +258,7 @@
             })
         }
     })
-    </script>
-}
+        </script>
+    }
 
 

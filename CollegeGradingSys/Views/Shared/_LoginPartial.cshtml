@@ -2,25 +2,28 @@
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
-<ul class="navbar-nav">
+
 @if (SignInManager.IsSignedIn(User))
 {
-    <li class="nav-item">
-        <a  class="nav-link text-light" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">مرحبا @User.Identity.Name!</a>
-    </li>
-    <li class="nav-item">
-        <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button  type="submit" class="nav-link btn btn-link text-light">تسجيل الخروج</button>
+    <div class="image">
+        <img src="~/admin/dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
+    </div>
+    <div class="info">
+        @* <a href="#" class="">Alexander Pierce</a>*@
+        <a class="nav-link text-light py-0" style="font-size:small" title="Manage">@User.Identity.Name</a>
+        <form method="post" class="form-inline" asp-action="logout" asp-controller="Account">
+            <button type="submit" class="nav-link btn btn-link py-0 text-light" style="font-size:small">تسجيل الخروج</button>
         </form>
-    </li>
+    </div>
+
 }
 else
 {
-    <li class="nav-item">
-        <a class="nav-link text-light" asp-area="Identity" asp-page="/Account/Register">تسجيل</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link text-light" asp-area="Identity" asp-page="/Account/Login">تسجيل الدخول</a>
-    </li>
+    <div class="image">
+        <img src="~/admin/dist/img/login_Icon.png" class="img-circle elevation-2" alt="User Image">
+    </div>
+    <div class="info">
+        @* <a href="#" class="">Alexander Pierce</a>*@
+        <a class="nav-link text-light d-block" asp-controller="Account" style="font-size:small" asp-action="login">تسجيل الدخول</a>
+    </div>
 }
-</ul>

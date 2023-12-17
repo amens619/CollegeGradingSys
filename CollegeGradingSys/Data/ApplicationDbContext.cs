@@ -22,6 +22,7 @@ namespace CollegeGradingSys.Data
 
         public DbSet<Nationality> Nationality { get; set; }
 
+        public DbSet<DBSettings> DBSettings { get; set; }
         public DbSet<Governorate> Governorate { get; set; }
         public DbSet<District> District { get; set; }
         public DbSet<City> City { get; set; }
