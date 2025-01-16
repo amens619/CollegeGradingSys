@@ -1,6 +1,8 @@
 ﻿using CollegeGradingSys.Models;
+using Microsoft.AspNetCore.Hosting;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -8,6 +10,7 @@ namespace CollegeGradingSys.Data
 {
     public static class DbInitializer
     {
+       
         public static void Initialize(ApplicationDbContext context)
         {
             context.Database.EnsureCreated();
@@ -139,6 +142,11 @@ namespace CollegeGradingSys.Data
             context.Specialization.Add(Specialization);
             context.SaveChanges();
 
+           
+
+            var GeneralInfo = new GeneralInfo {  BranchHeadName = "د / أنور رمضان مسيعد", StDepartmentHead = "د / أحمد سقاف العيدروس" };
+            context.GeneralInfo.Add(GeneralInfo);
+            context.SaveChanges();
 
 
 

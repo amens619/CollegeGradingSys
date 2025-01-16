@@ -1,0 +1,102 @@
+﻿@model CollegeGradingSys.ViewModels.PrintGraduatStatementVM
+@{
+    Layout = "_PrintLayout";
+    ViewData["Title"] = "افادة التخرج من رابعة";
+}
+
+
+@section PrintLayoutCss {
+
+     <style>
+          .addressTxtStyle {
+          text-align: center;
+         font-family: "PT Bold Heading";
+         text-decoration: underline;
+         font-weight: bold;
+         font-size:34px;
+         }   
+          .ParagraphStyle {         
+         font-family: "Simplified Arabic";          
+         font-size:34px;
+           direction: rtl;        
+          text-indent: 50px;
+          text-align: justify;         
+          white-space: normal;
+          margin:5px 20px 20px 20px;
+         }  
+          .DoaaTxtStyle {
+          text-align: center;
+         font-family: "DecoType Naskh";        
+         font-size:30px;
+         }   
+          .NameStyle {
+          text-align: center;
+         font-family: "DecoType Naskh Extensions";        
+         font-size:30px;
+       /*  margin-left:75%;*/
+         }   
+     </style>
+   
+  
+
+}
+
+
+<!-- Main content -->
+<section class="page" data-size="A4">
+
+    <div class="container  mt-5" dir="rtl" >
+        <div class="row mt-5 justify-content-around ">
+            <div class=" col-4 text-center  ">التاريخ:<span>@Model.PrintConfEnrollDateH </span>هـ </div>
+            <div class=" col-4 text-center">الموافق:<span>@Model.PrintConfEnrollDate </span>م </div>
+        </div> 
+         <div class="row mt-2 justify-content-center addressTxtStyle ">
+           إفادة
+        </div> 
+         <div class="row  mb-5 mt-3  ">            
+             <p  class=" ParagraphStyle  ">
+                 تفيــد جامعـــــــــة الإيمـــــــان فــــــرع حضــــرمــــوت بـأن طـالـب/
+ <span>@Model.StName </span> المولـود في:  <span>@Model.Birthcountry </span> 
+
+ عام: <span>@Model.BirthDate </span>م وجنسيته: <span>@Model.Nationality</span> مقيد لدينا برقم (<span>@Model.AcademicID</span>) قد انهى مساق البكالوريوس سنة <span>@Model.GraduationYearH</span> هـ الموافق <span>@Model.GraduationYear</span> م بعد أن درس أربع سنوات في العلوم الشرعية والعربية من مدة الدراسة بالجامعة.
+
+             </p>
+        </div> 
+         <div class="row mt-5  justify-content-center DoaaTxtStyle ">
+           وإجراءات تخرج قيد المتابعة
+        </div>
+         <div class="row mt-2  justify-content-center DoaaTxtStyle ">
+           وقد أعطيت له هذه الإفادة بناءً على طلبه.
+        </div>
+         <div class="row mt-5  justify-content-center DoaaTxtStyle ">
+           والله الموفق
+        </div>
+        
+        <div class="row mt-5  justify-content-end">
+            <div class=" col-3 mt-5  NameStyle ">
+                <span>@Model.StDepartmentHead </span>               
+            </div>
+             <div class="col-2">
+
+             </div> 
+          </div> 
+        
+        <div class="row mt-3  justify-content-end">
+            <div class=" col-3  NameStyle ">
+           رئيس قسم شئون الطلاب
+             </div> 
+           <div class="col-2">
+
+             </div> 
+         </div> 
+        
+        
+   </div>
+</section>
+@section Scripts {
+  
+
+    <script>
+      
+    </script>
+}

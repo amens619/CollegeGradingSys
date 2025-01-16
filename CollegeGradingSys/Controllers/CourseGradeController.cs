@@ -1,25 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using CollegeGradingSys.Data;
+﻿using CollegeGradingSys.Helper;
 using CollegeGradingSys.Models;
 using CollegeGradingSys.Models.Repositories;
-using cloudscribe.Pagination.Models;
 using CollegeGradingSys.ViewModels;
-using System.Collections.ObjectModel;
-using System.Globalization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 //using GemBox.Spreadsheet;
 using OfficeOpenXml;
-using OfficeOpenXml.Style;
-using Microsoft.AspNetCore.Http;
-using CollegeGradingSys.Helper;
-using System.Drawing;
-using System.IO;
 using OfficeOpenXml.Drawing;
+using OfficeOpenXml.Style;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 
 namespace CollegeGradingSys.Controllers
 {
@@ -39,7 +34,7 @@ namespace CollegeGradingSys.Controllers
             , ICollegeGradingSysRepository<StPersonalData> StPersonalDataRepository
             , ICollegeGradingSysRepository<Batch> BatchRepository
             , ICollegeGradingSysRepository<AcademicYear> AcademicYearRepository
-            ,ICollegeGradingSysRepository<Specialization> SpecializationRepository
+            , ICollegeGradingSysRepository<Specialization> SpecializationRepository
             , ICollegeGradingSysRepository<Course> CourseRepository)
         {
             _CourseGradeRepository = CourseGradeRepository;
@@ -52,7 +47,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: StAcademicData
-        public IActionResult Index( string sortOrder, string currentFilter, string StNameSearch, int? BatchId, int? AcademicYearId, StStatus? stStatus, Term? term,Level? level,bool IsCurrentYear, int? SearchAcademicID, int pageNumber = 1, int pageSize = 5)
+        public IActionResult Index(string sortOrder, string currentFilter, string StNameSearch, int? BatchId, int? AcademicYearId, StStatus? stStatus, Term? term, Level? level, bool IsCurrentYear, int? SearchAcademicID, int pageNumber = 1, int pageSize = 5)
         {
             FullAllListes("-- الكل --");
             var model = new StAcademicDataIndexViewModel();
@@ -60,13 +55,13 @@ namespace CollegeGradingSys.Controllers
             ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewBag.SexSortParm = sortOrder == "SexSortParm" ? "SexSortParm_desc" : "SexSortParm";
 
-            
+
 
 
 
             if (StNameSearch != null)
             {
-               
+
             }
             else
             {
@@ -114,10 +109,10 @@ namespace CollegeGradingSys.Controllers
                         sts.Add(StPersonalData);
                     }
                 }
-                StPersonalDatas = sts;             
+                StPersonalDatas = sts;
                 ViewData["BatchId"] = new SelectList(FillSelectBatchsList("-- الكل --"), "Id", "BatchName", BatchId ?? -1);
             }
-            
+
             if (level != null)
             {
                 model.Level = level;
@@ -176,9 +171,9 @@ namespace CollegeGradingSys.Controllers
                         sts.Add(StPersonalData);
                     }
                 }
-                StPersonalDatas = sts;           
+                StPersonalDatas = sts;
             }
-            
+
 
             //var model = new StPersonalDataFilteringIndexData
             //{
@@ -199,7 +194,7 @@ namespace CollegeGradingSys.Controllers
 
 
 
-            
+
             //IList<StPersonalDataVM>  stPersonalDataVMs = new List<StPersonalDataVM>();
             //model.StAcademicDataVMs = new List<StAcademicDataVM>();
             //foreach (var stPersonalData in StPersonalDatas)
@@ -216,31 +211,31 @@ namespace CollegeGradingSys.Controllers
             //        .ThenBy(x => x.Term).LastOrDefault(),
 
             //    });
-               
+
             //}
-            
-             
+
+
 
             return View(model);
         }
 
-       
-        
-       //All student's Courses with a grade for one term Academy
+
+
+        //All student's Courses with a grade for one term Academy
         public IActionResult AllStCourseGrade(int id, bool? courseType)
         {
             var stAcademicData = _StAcademicDataRepository.Find(id);
-            
-            bool _courseType  = courseType ??= true;
+
+            bool _courseType = courseType ??= true;
             ICollection<CourseGrade> courseGrades = new List<CourseGrade>();
             if (stAcademicData != null)
             {
-                 courseGrades = _CourseGradeRepository
-                    .List()
-                    .Where(s => s.StAcademicData.Id.Equals(id))
-                    .Where(x => x.CourseType == courseType)
-                    .OrderBy(x => x.Id)
-                    .ToList();                                   
+                courseGrades = _CourseGradeRepository
+                   .List()
+                   .Where(s => s.StAcademicData.Id.Equals(id))
+                   .Where(x => x.CourseType == courseType)
+                   .OrderBy(x => x.Id)
+                   .ToList();
             }
 
             var model = new CourseGradeIndexViewModel()
@@ -264,7 +259,7 @@ namespace CollegeGradingSys.Controllers
 
 
         //All student's Courses with a grade for one term Academy
-        public IActionResult AllbatchCourseGrade(int? BatchId, int? AcademicYearId, StStatusForCourse? stStatusForCourse, Term? term, Level? level, bool? CourseType , int? CourseId)
+        public IActionResult AllbatchCourseGrade(int? BatchId, int? AcademicYearId, StStatusForCourse? stStatusForCourse, Term? term, Level? level, bool? CourseType, int? CourseId)
         {
 
             //term ??= Term.الأول;
@@ -332,7 +327,7 @@ namespace CollegeGradingSys.Controllers
         }
 
 
-        public IActionResult AllbatchCourseGradeFailed(string searchString, int? SearchAcademicID, Term? term, Level? level,int? CourseId,int? SpecializationId ,int? AcademicYearId,bool IsSelectCurrentYear)
+        public IActionResult AllbatchCourseGradeFailed(string searchString, int? SearchAcademicID, Term? term, Level? level, int? CourseId, int? SpecializationId, int? AcademicYearId, bool IsSelectCurrentYear)
         {
             var model = getAllCourseGradeFailedViewModel(searchString, SearchAcademicID, term, level, CourseId, SpecializationId, AcademicYearId, IsSelectCurrentYear);
 
@@ -361,19 +356,19 @@ namespace CollegeGradingSys.Controllers
             return View(model);
         }
 
-      
-            // POST: StAcademicData/Create
-            // To protect from overposting attacks, enable the specific properties you want to bind to.
-            // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-            [HttpPost]
+
+        // POST: StAcademicData/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create([Bind("Id,StLevel,Term,StStatus,Average,GPA,Valuation,IsCurrentYear,AcademicID,AcademicYearId,BatchId")] CreateStAcademicDataDataViewModel model)
         {
-           
+
             return View(model);
         }
 
-       
+
 
         // GET: StAcademicData/Edit/5
         public IActionResult Edit(int? id)
@@ -393,7 +388,7 @@ namespace CollegeGradingSys.Controllers
             {
                 stringGrade = courseGrade.Grade.Value.ToString("N2", new CultureInfo("en"));
             }
-             
+
             var model = new EditCourseGradeViewModel()
             {
                 Id = courseGrade.Id,
@@ -405,9 +400,9 @@ namespace CollegeGradingSys.Controllers
                 ParentId = courseGrade.Course.ParentId,
                 IsSubCourse = courseGrade.Course.IsSubCourse,
                 Grade = stringGrade
-            };            
-           
-          
+            };
+
+
             return PartialView("_Edit", model);
         }
 
@@ -422,15 +417,15 @@ namespace CollegeGradingSys.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, EditCourseGradeViewModel model,string Grade)
+        public IActionResult Edit(int id, EditCourseGradeViewModel model, string Grade)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    float? newGrade =null;
+                    float? newGrade = null;
                     StStatusForCourse NewStStatus = model.StStatusForCourse;
-                    if(NewStStatus== StStatusForCourse.ناجح || NewStStatus == StStatusForCourse.راسب)
+                    if (NewStStatus == StStatusForCourse.ناجح || NewStStatus == StStatusForCourse.راسب)
                     {
                         if (Grade is not null)
                         {
@@ -453,15 +448,15 @@ namespace CollegeGradingSys.Controllers
                             return PartialView("_Edit", model);
                         }
                     }
-                   
-                    
+
+
                     var oldcourseGrade = _CourseGradeRepository.Find(model.Id);
-                   
+
                     oldcourseGrade.StStatusForCourse = NewStStatus;
-                    oldcourseGrade.Grade = newGrade; 
-                   
+                    oldcourseGrade.Grade = newGrade;
+
                     _CourseGradeRepository.Update(id, oldcourseGrade);
-                    if (model.IsSubCourse is true )
+                    if (model.IsSubCourse is true)
                     {
                         var ParentCourseGrade = _CourseGradeRepository.List()
                             .Where(x => x.StAcademicData.Id == oldcourseGrade.StAcademicData.Id)
@@ -469,11 +464,11 @@ namespace CollegeGradingSys.Controllers
                         var sumGradeSubCourses = oldcourseGrade.Grade ?? 0.0f;
                         foreach (var SubCourse in ParentCourseGrade.Course.SubCourses)
                         {
-                            if(SubCourse.Id != oldcourseGrade.Course.Id)
+                            if (SubCourse.Id != oldcourseGrade.Course.Id)
                             {
                                 sumGradeSubCourses += _CourseGradeRepository.List()
                                                         .Where(x => x.StAcademicData.Id == oldcourseGrade.StAcademicData.Id)
-                                                        .SingleOrDefault(x => x.Course.Id == SubCourse.Id).Grade ?? 0;                              
+                                                        .SingleOrDefault(x => x.Course.Id == SubCourse.Id).Grade ?? 0;
                             }
 
                         }
@@ -490,7 +485,7 @@ namespace CollegeGradingSys.Controllers
                         _CourseGradeRepository.Update(ParentCourseGrade.Id, ParentCourseGrade);
                     }
                     //var specialization = _specializationRepository.Find(model.SpecializationId);
-                   
+
                     //_CourseGradeRepository.Update(id ,courseGrade);
                     return PartialView("_Edit", model);
                     //return RedirectToAction(nameof(Index));
@@ -520,7 +515,7 @@ namespace CollegeGradingSys.Controllers
             {
                 return NotFound();
             }
-           
+
 
             return View("Delete", courseGrade);
         }
@@ -529,7 +524,7 @@ namespace CollegeGradingSys.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, CourseGrade courseGrade)
         {
-           
+
             try
             {
                 if (id == null || id == 0)
@@ -545,8 +540,8 @@ namespace CollegeGradingSys.Controllers
                 }
                 _CourseGradeRepository.Delete(id);
                 return RedirectToAction(nameof(AllbatchCourseGradeFailed));
-                
-                
+
+
             }
             catch
             {
@@ -559,10 +554,10 @@ namespace CollegeGradingSys.Controllers
         {
 
             var course = new Course();
-            
-           
 
-            var model = getAllbatchCourseGradeViewModel(BatchId,AcademicYearId,stStatusForCourse,term,level,CourseType,CourseId);
+
+
+            var model = getAllbatchCourseGradeViewModel(BatchId, AcademicYearId, stStatusForCourse, term, level, CourseType, CourseId);
             var vmodel = new BatchCourseGradeUploadVM()
             {
                 CourseName = model.courseName,
@@ -571,13 +566,13 @@ namespace CollegeGradingSys.Controllers
                 Level = model.Level,
                 StStatusForCourse = model.StStatusForCourse,
                 Term = model.Term,
-                 Course = model.Course,
-                 CourseGrades = new List<CourseGradeVM>()
-            
+                Course = model.Course,
+                CourseGrades = new List<CourseGradeVM>()
+
 
             };
 
-            
+
             List<XlsxCourseGrade> xlsxCourseGrades = new List<XlsxCourseGrade>();
             if (ModelState.IsValid)
             {
@@ -585,7 +580,7 @@ namespace CollegeGradingSys.Controllers
                 {
                     vmodel.BatchGrades = batchGrades;
                     var stream = batchGrades.OpenReadStream();
-                    
+
                     try
                     {
                         using (var package = new ExcelPackage(stream))
@@ -598,16 +593,16 @@ namespace CollegeGradingSys.Controllers
                                 try
                                 {
                                     var xlsxCourseGrade = new XlsxCourseGrade();
-                                   
+
 
 
                                     var xlsxAcademicID = Convert.ToInt32(worksheet.Cells[row, 3].Value?.ToString());
-                                    
+
                                     xlsxCourseGrade.XlsxAcademicID = xlsxAcademicID;
 
                                     //================
                                     var txtXlsxGrade = worksheet.Cells[row, 4].Value?.ToString();
-                                    if(txtXlsxGrade  is not null)
+                                    if (txtXlsxGrade is not null)
                                     {
                                         var cultureInfo = new CultureInfo("en");
                                         if (!(int.TryParse(txtXlsxGrade,
@@ -632,7 +627,7 @@ namespace CollegeGradingSys.Controllers
                             }
                         }
 
-                      
+
 
                     }
                     catch (Exception e)
@@ -646,12 +641,12 @@ namespace CollegeGradingSys.Controllers
             {
                 bool IsGradeChange = false;
                 var academicID = courseGrade.StAcademicData.StPersonalData.AcademicID;
-                string xlsxErrorMSG="";
+                string xlsxErrorMSG = "";
 
                 var CG = xlsxCourseGrades.Where(x => x.XlsxAcademicID == academicID);
-                if (CG.Count() > 1 )
+                if (CG.Count() > 1)
                 {
-                    ViewBag.Message = "رقم القيد ("+ academicID.ToString() + ") مكرر لأكثر من طالب .... يرجى حذف كل الارقام المكررة لتكملة ادخال باقي درجات الطلاب";
+                    ViewBag.Message = "رقم القيد (" + academicID.ToString() + ") مكرر لأكثر من طالب .... يرجى حذف كل الارقام المكررة لتكملة ادخال باقي درجات الطلاب";
                     return View(vmodel);
                 }
 
@@ -666,7 +661,7 @@ namespace CollegeGradingSys.Controllers
                         courseGrade.StStatusForCourse = courseGrade.Grade >= courseGrade.Course.SmallGrade ? StStatusForCourse.ناجح : StStatusForCourse.راسب;
                     }
                     else { courseGrade.StStatusForCourse = StStatusForCourse.غير_محدد; }
-                    
+
                     xlsxErrorMSG = xlsxCourseGrade.XlsxErrorMSG;
                 }
 
@@ -677,16 +672,16 @@ namespace CollegeGradingSys.Controllers
                     StName = courseGrade.StAcademicData.StPersonalData.StName,
                     StStatusForCourse = courseGrade.StStatusForCourse,
                     Grade = courseGrade.Grade,
-                    IsGradeChange= IsGradeChange,
+                    IsGradeChange = IsGradeChange,
                     Course = courseGrade.Course,
-                     Note = xlsxErrorMSG,
+                    Note = xlsxErrorMSG,
                 });
 
             }
             return View(vmodel);
         }
         public IActionResult BatchUserUpload(IFormFile batchUsers)
-        {    
+        {
             return View();
         }
 
@@ -729,18 +724,18 @@ namespace CollegeGradingSys.Controllers
 
 
             return RedirectToAction(nameof(AllbatchCourseGrade));
-           
+
         }
-        
+
         List<Batch> FillSelectBatchsList(string batchName)
         {
             var Batches = _BatchRepository.List().ToList();
-            Batches.Insert(0, new Batch { Id = -1, BatchName = batchName  });
+            Batches.Insert(0, new Batch { Id = -1, BatchName = batchName });
 
             return Batches;
         }
 
-        
+
         private AllbatchCourseGradeViewModel getAllbatchCourseGradeViewModel(int? BatchId, int? AcademicYearId, StStatusForCourse? stStatusForCourse, Term? term, Level? level, bool? CourseType, int? CourseId)
         {
             term ??= Term.الأول;
@@ -748,7 +743,7 @@ namespace CollegeGradingSys.Controllers
             int courseId = CourseId ?? 0;
 
             var model = new AllbatchCourseGradeViewModel();
-            
+
             var AcademicYearsList = _AcademicYearRepository.List().OrderByDescending(x => x.AcademicYearStart).ToList();
 
             if (AcademicYearsList != null)
@@ -762,7 +757,7 @@ namespace CollegeGradingSys.Controllers
                 if (Batchs != null && Batchs.Count > 0)
                 {
                     batchId = BatchId ??= Batchs[0].Id;
-                    ViewData["BatchId"] = batchId;                    
+                    ViewData["BatchId"] = batchId;
                     ViewData["BatchsList"] = new SelectList(Batchs, "Id", "BatchName", batchId);
 
                     level ??= Batchs[0].StAcademicDatas.LastOrDefault().StLevel;
@@ -806,7 +801,7 @@ namespace CollegeGradingSys.Controllers
             return (model);
         }
 
-        
+
         private AllbatchCourseGradeFailedViewModel getAllCourseGradeFailedViewModel(string searchString, int? SearchAcademicID, Term? term, Level? level, int? CourseId, int? SpecializationId, int? AcademicYearId, bool IsSelectCurrentYear)
         {
             bool isTermSelected = false;
@@ -820,7 +815,7 @@ namespace CollegeGradingSys.Controllers
                 var currentYear = _AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true);
                 if (currentYear != null)
                 {
-                   
+
                     AcademicYearId = currentYear.Id;
                 }
 
@@ -863,7 +858,7 @@ namespace CollegeGradingSys.Controllers
 
             if (AcademicYearId != null && AcademicYearId != -1)
             {
-                
+
                 model.AcademicYearId = AcademicYearId ?? 1;
                 courseGrades = courseGrades.Where(x => x.StAcademicData.AcademicYear.Id == AcademicYearId).ToList();
             }
@@ -876,9 +871,9 @@ namespace CollegeGradingSys.Controllers
             }
             if (level != null)
             {
-               
-                 isLevelSelected = true;
-                
+
+                isLevelSelected = true;
+
                 model.Level = level;
                 courseGrades = courseGrades.Where(x => x.StAcademicData.StLevel == level).ToList();
             }
@@ -929,9 +924,9 @@ namespace CollegeGradingSys.Controllers
                           .Select(y => y.Key)
                           .ToList();
 
-            foreach (Batch  batch in query)
+            foreach (Batch batch in query)
             {
-                Batches.Add( _BatchRepository.Find(batch.Id));
+                Batches.Add(_BatchRepository.Find(batch.Id));
             }
 
             return Batches;
@@ -946,7 +941,7 @@ namespace CollegeGradingSys.Controllers
         List<StPersonalData> FillSelectStPersonalDatasList(string stName)
         {
             var StPersonalDatas = _StPersonalDataRepository.List().ToList();
-            StPersonalDatas.Insert(0, new StPersonalData {  AcademicID = -1,   StName = stName });
+            StPersonalDatas.Insert(0, new StPersonalData { AcademicID = -1, StName = stName });
 
             return StPersonalDatas;
         }
@@ -960,26 +955,26 @@ namespace CollegeGradingSys.Controllers
         }
 
         private void FullAllStListes(string text)
-        {            
+        {
             ViewData["AcademicID"] = new SelectList(FillSelectStPersonalDatasList(text), "AcademicID", "StName");
         }
 
         List<Specialization> FillSelectSpecializationesList(string specializationName)
         {
             var specializationes = _SpecializationRepository.List().ToList();
-            specializationes.Insert(0, new Specialization { Id = -1,  SpecializationName = specializationName });
+            specializationes.Insert(0, new Specialization { Id = -1, SpecializationName = specializationName });
 
             return specializationes;
         }
 
         public JsonResult GetBatchs(int academicYearId)
         {
-            var BatchsList = getBatchsOfOneAcademicYear(academicYearId);           
+            var BatchsList = getBatchsOfOneAcademicYear(academicYearId);
             return Json(new SelectList(BatchsList, "Id", "BatchName"));
         }
 
 
-        List<Course> getCoursessOfOneBatch(int? batchId, Level? level,Term? term)
+        List<Course> getCoursessOfOneBatch(int? batchId, Level? level, Term? term)
         {
             Batch selectedBatch = _BatchRepository.Find(batchId ?? 0);
             var courses = _CourseRepository.List()
@@ -994,7 +989,7 @@ namespace CollegeGradingSys.Controllers
 
             var Courses = _CourseRepository.List().ToList();
             if (SpecializationId != null && SpecializationId != -1)
-            {                
+            {
                 Courses = Courses.Where(x => x.Specialization.Id == SpecializationId).ToList();
             }
             if (level != null)
@@ -1003,10 +998,10 @@ namespace CollegeGradingSys.Controllers
             }
             if (term != null)
             {
-               Courses = Courses.Where(x => x.Term == term).ToList();
-            }                                 
-                                  
-                                 
+                Courses = Courses.Where(x => x.Term == term).ToList();
+            }
+
+
             return (Courses);
         }
 
@@ -1047,12 +1042,12 @@ namespace CollegeGradingSys.Controllers
 
         public ActionResult ExportCourseGradeToExcel(string searchString, int? SearchAcademicID, Term? term, Level? level, int? CourseId, int? SpecializationId, int? AcademicYearId, bool IsSelectCurrentYear)
         {
-           var model = getAllCourseGradeFailedViewModel(searchString, SearchAcademicID, term, level, CourseId, SpecializationId, AcademicYearId, IsSelectCurrentYear);
+            var model = getAllCourseGradeFailedViewModel(searchString, SearchAcademicID, term, level, CourseId, SpecializationId, AcademicYearId, IsSelectCurrentYear);
             // Get the user list 
-           
+
             //var users = GetlistOfUsers();
             var courses = getCoursessOfOneSpecialization(SpecializationId, level, term);
-                courses = courses.Where(x => x.IsSubCourse == false).ToList();
+            courses = courses.Where(x => x.IsSubCourse == false).ToList();
             var stream = new MemoryStream();
             using (var xlPackage = new ExcelPackage(stream))
             {
@@ -1074,10 +1069,10 @@ namespace CollegeGradingSys.Controllers
                 {
                     worksheet.Column(coursesNo + startColumn).Width = 24.86;
                 }
-               
-                
-                
-                worksheet.Column(coursesNo + startColumn).Width = 73.71;                
+
+
+
+                worksheet.Column(coursesNo + startColumn).Width = 73.71;
                 //==========================
                 worksheet.Row(1).Height = 45;
                 worksheet.Row(2).Height = 45;
@@ -1123,8 +1118,8 @@ namespace CollegeGradingSys.Controllers
                 //=============================
                 var academicYear = _AcademicYearRepository.Find(model.AcademicYearId);
                 worksheet.Cells[4, startColumn + 1, 4, coursesNo + 1].Style.Font.Size = 28;
-                
-                worksheet.Cells[4, startColumn + 1,4 ,coursesNo+1].Value = academicYear != null ? (" نتيجة إمتحانات       " + "المستوى: " + model.Level + "       الفصل: " + model.Term + "    للعام الجامعي: " + academicYear.AcademicYearNameH +  " الموافق " + academicYear.AcademicYearName ) : (" نتيجة إمتحانات       " + "المستوى: " + model.Level + "       الفصل: " + model.Term );
+
+                worksheet.Cells[4, startColumn + 1, 4, coursesNo + 1].Value = academicYear != null ? (" نتيجة إمتحانات       " + "المستوى: " + model.Level + "       الفصل: " + model.Term + "    للعام الجامعي: " + academicYear.AcademicYearNameH + " الموافق " + academicYear.AcademicYearName) : (" نتيجة إمتحانات       " + "المستوى: " + model.Level + "       الفصل: " + model.Term);
                 using (var r = worksheet.Cells[4, startColumn + 1, 4, coursesNo + 1])
                 {
                     r.Merge = true;
@@ -1133,8 +1128,8 @@ namespace CollegeGradingSys.Controllers
 
                 }
                 ////////============================
-                worksheet.Cells[1, coursesNo + startColumn-1, 1, coursesNo + startColumn ].Value = "Republic of Yemen";
-                using (var r = worksheet.Cells[1, coursesNo + startColumn - 1, 1, coursesNo + startColumn ])
+                worksheet.Cells[1, coursesNo + startColumn - 1, 1, coursesNo + startColumn].Value = "Republic of Yemen";
+                using (var r = worksheet.Cells[1, coursesNo + startColumn - 1, 1, coursesNo + startColumn])
                 {
                     r.Merge = true;
                     r.Style.Font.Name = "Times New Roman";
@@ -1143,8 +1138,8 @@ namespace CollegeGradingSys.Controllers
                     r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
 
                 }
-                worksheet.Cells[2, coursesNo + startColumn - 1, 2, coursesNo + startColumn ].Value = "AL - Eman university";
-                using (var r = worksheet.Cells[2, coursesNo - 1 + startColumn, 2, coursesNo + startColumn ])
+                worksheet.Cells[2, coursesNo + startColumn - 1, 2, coursesNo + startColumn].Value = "AL - Eman university";
+                using (var r = worksheet.Cells[2, coursesNo - 1 + startColumn, 2, coursesNo + startColumn])
                 {
                     r.Merge = true;
                     r.Style.Font.Name = "Stenc";
@@ -1155,7 +1150,7 @@ namespace CollegeGradingSys.Controllers
                 }
                 worksheet.Cells[3, coursesNo + startColumn - 1, 3, coursesNo + startColumn].Value = "Hadhramout branch";
 
-                using (var r = worksheet.Cells[3, coursesNo + startColumn-1, 3, coursesNo + startColumn ])
+                using (var r = worksheet.Cells[3, coursesNo + startColumn - 1, 3, coursesNo + startColumn])
                 {
                     r.Merge = true;
                     r.Style.Font.Name = "Times New Roman";
@@ -1170,7 +1165,7 @@ namespace CollegeGradingSys.Controllers
                 Color colGradFromHex = System.Drawing.ColorTranslator.FromHtml("#BFBFBF");
                 Color LightYellowFromHex = System.Drawing.ColorTranslator.FromHtml("#FFFFCC");
                 Color BrownFromHex = System.Drawing.ColorTranslator.FromHtml("#974706");
-               
+
                 //================================
 
                 int rowIndex = 1;
@@ -1180,10 +1175,10 @@ namespace CollegeGradingSys.Controllers
                 int Height = 153;
                 int Width = 100;
                 Image img = Image.FromFile(@"wwwroot/images/CollegeIcon.jpg");
-                
-                ExcelPicture pic = worksheet.Drawings.AddPicture("Sample", img);                
-                pic.SetPosition(PixelTop, PixelLeft);  
-               
+
+                ExcelPicture pic = worksheet.Drawings.AddPicture("Sample", img);
+                pic.SetPosition(PixelTop, PixelLeft);
+
 
                 using (var r = worksheet.Cells["A5:C5"])
                 {
@@ -1206,15 +1201,15 @@ namespace CollegeGradingSys.Controllers
                     r.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
                     r.Style.Border.Bottom.Color.SetColor(Color.Black);
                 }
-                row = startRow ;
+                row = startRow;
                 //================================
                 worksheet.Cells["A5"].Value = "م";
-                               //================================
+                //================================
                 worksheet.Cells["B5"].Value = "الرقم الاكاديمي";
-                              //================================
+                //================================
                 worksheet.Cells["C5"].Value = "الاسم";
                 //================================
-                 var Column = startColumn;
+                var Column = startColumn;
                 foreach (var course in courses)
                 {
                     Column++;
@@ -1239,7 +1234,7 @@ namespace CollegeGradingSys.Controllers
                         r.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
                         r.Style.Border.Bottom.Color.SetColor(Color.Black);
                     }
-                   
+
                     worksheet.Cells[row, Column].Value = course.CourseName;
                 }
 
@@ -1274,7 +1269,7 @@ namespace CollegeGradingSys.Controllers
                 var stsCourseGrade = model.CourseGrades.GroupBy(x => x.StAcademicData.StPersonalData);
 
 
-                
+
                 var no = 1;
                 foreach (var OneSt in stsCourseGrade)
                 {
@@ -1283,11 +1278,11 @@ namespace CollegeGradingSys.Controllers
                     worksheet.Cells[row, 1].Value = no;
 
                     DrowCell(worksheet, row, 1, Color.White);
-                    
-                    
+
+
                     //=================================================
                     worksheet.Cells[row, 2].Value = OneSt.Key.AcademicID;
-                    DrowCell(worksheet, row, 2, colGradFromHex);                  
+                    DrowCell(worksheet, row, 2, colGradFromHex);
                     //================================================
                     worksheet.Cells[row, 3].Value = OneSt.Key.StName;
                     DrowCell(worksheet, row, 3, Color.White);
@@ -1299,7 +1294,7 @@ namespace CollegeGradingSys.Controllers
                         var courseGradeTemp = OneSt.FirstOrDefault(x => x.Course.Id == course.Id);
                         if (courseGradeTemp != null)
 
-                            worksheet.Cells[row, Column].Value = courseGradeTemp.Grade != null ? courseGradeTemp.Grade : 0 ;
+                            worksheet.Cells[row, Column].Value = courseGradeTemp.Grade != null ? courseGradeTemp.Grade : 0;
                         else
                             worksheet.Cells[row, Column].Value = "-";
                         DrowCell(worksheet, row, Column, colGradFromHex);
@@ -1310,7 +1305,7 @@ namespace CollegeGradingSys.Controllers
 
                     no++;
                 }
-                for (; no <=24; no++)
+                for (; no <= 24; no++)
                 {
                     row++;
                     worksheet.Row(row).Height = 40;
@@ -1329,7 +1324,7 @@ namespace CollegeGradingSys.Controllers
                     Column = 3;
                     foreach (var course in courses)
                     {
-                        Column++;                      
+                        Column++;
                         worksheet.Cells[row, Column].Value = "";
                         DrowCell(worksheet, row, Column, colGradFromHex);
                     }
@@ -1342,7 +1337,7 @@ namespace CollegeGradingSys.Controllers
                 worksheet.Row(row + 1).Height = 201.75;
                 worksheet.Cells[row + 1, 1, row + 1, Column + 1].Style.Font.Size = 36;
                 worksheet.Cells[row + 1, 1, row + 1, Column + 1].Style.Font.Name = "Khalid Art bold";
-                worksheet.Cells[row+1,1, row+1, Column + 1].Value = "مدير القبول والتسجيل                                                             نائب رئيس الفرع لشئون الطلاب                                                نائب رئيس الفرع للشئون العلمية";
+                worksheet.Cells[row + 1, 1, row + 1, Column + 1].Value = "مدير القبول والتسجيل                                                             نائب رئيس الفرع لشئون الطلاب                                                نائب رئيس الفرع للشئون العلمية";
                 using (var r = worksheet.Cells[row + 1, 1, row + 1, Column + 1])
                 {
                     r.Merge = true;
@@ -1378,12 +1373,12 @@ namespace CollegeGradingSys.Controllers
         }
 
 
-       
 
-        private void DrowCell(OfficeOpenXml.ExcelWorksheet worksheet,int row ,int Column, Color backgroundColor)
+
+        private void DrowCell(OfficeOpenXml.ExcelWorksheet worksheet, int row, int Column, Color backgroundColor)
         {
             worksheet.Cells[row, Column].Style.Font.Size = 28;
-            worksheet.Cells[row , Column].Style.Font.Name = "Khalid Art bold";
+            worksheet.Cells[row, Column].Style.Font.Name = "Khalid Art bold";
             using (var r = worksheet.Cells[row, Column])
             {
                 r.Style.WrapText = true;
@@ -1408,5 +1403,5 @@ namespace CollegeGradingSys.Controllers
         }
     }
 
-   
+
 }

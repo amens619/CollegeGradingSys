@@ -40,8 +40,11 @@ namespace CollegeGradingSys.Models.Repositories
                  .Include(x => x.Batch)
                     .ThenInclude(y => y.Specialization)
                         .ThenInclude(z => z.Department)
+                            .ThenInclude(a => a.College)
                 .Include(x => x.AcademicYear)                
                 .Include(x => x.StPersonalData)
+                  .ThenInclude(y => y.Nationality)
+
                 .Include(x => x.CourseGrades)
                     .ThenInclude(y => y.Course)
                 .SingleOrDefault(a => a.Id == id);

@@ -270,6 +270,7 @@ namespace CollegeGradingSys
             services.AddTransient<ICollegeGradingSysRepository<DBSettings>, DBSettingsDbRepository>();
             services.AddTransient<ICollegeGradingSysRepository<StHighSchoolData>, StHighSchoolDataDbRepository>();
             services.AddTransient<ICollegeGradingSysRepository<StAcademicData>, StAcademicDataDbRepository>();
+            services.AddTransient<ICollegeGradingSysRepository<GeneralInfo>, GeneralInfoDbRepository>();
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(

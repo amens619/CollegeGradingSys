@@ -26,6 +26,8 @@ namespace CollegeGradingSys.Data
         public DbSet<Governorate> Governorate { get; set; }
         public DbSet<District> District { get; set; }
         public DbSet<City> City { get; set; }
+
+        public DbSet<GeneralInfo> GeneralInfo { get; set; }
         public DbSet<StPersonalData>  StPersonalData { get; set; }
         public DbSet<StHighSchoolData> StHighSchoolData { get; set; }
         public DbSet<AcademicYear> AcademicYear { get; set; }
