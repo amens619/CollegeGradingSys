@@ -19,6 +19,6 @@ namespace CollegeGradingSys.ViewModels
 
         [Display(Name = "المديرية")]
         public int DistrictId { get; set; }
-        public ICollection<District> Districts { get; set; }
+        public IList<SelectItemVM> DistrictsSelectItems { get; set; }
     }
 }

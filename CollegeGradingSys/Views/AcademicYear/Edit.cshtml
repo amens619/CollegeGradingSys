@@ -1,4 +1,4 @@
-﻿@model CollegeGradingSys.Models.AcademicYear
+﻿@model CollegeGradingSys.ViewModels.AcademicYearEditVM
 
 
 @{
@@ -14,7 +14,7 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="IsCurrentYear " />
+            <input type="hidden" asp-for="IsCurrentYear" />
             <div class="row">
                 <div class="col-md-8 px-0 offset-md-2">
                     <div class="card">
@@ -28,12 +28,14 @@
                             <div class="row">
                                 <div class="form-group col-md-3">
                                     <label asp-for="AcademicYearStart" class="control-label"></label>
-                                    <input asp-for="AcademicYearStart" class="form-control" data-val="true" data-val-date="الرجاء ادخال الصغية الصحيحة للتاريخ" data-val-required="الرجاء ادخال التاريخ" />
+                                    <input asp-for="AcademicYearStart" class="form-control" type="date" />                         
+                                    @* <input asp-for="AcademicYearStart" class="form-control" data-val="true" data-val-date="الرجاء ادخال الصغية الصحيحة للتاريخ" data-val-required="الرجاء ادخال التاريخ" /> *@
                                     <span asp-validation-for="AcademicYearStart" class="text-danger"></span>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label asp-for="AcademicYearEnd" class="control-label"></label>
-                                    <input asp-for="AcademicYearEnd" class="form-control" data-val="true" data-val-date="الرجاء ادخال الصغية الصحيحة للتاريخ" data-val-required="الرجاء ادخال التاريخ" />
+                                    <input asp-for="AcademicYearEnd" class="form-control" type="date" />
+                                    @* <input asp-for="AcademicYearEnd" class="form-control" data-val="true" data-val-date="الرجاء ادخال الصغية الصحيحة للتاريخ" data-val-required="الرجاء ادخال التاريخ" /> *@
                                     <span asp-validation-for="AcademicYearEnd" class="text-danger"></span>
                                 </div>
                                 <div class="form-group col-md-3">
@@ -48,7 +50,7 @@
                                 </div>
                                 <div class="form-group col-md-12">
                                     <label asp-for="Note" class="control-label"></label>
-                                    <input asp-for="Note" class="form-control" />
+                                    <textarea asp-for="Note" class="form-control" rows="3"></textarea>
                                     <span asp-validation-for="Note" class="text-danger"></span>
                                 </div>
                             </div>

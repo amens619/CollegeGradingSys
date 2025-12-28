@@ -1,5 +1,6 @@
 ﻿@model CollegeGradingSys.ViewModels.StAcademicDataIndexViewModel
 
+@using CollegeGradingSys.Models.Enums
 @using Microsoft.AspNetCore.Authorization
 @inject IAuthorizationService authorizationService
 
@@ -295,20 +296,20 @@
                                                         <a class="btn btn-dark mb-1 btn-sm" asp-route-id="@Model.StAcademicDataVMs[i].Id">تأكيد الدراسة</a>
                                                     }
                                                 }
-                                                @if (@Model.StAcademicDataVMs[i].StStatus == StStatus.ناجح && @Model.StAcademicDataVMs[i].StLevel == Level.الشامل)
+                                                @* @if (@Model.StAcademicDataVMs[i].StStatus == StStatus.ناجح && @Model.StAcademicDataVMs[i].StLevel == Level.الشامل)
                                                 {
                                                     @if ((await authorizationService.AuthorizeAsync(User, "StatementAfterComprehensivePolicy")).Succeeded)
                                                     {
                                                         <a class="btn btn-dark mb-1 btn-sm" asp-route-id="@Model.StAcademicDataVMs[i].Id">افادة بعد الشامل</a>
                                                     }
-                                                }
-                                                @if (@Model.StAcademicDataVMs[i].StStatus == StStatus.ناجح && @Model.StAcademicDataVMs[i].StLevel == Level.السابع)
+                                                } *@
+                                                @* @if (@Model.StAcademicDataVMs[i].StStatus == StStatus.ناجح && @Model.StAcademicDataVMs[i].StLevel == Level.السابع)
                                                 {
                                                     @if ((await authorizationService.AuthorizeAsync(User, "StatementThreeYearsPolicy")).Succeeded)
                                                     {
                                                         <a class="btn btn-dark mb-1 btn-sm" asp-route-id="@Model.StAcademicDataVMs[i].Id">افادة ثلاثة سنوات</a>
                                                     }
-                                                }
+                                                } *@
                                                 </td>
                                             </tr>
                                         }

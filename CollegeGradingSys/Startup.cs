@@ -1,24 +1,27 @@
 using CollegeGradingSys.Data;
 using CollegeGradingSys.Models;
-using CollegeGradingSys.Models.Repositories;
+using CollegeGradingSys.Repositories.Implementations;
+using CollegeGradingSys.Repositories.Interfaces;
+using CollegeGradingSys.Services.Implementations;
+using CollegeGradingSys.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Globalization;
-using Microsoft.AspNetCore.Localization;
-using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Authorization;
 
 namespace CollegeGradingSys
 {
@@ -242,35 +245,55 @@ namespace CollegeGradingSys
             {
                 options.ModelBindingMessageProvider.SetNonPropertyAttemptedValueIsInvalidAccessor(s => "The provided value is invalid.");
             });
-            //=====================================
-            //services.AddSingleton<ICollegeGradingSysRepository<College>, CollegeRepository>();
-            //services.AddSingleton<ICollegeGradingSysRepository<Nationality>, NationalityRepository>();
-            //services.AddSingleton<ICollegeGradingSysRepository<Governorate>, GovernorateRepository>();
-            //services.AddSingleton<ICollegeGradingSysRepository<District>, DistrictRepository>();
-            //services.AddSingleton<ICollegeGradingSysRepository <City>, CityRepository>();
-            //services.AddSingleton<ICollegeGradingSysRepository<Department>, DepartmentRepository>();
-            //services.AddSingleton<ICollegeGradingSysRepository<Specialization>, SpecializationRepository>();
-            //services.AddSingleton<ICollegeGradingSysRepository<StPersonalData>, StPersonalDataRepository>();
-            // services.AddSingleton<ICollegeGradingSysRepository<AcademicYear>, AcademicYearRepository>();
-            //services.AddSingleton<ICollegeGradingSysRepository<Batch>, BatchRepository>();
-            //============================================
-            //============================================================================================
-            services.AddTransient<ICollegeGradingSysRepository<College>, CollegeDbRepository>();
-            services.AddTransient<ICollegeGradingSysRepository<Nationality>, NationalityDbRepository>();
-            services.AddTransient<ICollegeGradingSysRepository<Governorate>, GovernorateDbRepository>();
-            services.AddTransient<ICollegeGradingSysRepository<District>, DistrictDbRepository>();
-            services.AddTransient<ICollegeGradingSysRepository<City>, CityDbRepository>();
-            services.AddTransient<ICollegeGradingSysRepository<Department>, DepartmentDbRepository>();
-            services.AddTransient<ICollegeGradingSysRepository<Specialization>, SpecializationDbRepository>();
-            services.AddTransient<ICollegeGradingSysRepository<StPersonalData>, StPersonalDataDbRepository>();
-            services.AddTransient<ICollegeGradingSysRepository<AcademicYear>, AcademicYearDbRepository>();
-            services.AddTransient<ICollegeGradingSysRepository<Course>, CourseDbRepository>();
-            services.AddTransient<ICollegeGradingSysRepository<CourseGrade>, CourseGradeDbRepository>();
-            services.AddTransient<ICollegeGradingSysRepository<Batch>, BatchDbRepository>();
-            services.AddTransient<ICollegeGradingSysRepository<DBSettings>, DBSettingsDbRepository>();
-            services.AddTransient<ICollegeGradingSysRepository<StHighSchoolData>, StHighSchoolDataDbRepository>();
-            services.AddTransient<ICollegeGradingSysRepository<StAcademicData>, StAcademicDataDbRepository>();
-            services.AddTransient<ICollegeGradingSysRepository<GeneralInfo>, GeneralInfoDbRepository>();
+            //============================================================================================           
+            services.AddScoped<IRepository<College>, CollegeDbRepository>();
+
+            services.AddScoped<IRepository<Nationality>, NationalityDbRepository>();
+
+            services.AddScoped<IRepository<Governorate>, GovernorateDbRepository>();
+
+            services.AddScoped<IRepository<District>, DistrictDbRepository>();
+
+            services.AddScoped<IRepository<City>, CityDbRepository>();
+
+            services.AddScoped<IRepository<DBSettings>, DBSettingsDbRepository>();
+
+            services.AddScoped<IRepository<Department>, DepartmentDbRepository>();
+
+            services.AddScoped<IRepository<Specialization>, SpecializationDbRepository>();
+
+            services.AddScoped<IRepository<Batch>, BatchDbRepository>();
+
+            services.AddScoped<IRepository<StAcademicData>, StAcademicDataDbRepository>();
+            services.AddScoped<IStAcademicDataService, StAcademicDataService>();           
+
+            services.AddScoped<IStPersonalDataRepository, StPersonalDataDbRepository>();
+            services.AddScoped<IStPersonalDataService, StPersonalDataService>();
+
+
+            services.AddScoped<IAcademicYearRepository, AcademicYearDbRepository>();
+            services.AddScoped<IAcademicYearService, AcademicYearService>();
+
+            services.AddScoped<ICourseRepository, CourseDbRepository>();
+            services.AddScoped<ICourseService, CourseService>();
+
+            services.AddScoped<ICourseGradeRepository, CourseGradeDbRepository>();
+            services.AddScoped<ICourseGradeService, CourseGradeService>();
+
+           
+
+            services.AddScoped<IStHighSchoolDataRepository, StHighSchoolDataDbRepository>();
+            services.AddScoped<IStHighSchoolDataService, StHighSchoolDataService>();
+
+
+           
+          
+
+
+            services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));
+
+
+            services.AddScoped<IRepository<GeneralInfo>, GeneralInfoDbRepository>();
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(

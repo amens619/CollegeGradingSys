@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CollegeGradingSys.ViewModels
 {
-    public class BatchCreateData
+    public class BatchCreateDataVM
     {
         public int Id { get; set; }
         [Required]

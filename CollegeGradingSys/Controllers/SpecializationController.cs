@@ -1,5 +1,5 @@
 ﻿using CollegeGradingSys.Models;
-using CollegeGradingSys.Models.Repositories;
+using CollegeGradingSys.Repositories.Interfaces;
 using CollegeGradingSys.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

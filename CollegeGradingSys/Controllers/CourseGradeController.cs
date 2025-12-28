@@ -1,6 +1,8 @@
-﻿using CollegeGradingSys.Helper;
-using CollegeGradingSys.Models;
-using CollegeGradingSys.Models.Repositories;
+﻿using CollegeGradingSys.Models;
+using CollegeGradingSys.Models.Enums;
+using CollegeGradingSys.Repositories.Implementations;
+using CollegeGradingSys.Repositories.Interfaces;
+using CollegeGradingSys.Utilities.Excel;
 using CollegeGradingSys.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +17,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Controllers
 {
@@ -25,7 +28,7 @@ namespace CollegeGradingSys.Controllers
         private readonly ICollegeGradingSysRepository<StAcademicData> _StAcademicDataRepository;
         private readonly ICollegeGradingSysRepository<StPersonalData> _StPersonalDataRepository;
         private readonly ICollegeGradingSysRepository<Batch> _BatchRepository;
-        private readonly ICollegeGradingSysRepository<AcademicYear> _AcademicYearRepository;
+        private readonly IAcademicYearRepository _AcademicYearRepository;
         private readonly ICollegeGradingSysRepository<Specialization> _SpecializationRepository;
         private readonly ICollegeGradingSysRepository<Course> _CourseRepository;
         private IFormatProvider cultureInfo;
@@ -33,7 +36,7 @@ namespace CollegeGradingSys.Controllers
         public CourseGradeController(ICollegeGradingSysRepository<CourseGrade> CourseGradeRepository, ICollegeGradingSysRepository<StAcademicData> StAcademicDataRepository
             , ICollegeGradingSysRepository<StPersonalData> StPersonalDataRepository
             , ICollegeGradingSysRepository<Batch> BatchRepository
-            , ICollegeGradingSysRepository<AcademicYear> AcademicYearRepository
+            , IAcademicYearRepository AcademicYearRepository
             , ICollegeGradingSysRepository<Specialization> SpecializationRepository
             , ICollegeGradingSysRepository<Course> CourseRepository)
         {
@@ -47,7 +50,7 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: StAcademicData
-        public IActionResult Index(string sortOrder, string currentFilter, string StNameSearch, int? BatchId, int? AcademicYearId, StStatus? stStatus, Term? term, Level? level, bool IsCurrentYear, int? SearchAcademicID, int pageNumber = 1, int pageSize = 5)
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string StNameSearch, int? BatchId, int? AcademicYearId, StStatus? stStatus, Term? term, Level? level, bool IsCurrentYear, int? SearchAcademicID, int pageNumber = 1, int pageSize = 5)
         {
             FullAllListes("-- الكل --");
             var model = new StAcademicDataIndexViewModel();
@@ -95,7 +98,7 @@ namespace CollegeGradingSys.Controllers
                 StPersonalDatas = sts;
                 //StPersonalDatas = StPersonalDatas.Where(x => x.StAcademicDatas.SingleOrDefault(x => x.AcademicYear.Id == AcademicYearId)).ToList();
                 ViewBag.SelectedBatchId = BatchId;
-                ViewData["AcademicYearId"] = new SelectList(FillSelectAcademicYearesList("-- الكل --"), "Id", "AcademicYearName", AcademicYearId ?? -1);
+                ViewData["AcademicYearId"] = new SelectList(await FillSelectAcademicYearesList("-- الكل --"), "Id", "AcademicYearName", AcademicYearId ?? -1);
             }
             if (BatchId != null)
             {
@@ -320,7 +323,7 @@ namespace CollegeGradingSys.Controllers
             //model.CourseType = CourseType ?? true;
             //model.CourseGrades = courseGrades.ToList();           
             //return View(model);
-            var model = getAllbatchCourseGradeViewModel(BatchId, AcademicYearId, stStatusForCourse, term, level, CourseType, CourseId);
+            var model = getAllbatchCourseGradeViewModelAsync(BatchId, AcademicYearId, stStatusForCourse, term, level, CourseType, CourseId);
 
             return View(model);
 
@@ -550,14 +553,12 @@ namespace CollegeGradingSys.Controllers
         }
 
 
-        public IActionResult BatchCourseGradeUpload(IFormFile batchGrades, int? BatchId, int? AcademicYearId, StStatusForCourse? stStatusForCourse, Term? term, Level? level, bool? CourseType, int? CourseId)
+        public async Task<IActionResult> BatchCourseGradeUpload(IFormFile batchGrades, int? BatchId, int? AcademicYearId, StStatusForCourse? stStatusForCourse, Term? term, Level? level, bool? CourseType, int? CourseId)
         {
 
-            var course = new Course();
+            var course = new Course();         
 
-
-
-            var model = getAllbatchCourseGradeViewModel(BatchId, AcademicYearId, stStatusForCourse, term, level, CourseType, CourseId);
+            var model = await getAllbatchCourseGradeViewModelAsync(BatchId, AcademicYearId, stStatusForCourse, term, level, CourseType, CourseId);
             var vmodel = new BatchCourseGradeUploadVM()
             {
                 CourseName = model.courseName,
@@ -736,7 +737,7 @@ namespace CollegeGradingSys.Controllers
         }
 
 
-        private AllbatchCourseGradeViewModel getAllbatchCourseGradeViewModel(int? BatchId, int? AcademicYearId, StStatusForCourse? stStatusForCourse, Term? term, Level? level, bool? CourseType, int? CourseId)
+        private async Task<AllbatchCourseGradeViewModel> getAllbatchCourseGradeViewModelAsync(int? BatchId, int? AcademicYearId, StStatusForCourse? stStatusForCourse, Term? term, Level? level, bool? CourseType, int? CourseId)
         {
             term ??= Term.الأول;
             int? batchId = BatchId;
@@ -744,7 +745,7 @@ namespace CollegeGradingSys.Controllers
 
             var model = new AllbatchCourseGradeViewModel();
 
-            var AcademicYearsList = _AcademicYearRepository.List().OrderByDescending(x => x.AcademicYearStart).ToList();
+            var AcademicYearsList = await _AcademicYearRepository.GetAllOrderedByStartDateAsync();
 
             if (AcademicYearsList != null)
             {
@@ -753,7 +754,7 @@ namespace CollegeGradingSys.Controllers
                 model.IsCurrentYear = AcademicYearsList.SingleOrDefault(x => x.Id == academicYearId).IsCurrentYear;
                 ViewData["AcademicYearsList"] = new SelectList(AcademicYearsList, "Id", "AcademicYearName", academicYearId);
                 ViewData["AcademicYearId"] = academicYearId;
-                var Batchs = getBatchsOfOneAcademicYear(academicYearId);
+                var Batchs = await getBatchsOfOneAcademicYear(academicYearId);
                 if (Batchs != null && Batchs.Count > 0)
                 {
                     batchId = BatchId ??= Batchs[0].Id;
@@ -802,7 +803,7 @@ namespace CollegeGradingSys.Controllers
         }
 
 
-        private AllbatchCourseGradeFailedViewModel getAllCourseGradeFailedViewModel(string searchString, int? SearchAcademicID, Term? term, Level? level, int? CourseId, int? SpecializationId, int? AcademicYearId, bool IsSelectCurrentYear)
+        private async Task<AllbatchCourseGradeFailedViewModel> getAllCourseGradeFailedViewModel(string searchString, int? SearchAcademicID, Term? term, Level? level, int? CourseId, int? SpecializationId, int? AcademicYearId, bool IsSelectCurrentYear)
         {
             bool isTermSelected = false;
             bool isLevelSelected = false;
@@ -812,7 +813,7 @@ namespace CollegeGradingSys.Controllers
 
             if (IsSelectCurrentYear == true)
             {
-                var currentYear = _AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true);
+                var currentYear =await _AcademicYearRepository.GetCurrentYearAsync();
                 if (currentYear != null)
                 {
 
@@ -841,7 +842,7 @@ namespace CollegeGradingSys.Controllers
                 ViewData["CourseList"] = new SelectList(courses, "Id", "CourseName", courseId);
 
             }
-            var AcademicYearsList = _AcademicYearRepository.List().OrderByDescending(x => x.AcademicYearStart).ToList();
+            var AcademicYearsList =(await _AcademicYearRepository.GetAllOrderedByStartDateAsync()).ToList();
 
             if (AcademicYearsList != null)
             {
@@ -913,10 +914,10 @@ namespace CollegeGradingSys.Controllers
         }
 
 
-        List<Batch> getBatchsOfOneAcademicYear(int AcademicYearId)
+        async Task<List<Batch>> getBatchsOfOneAcademicYear(int AcademicYearId)
         {
             var Batches = new List<Batch>();
-            var StAcademicDatas = _AcademicYearRepository.Find(AcademicYearId).StAcademicDatas;
+            var StAcademicDatas = (await _AcademicYearRepository.FindAsync(AcademicYearId)).StAcademicDatas;
             var query = StAcademicDatas
                           .GroupBy(x => x.Batch)
                           .Distinct()
@@ -931,13 +932,48 @@ namespace CollegeGradingSys.Controllers
 
             return Batches;
         }
-        List<AcademicYear> FillSelectAcademicYearesList(string academicYearName)
-        {
-            var AcademicYeares = _AcademicYearRepository.List().ToList();
-            AcademicYeares.Insert(0, new AcademicYear { Id = -1, AcademicYearName = academicYearName });
 
-            return AcademicYeares;
+
+        //async Task<List<AcademicYearSelectItemVM>> FillSelectAcademicYearesList(string academicYearName)
+        //{
+        //    var academicYears = (await _AcademicYearRepository.ListAsync())
+        //    .Select(x => new AcademicYearSelectItemVM
+        //    {
+        //        Id = x.Id,
+        //        Name = x.AcademicYearName
+        //    })
+        //    .ToList();
+
+        //    academicYears.Insert(0, new AcademicYearSelectItemVM
+        //    {
+        //        Id = -1,
+        //        Name = academicYearName
+        //    });
+
+        //    return academicYears;
+        //}
+
+        
+        public async Task<List<AcademicYearSelectItemVM>> FillSelectAcademicYearesList(string placeholder)
+        {
+            var years = (await _AcademicYearRepository.ListAsync())
+                .Select(x => new AcademicYearSelectItemVM
+                {
+                    Id = x.Id,
+                    Name = x.AcademicYearName
+                })
+                .ToList();
+
+                // Insert placeholder option
+                years.Insert(0, new AcademicYearSelectItemVM
+                {
+                    Id = -1,
+                    Name = placeholder
+                });
+
+            return years;
         }
+
         List<StPersonalData> FillSelectStPersonalDatasList(string stName)
         {
             var StPersonalDatas = _StPersonalDataRepository.List().ToList();
@@ -945,9 +981,9 @@ namespace CollegeGradingSys.Controllers
 
             return StPersonalDatas;
         }
-        private void FullAllListes(string text)
+        private async Task FullAllListes(string text)
         {
-            ViewData["AcademicYearId"] = new SelectList(FillSelectAcademicYearesList(text), "Id", "AcademicYearName");
+            ViewData["AcademicYearId"] = new SelectList(await FillSelectAcademicYearesList(text), "Id", "AcademicYearName");
             ViewData["BatchId"] = new SelectList(FillSelectBatchsList(text), "Id", "BatchName");
 
             ViewData["SpecializationId"] = new SelectList(FillSelectSpecializationesList(text), "Id", "SpecializationName");
@@ -967,9 +1003,9 @@ namespace CollegeGradingSys.Controllers
             return specializationes;
         }
 
-        public JsonResult GetBatchs(int academicYearId)
+        public async Task<JsonResult> GetBatchs(int academicYearId)
         {
-            var BatchsList = getBatchsOfOneAcademicYear(academicYearId);
+            var BatchsList = await getBatchsOfOneAcademicYear(academicYearId);
             return Json(new SelectList(BatchsList, "Id", "BatchName"));
         }
 
@@ -1025,9 +1061,9 @@ namespace CollegeGradingSys.Controllers
             return Json(new SelectList(CoursessList, "Id", "CourseName"));
         }
 
-        private AcademicYear GetCurrentYear()
+        private async Task<AcademicYear> GetCurrentYear()
         {
-            var currentYear = _AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true);
+            var currentYear = await _AcademicYearRepository.GetCurrentYearAsync();
             return (currentYear);
         }
 
@@ -1040,9 +1076,9 @@ namespace CollegeGradingSys.Controllers
         }
 
 
-        public ActionResult ExportCourseGradeToExcel(string searchString, int? SearchAcademicID, Term? term, Level? level, int? CourseId, int? SpecializationId, int? AcademicYearId, bool IsSelectCurrentYear)
+        public async Task<ActionResult> ExportCourseGradeToExcel(string searchString, int? SearchAcademicID, Term? term, Level? level, int? CourseId, int? SpecializationId, int? AcademicYearId, bool IsSelectCurrentYear)
         {
-            var model = getAllCourseGradeFailedViewModel(searchString, SearchAcademicID, term, level, CourseId, SpecializationId, AcademicYearId, IsSelectCurrentYear);
+            var model = await getAllCourseGradeFailedViewModel(searchString, SearchAcademicID, term, level, CourseId, SpecializationId, AcademicYearId, IsSelectCurrentYear);
             // Get the user list 
 
             //var users = GetlistOfUsers();
@@ -1116,7 +1152,7 @@ namespace CollegeGradingSys.Controllers
                 worksheet.Cells["A5:N5"].Style.Font.Name = "Khalid Art bold";
 
                 //=============================
-                var academicYear = _AcademicYearRepository.Find(model.AcademicYearId);
+                var academicYear = await _AcademicYearRepository.FindAsync(model.AcademicYearId);
                 worksheet.Cells[4, startColumn + 1, 4, coursesNo + 1].Style.Font.Size = 28;
 
                 worksheet.Cells[4, startColumn + 1, 4, coursesNo + 1].Value = academicYear != null ? (" نتيجة إمتحانات       " + "المستوى: " + model.Level + "       الفصل: " + model.Term + "    للعام الجامعي: " + academicYear.AcademicYearNameH + " الموافق " + academicYear.AcademicYearName) : (" نتيجة إمتحانات       " + "المستوى: " + model.Level + "       الفصل: " + model.Term);

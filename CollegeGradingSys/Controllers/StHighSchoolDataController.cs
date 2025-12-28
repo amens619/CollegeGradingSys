@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CollegeGradingSys.Data;
 using CollegeGradingSys.Models;
-using CollegeGradingSys.Models.Repositories;
 using CollegeGradingSys.ViewModels;
 using System.Globalization;
+using CollegeGradingSys.Repositories.Interfaces;
 
 namespace CollegeGradingSys.Controllers
 {

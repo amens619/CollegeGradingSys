@@ -1,20 +1,22 @@
-﻿using CollegeGradingSys.Models;
-using CollegeGradingSys.Models.Repositories;
+﻿using cloudscribe.Pagination.Models;
+using CollegeGradingSys.Models;
+using CollegeGradingSys.Models.Enums;
+using CollegeGradingSys.Repositories.Implementations;
+using CollegeGradingSys.Repositories.Interfaces;
 using CollegeGradingSys.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using cloudscribe.Pagination.Models;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
-using OfficeOpenXml;
-using System.Drawing;
-using OfficeOpenXml.Style;
-using Microsoft.AspNetCore.Authorization;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Controllers
 {
@@ -26,7 +28,7 @@ namespace CollegeGradingSys.Controllers
         private readonly ICollegeGradingSysRepository<StHighSchoolData> StHighSchoolDataRepository;
         private readonly ICollegeGradingSysRepository<Batch> BatchRepository;
         private readonly ICollegeGradingSysRepository<StAcademicData> StAcademicDataRepository;
-        private readonly ICollegeGradingSysRepository<AcademicYear> AcademicYearRepository;
+        private readonly IAcademicYearRepository AcademicYearRepository;
         private readonly ICollegeGradingSysRepository<Course> CourseRepository;
         private readonly ICollegeGradingSysRepository<CourseGrade> CourseGradeRepository;
 
@@ -36,7 +38,7 @@ namespace CollegeGradingSys.Controllers
             ICollegeGradingSysRepository<StHighSchoolData> StHighSchoolDataRepository,
             ICollegeGradingSysRepository<Batch> BatchRepository,
             ICollegeGradingSysRepository<StAcademicData> StAcademicDataRepository,
-            ICollegeGradingSysRepository<AcademicYear> AcademicYearRepository,
+            IAcademicYearRepository AcademicYearRepository,
             ICollegeGradingSysRepository<Course> CourseRepository,
             ICollegeGradingSysRepository<CourseGrade> CourseGradeRepository
             )
@@ -52,7 +54,7 @@ namespace CollegeGradingSys.Controllers
             this.CourseGradeRepository = CourseGradeRepository;
         }
         // GET: StPersonalDataController
-        public ActionResult Index(string sortOrder, string currentFilter, string searchString, string BatchName, int? id, bool IsSelectCurrentYear, int? AcademicYearId, StStatus? StStatus, int? SearchAcademicID, int pageNumber = 1, int pageSize = 10)
+        public async Task<ActionResult> Index(string sortOrder, string currentFilter, string searchString, string BatchName, int? id,  int? AcademicYearId, StStatus? StStatus, int? SearchAcademicID, int pageNumber = 1, int pageSize = 10,bool IsSelectCurrentYear = false)
         {
 
             ViewBag.CurrentSort = sortOrder;
@@ -80,15 +82,15 @@ namespace CollegeGradingSys.Controllers
 
             if (IsSelectCurrentYear == true)
             {
-                var currentYear = AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true);
+                var currentYear =await AcademicYearRepository.GetCurrentYearAsync();
                 if (currentYear != null)
                 {
                     AcademicYearId = currentYear.Id;
                 }
                              
             }
-            ViewData["IsSelectCurrentYear"] = IsSelectCurrentYear;
-            ViewData["AcademicYearId"] = new SelectList(FillSelectAcademicYearesList("-- الكل --"), "Id", "AcademicYearName", AcademicYearId ?? -1);
+            ViewBag.IsSelectCurrentYear = IsSelectCurrentYear;
+            ViewData["AcademicYearId"] = new SelectList(await FillSelectAcademicYearesList("-- الكل --"), "Id", "Name", AcademicYearId ?? -1);
             if (AcademicYearId != null)
             {
                 StPersonalDatasR = StPersonalDatasR.Where(x => x.EnrollmentYear.Id == AcademicYearId).ToList();
@@ -167,20 +169,21 @@ namespace CollegeGradingSys.Controllers
 
         // GET: StPersonalDataController/Create
         [Authorize(Policy = "CreateStPersonalDataPolicy")]
-        public ActionResult Create()
+        public async Task<ActionResult> Create()
         {
-            var currentYear = AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true); 
+            var currentYear = AcademicYearRepository.GetCurrentYearAsync(); 
            if(currentYear == null)
             {
                 ViewBag.Message = "الرجاء ادخال السنة الاكاديمية أولا ";
                 return RedirectToAction(nameof(Index));
             }
+            var currentAcademicYear =await AcademicYearRepository.FindAsync(currentYear.Id);
             var model = new StPersonalDataViewModel
             {
 
-                EnrollmentYearId= currentYear.Id,
-                EnrollmentYearM = currentYear.AcademicYearName,
-                EnrollmentYearH = currentYear.AcademicYearNameH,
+                EnrollmentYearId= currentAcademicYear.Id,
+                EnrollmentYearM = currentAcademicYear.AcademicYearName,
+                EnrollmentYearH = currentAcademicYear.AcademicYearNameH,
                 BirthDate = new DateTime(2000,1,1), 
                 Governorates = FillSelectGovernoratesList(),
                  Nationalities = FillSelectNationalitiesList()
@@ -193,9 +196,9 @@ namespace CollegeGradingSys.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "CreateStPersonalDataPolicy")]
-        public ActionResult Create(StPersonalDataViewModel model)
+        public async Task<ActionResult> Create(StPersonalDataViewModel model)
         {
-            var currentYear = AcademicYearRepository.Find(model.EnrollmentYearId);
+            var currentYear =await AcademicYearRepository.FindAsync(model.EnrollmentYearId);
             model.EnrollmentYearM = currentYear.AcademicYearName;
             model.EnrollmentYearH = currentYear.AcademicYearNameH;
 
@@ -286,7 +289,7 @@ namespace CollegeGradingSys.Controllers
                 var governorate = GovernorateRepository.Find(model.GovernorateId);
                     var nationality = NationalityRepository.Find(model.NationalityId);
                     var birthPlace = NationalityRepository.Find(model.BirthPlaceId);
-                    var enrollmentYear = AcademicYearRepository.Find(model.EnrollmentYearId);
+                    var enrollmentYear =await AcademicYearRepository.FindAsync(model.EnrollmentYearId);
                     StPersonalData stPersonalData = new()
                     {
                         AcademicID = newAcademicID,
@@ -399,7 +402,7 @@ namespace CollegeGradingSys.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "EditStPersonalDataPolicy")]
-        public ActionResult Edit(int id,StPersonalDataViewModel model)
+        public async Task<ActionResult> Edit(int id,StPersonalDataViewModel model)
         {
             try
             {
@@ -457,7 +460,7 @@ namespace CollegeGradingSys.Controllers
                 var governorate = GovernorateRepository.Find(model.GovernorateId);
                 var nationality = NationalityRepository.Find(model.NationalityId);
                 var birthPlace = NationalityRepository.Find(model.BirthPlaceId);
-                var enrollmentYear = AcademicYearRepository.Find(model.EnrollmentYearId);
+                var enrollmentYear =await AcademicYearRepository.FindAsync(model.EnrollmentYearId);
                 StPersonalData stPersonalData = new()
                 {
                     AcademicID = newAcademicID,
@@ -529,13 +532,13 @@ namespace CollegeGradingSys.Controllers
 
         //==============================================
         [Authorize(Policy = "ExportAcceptedStToExcelPolicy")]
-        public ActionResult ExportAcceptedStToExcel(bool IsSelectCurrentYear, int? AcademicYearId)
+        public async Task<ActionResult> ExportAcceptedStToExcel(bool IsSelectCurrentYear, int? AcademicYearId)
         {
             var StPersonalDatasR = StPersonalDataRepository.List();
 
             if (IsSelectCurrentYear == true)
             {
-                var currentYear = AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true);
+                var currentYear = AcademicYearRepository.GetCurrentYearAsync();
                 if (currentYear != null)
                 {
                     AcademicYearId = currentYear.Id;
@@ -543,11 +546,21 @@ namespace CollegeGradingSys.Controllers
 
             }
             ViewData["IsSelectCurrentYear"] = IsSelectCurrentYear;
-            ViewData["AcademicYearId"] = new SelectList(FillSelectAcademicYearesList("-- الكل --"), "Id", "AcademicYearName", AcademicYearId ?? -1);
-            if (AcademicYearId != null)
+
+            var academicYears =
+          await FillSelectAcademicYearesList("-- الكل --");
+
+            ViewData["AcademicYearId"] =
+                new SelectList(academicYears, "Id", "Name", AcademicYearId ?? -1);
+
+            if (AcademicYearId.HasValue)
             {
-                StPersonalDatasR = StPersonalDatasR.Where(x => x.EnrollmentYear.Id == AcademicYearId).ToList();
+                StPersonalDatasR = StPersonalDatasR
+                    .Where(x => x.EnrollmentYear.Id == AcademicYearId.Value)
+                    .ToList();
             }
+
+            
             // Get the user list 
             //var users = GetlistOfUsers();
 
@@ -606,7 +619,7 @@ namespace CollegeGradingSys.Controllers
 
                 }
                 //============================
-                var academicYear =  GetCurrentYear();
+                var academicYear = await GetCurrentYear();
                 worksheet.Cells["I2"].Value = academicYear.AcademicYearName;
                 Color colGradFromHex = System.Drawing.ColorTranslator.FromHtml("#F2F2F2");
                 Color LightYellowFromHex = System.Drawing.ColorTranslator.FromHtml("#FFFFCC");
@@ -1161,13 +1174,13 @@ namespace CollegeGradingSys.Controllers
         //==============================================
 
         [Authorize(Policy = "ExportSthighSchoolToExcelPolicy")]
-        public ActionResult ExportSthighSchoolToExcel(bool IsSelectCurrentYear, int? AcademicYearId)
+        public async Task<ActionResult> ExportSthighSchoolToExcel(bool IsSelectCurrentYear, int? AcademicYearId)
         {
             var StPersonalDatasR = StPersonalDataRepository.List();
 
             if (IsSelectCurrentYear == true)
             {
-                var currentYear = AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true);
+                var currentYear = AcademicYearRepository.GetCurrentYearAsync();
                 if (currentYear != null)
                 {
                     AcademicYearId = currentYear.Id;
@@ -1175,11 +1188,19 @@ namespace CollegeGradingSys.Controllers
 
             }
             ViewData["IsSelectCurrentYear"] = IsSelectCurrentYear;
-            ViewData["AcademicYearId"] = new SelectList(FillSelectAcademicYearesList("-- الكل --"), "Id", "AcademicYearName", AcademicYearId ?? -1);
-            if (AcademicYearId != null)
+            var academicYears =
+            await FillSelectAcademicYearesList("-- الكل --");
+
+            ViewData["AcademicYearId"] =
+                new SelectList(academicYears, "Id", "Name", AcademicYearId ?? -1);
+
+            if (AcademicYearId.HasValue)
             {
-                StPersonalDatasR = StPersonalDatasR.Where(x => x.EnrollmentYear.Id == AcademicYearId).ToList();
+                StPersonalDatasR = StPersonalDatasR
+                    .Where(x => x.EnrollmentYear.Id == AcademicYearId.Value)
+                    .ToList();
             }
+
             //================================           
             var stream = new MemoryStream();
             using (var xlPackage = new ExcelPackage(stream))
@@ -1435,14 +1456,27 @@ namespace CollegeGradingSys.Controllers
             return Json(new SelectList(GovernoratesList, "Id", "GovernorateName"));
         }
 
-        List<AcademicYear> FillSelectAcademicYearesList(string academicYearName)
+        public async Task<List<AcademicYearSelectItemVM>> FillSelectAcademicYearesList(string placeholder)
         {
-            var AcademicYeares = AcademicYearRepository.List().ToList();
-            AcademicYeares.Insert(0, new AcademicYear { Id = -1, AcademicYearName = academicYearName });
+            var years = (await AcademicYearRepository.ListAsync())
+                .Select(x => new AcademicYearSelectItemVM
+                {
+                    Id = x.Id,
+                    Name = x.AcademicYearName
+                })
+                .ToList();
 
-            return AcademicYeares;
+            // Insert placeholder option
+            years.Insert(0, new AcademicYearSelectItemVM
+            {
+                Id = -1,
+                Name = placeholder
+            });
+
+            return years;
         }
 
+       
         private bool IsAcademicIDExists(int academicID)
         {
             return StPersonalDataRepository.List().Any(e => e.AcademicID == academicID);
@@ -1465,9 +1499,9 @@ namespace CollegeGradingSys.Controllers
             }
         }
 
-        private AcademicYear GetCurrentYear()
+        private async Task<AcademicYear> GetCurrentYear()
         {
-            var currentYear = AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true);
+            var currentYear =await AcademicYearRepository.GetCurrentYearAsync();
             return (currentYear);
         }
 

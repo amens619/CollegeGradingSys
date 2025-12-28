@@ -1,4 +1,5 @@
 ﻿using CollegeGradingSys.Models;
+using CollegeGradingSys.Models.Enums;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;

@@ -1,6 +1,5 @@
-﻿
-using CollegeGradingSys.Helper;
-using CollegeGradingSys.Models;
+﻿using CollegeGradingSys.Models;
+using CollegeGradingSys.Models.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

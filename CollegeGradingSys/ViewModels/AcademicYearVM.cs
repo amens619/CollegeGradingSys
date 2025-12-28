@@ -11,6 +11,9 @@ namespace CollegeGradingSys.ViewModels
     public class AcademicYearVM
     {
         public bool IsCurrentYearClosed { get; set; }
-        public ICollection<AcademicYear> AcademicYears { get; set; }
+
+        public List<AcademicYearSelectItemVM> AcademicYears { get; set; } = new();
+
+        public int SelectedAcademicYearId { get; set; }
     }
 }

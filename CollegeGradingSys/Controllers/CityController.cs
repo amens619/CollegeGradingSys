@@ -1,5 +1,6 @@
 ﻿using CollegeGradingSys.Models;
-using CollegeGradingSys.Models.Repositories;
+using CollegeGradingSys.Repositories.Interfaces;
+using CollegeGradingSys.Services.Interfaces;
 using CollegeGradingSys.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -14,36 +15,47 @@ namespace CollegeGradingSys.Controllers
     [Authorize(Roles = "Admin,Owner")]
     public class CityController : Controller
     {
-        private readonly ICollegeGradingSysRepository<City> CityRepository;
-        private readonly ICollegeGradingSysRepository<District> DistrictRepository;
+        private readonly IGenericService<City> _cityService;
+        private readonly IGenericService<District> _districtService;
 
-        public CityController(ICollegeGradingSysRepository<City> CityRepository, ICollegeGradingSysRepository<District> DistrictRepository)
+        public CityController(IGenericService<City> cityService, IGenericService<District> districtService)
         {
-            this.CityRepository = CityRepository;
-            this.DistrictRepository = DistrictRepository;
+            _cityService = cityService;
+            _districtService = districtService;
         }
         // GET: CityController
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            var Citys = CityRepository.List();
+            var Citys =await _cityService.GetAllAsync();
             
-            return View(Citys);
+            var vm = Citys.Select(c => new CityIndexVM
+            {
+                Id = c.Id,
+                CityName = c.CityName,
+                DistrictName = c.District?.DistrictName
+            }).ToList();
+
+
+            
+            return View(vm);
         }
 
         // GET: CityController/Details/5
-        public ActionResult Details(int id)
+        public async Task<ActionResult> Details(int id)
         {
-            var city = CityRepository.Find(id);
+            var city =await _cityService.GetByIdAsync(id);
+
+
             return View(city);
         }
 
         // GET: CityController/Create
-        public ActionResult Create()
+        public async Task<ActionResult> Create()
         {
 
             var model = new DistrictCityViewModel
             {
-                Districts = FillSelectList()
+                DistrictsSelectItems = await FillSelectListAsync()
             };
 
             return View(model);
@@ -52,7 +64,7 @@ namespace CollegeGradingSys.Controllers
         // POST: CityController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(DistrictCityViewModel  model)
+        public async Task<ActionResult> Create(DistrictCityViewModel  model)
         {
             try
             {
@@ -61,17 +73,17 @@ namespace CollegeGradingSys.Controllers
                 {
                     ViewBag.Message = "الرجاء اختيار المديرية من القائمة";
 
-                    return View(GetAllDistricts());
+                    return View(await GetDistrictCityViewModelAsync());
                 }
 
-                var district = DistrictRepository.Find(model.DistrictId);
+                var district =await _districtService.GetByIdAsync(model.DistrictId);
                 City   city  = new()
                 {
                     Id = model.Id,
                      CityName  = model.CityName,
                      District = district,                    
                 };                
-                CityRepository.Add(city);
+                await _cityService.CreateAsync(city);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -81,16 +93,16 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: CityController/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<ActionResult> Edit(int id)
         {
-            var city = CityRepository.Find(id);
+            var city = await  _cityService.GetByIdAsync(id);
             var governorateId = city.District == null ? city.District.Id = 0 : city.District.Id;
             var model = new DistrictCityViewModel
             { 
                 Id = city.Id,
                 CityName = city.CityName,
                  DistrictId= governorateId,
-                Districts = DistrictRepository.List().ToList()
+                DistrictsSelectItems =await _districtService.GetSelectItemsAsync(b => new SelectItemVM { Id = b.Id, Name = b.DistrictName })
         };
             return View(model);
         }
@@ -98,18 +110,18 @@ namespace CollegeGradingSys.Controllers
         // POST: CityController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id,DistrictCityViewModel model)
+        public async Task<ActionResult> Edit(int id,DistrictCityViewModel model)
         {
             try
             {
-                var district = DistrictRepository.Find(model.DistrictId);
+                var district =await _districtService.GetByIdAsync(model.DistrictId);
                 City city = new()
                 {
                     Id = model.Id,
                     CityName = model.CityName,
                     District = district,
                 };                
-                CityRepository.Update(id, city);
+                await _cityService.UpdateAsync(city);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -119,9 +131,9 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: CityController/Delete/5
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            var  city = CityRepository.Find(id);
+            var  city = await _cityService.GetByIdAsync(id);
             
             return View(city);       
         }
@@ -129,11 +141,11 @@ namespace CollegeGradingSys.Controllers
         // POST: CityController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id,City model)
+        public async Task<ActionResult> Delete(int id,City model)
         {
             try
             {
-                CityRepository.Delete(id);
+                await _cityService.DeleteAsync(id);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -142,19 +154,21 @@ namespace CollegeGradingSys.Controllers
             }
         }
 
-        List<District> FillSelectList()
+        async Task<List<SelectItemVM>> FillSelectListAsync()
         {
-            var Districts = DistrictRepository.List().ToList();
-            Districts.Insert(0, new District { Id = -1,  DistrictName = "-- أختر --" });
-
-            return Districts;
+            var DistrictsSelectItemVM = await _districtService.GetSelectItemsAsync(b => new SelectItemVM
+            {
+                Id = b.Id,
+                Name = b.DistrictName
+            }, "-- أختر --");
+            return DistrictsSelectItemVM;
         }
 
-        DistrictCityViewModel GetAllDistricts()
+        async Task<DistrictCityViewModel> GetDistrictCityViewModelAsync()
         {
             var vmodel = new DistrictCityViewModel
             {
-                 Districts  = FillSelectList()
+                 DistrictsSelectItems  = await FillSelectListAsync()
             };
             return vmodel;
         }

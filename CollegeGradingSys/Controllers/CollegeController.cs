@@ -1,5 +1,9 @@
 ﻿using CollegeGradingSys.Models;
-using CollegeGradingSys.Models.Repositories;
+using CollegeGradingSys.Repositories.Interfaces;
+using CollegeGradingSys.Services.Implementations;
+using CollegeGradingSys.Services.Interfaces;
+using CollegeGradingSys.Utilities.Exceptions;
+using CollegeGradingSys.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,28 +17,29 @@ namespace CollegeGradingSys.Controllers
     [Authorize(Roles = "Admin,Owner")]
     public class CollegeController : Controller
     {
-        private readonly ICollegeGradingSysRepository<College> CollegeRepository;
-        private readonly ICollegeGradingSysRepository<Department> DepartmentRepository;
+        //private readonly GenericService<College> _collegeService;
+        private readonly ICollegeService _collegeService;
+      
 
-        public CollegeController(ICollegeGradingSysRepository<College> CollegeRepository
-            ,ICollegeGradingSysRepository<Department> DepartmentRepository)
+        public CollegeController(ICollegeService collegeService)
         {
-            this.CollegeRepository = CollegeRepository;
-            this.DepartmentRepository = DepartmentRepository;
+            _collegeService = collegeService;       
         }
         // GET: CollegeController
-        public ActionResult Index()
-        {
-            var colleges = CollegeRepository.List();
-            return View(colleges);
+        public async Task<ActionResult> Index()
+        {            
+            var colleges =await _collegeService.GetAllAsync();
+
+            var vm = colleges.Select(c => new CollegeIndexVM
+            {
+                Id = c.Id,
+                CollegeName = c.CollegeName
+            }).ToList();
+            return View(vm);
+           
         }
 
-        // GET: CollegeController/Details/5
-        //public ActionResult Details(int id)
-        //{
-        //    var college = CollegeRepository.Find(id);
-        //    return View(college);
-        //}
+       
 
         // GET: CollegeController/Create
         [Authorize(Policy = "CreateCollegePolicy")]
@@ -48,91 +53,92 @@ namespace CollegeGradingSys.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "CreateCollegePolicy")]
-        public ActionResult Create(College college)
+        public async Task<IActionResult> Create(CollegeCreateVM vm)
         {
+            if (!ModelState.IsValid)
+                return View(vm);
+
             try
             {
-                if(college.CollegeName == null)
-                {
-                    ModelState.Clear();
-                    ModelState.AddModelError(nameof(college.CollegeName), " الرجاء كتابة اسم الكلية");
-                    return View(college);
-                }
-
-                if (CollegeExistsByName((college.CollegeName).Trim()))
-                {
-                    ModelState.AddModelError(nameof(college.CollegeName), "لقد تم إيجاد كلية سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
-                    return View(college);
-                }
-                CollegeRepository.Add(college);
+                await _collegeService.CreateAsync(vm);
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (DomainException ex)
             {
-                return View();
+                ModelState.AddModelError(nameof(vm.CollegeName), ex.Message);
+                return View(vm);
             }
         }
 
         // GET: CollegeController/Edit/5
         [Authorize(Policy = "EditCollegePolicy")]
-        public ActionResult Edit(int id)
+        public async Task<ActionResult> Edit(int id)
         {
-            if (id == null || id == 0)
+            if (id <= 0)
+                return NotFound();
+
+            try
+            {
+                var college = await _collegeService.GetByIdAsync(id);
+                if (college == null) return NotFound();
+
+                var vm = new CollegeVM
+                {
+                    Id = college.Id,
+                    CollegeName = college.CollegeName
+                };
+                return View(vm);
+            }
+            catch (DomainException)
             {
                 return NotFound();
             }
-            var college = CollegeRepository.Find(id);
-            if (college is null)
-            {
-                return NotFound();
-            }
-            return View(college);
         }
 
         // POST: CollegeController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "EditCollegePolicy")]
-        public ActionResult Edit(int id,College model)
+        public async Task<IActionResult> Edit(CollegeVM vm)
         {
+            if (!ModelState.IsValid)
+                return View(vm);
+
             try
             {
-                if (id == null || id == 0)
-                {
-                    return NotFound();
-                }
-                if (model.CollegeName == null)
-                {
-                    ModelState.Clear();
-                    ModelState.AddModelError(nameof(model.CollegeName), " الرجاء كتابة اسم الكلية");
-                    return View(model);
-                }
-                
-                var college1 = CollegeRepository.List().SingleOrDefault(x => x.CollegeName == model.CollegeName);
-                if (college1 != null && college1.Id != model.Id)
-                {
-                    ModelState.AddModelError(nameof(model.CollegeName), "لقد تم إيجاد كلية سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
-                    return View(model);
-                }
-                var college = CollegeRepository.Find(id);
-                college.CollegeName = model.CollegeName;              
-                
-
-                CollegeRepository.Update(id, college);
+                await _collegeService.UpdateAsync(vm);
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (DomainException ex)
             {
-                return View();
+                ModelState.AddModelError(nameof(vm.CollegeName), ex.Message);
+                return View(vm);
             }
         }
 
         // GET: CollegeController/Delete/5
         [Authorize(Policy = "DeleteCollegePolicy")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            var college = CollegeRepository.Find(id);
-            return View(college);
+            if (id <= 0)
+                return NotFound();
+
+            try
+            {
+                var college = await _collegeService.GetByIdAsync(id);
+                if (college == null) return NotFound();
+
+                var vm = new CollegeVM
+                {
+                    Id = college.Id,
+                    CollegeName = college.CollegeName
+                };
+                return View(vm);
+            }
+            catch (DomainException)
+            {
+                return NotFound();
+            }
         }
 
         // POST: CollegeController/Delete/5
@@ -140,18 +146,11 @@ namespace CollegeGradingSys.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "DeleteCollegePolicy")]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {        
             try
             {
-                var DepartmentsOfCollege = DepartmentRepository.List().Where(x => x.College.Id == id).ToList();
-                if(DepartmentsOfCollege !=null && DepartmentsOfCollege.Count > 0)
-                {
-                    var college = CollegeRepository.Find(id);
-                    ViewBag.Message =  "لا يمكن حذف الكلية بسبب وجود اقسام تابعة لها.. الرجاء حذف الاقسام التابعة لها أولا ";
-                    return View(college);
-                }
-                CollegeRepository.Delete(id);
+                await _collegeService.DeleteAsync(id);               
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -160,9 +159,6 @@ namespace CollegeGradingSys.Controllers
             }
         }
 
-        private bool CollegeExistsByName(string CollegeName)
-        {
-            return CollegeRepository.List().Any(e => e.CollegeName == CollegeName);
-        }
+      
     }
 }

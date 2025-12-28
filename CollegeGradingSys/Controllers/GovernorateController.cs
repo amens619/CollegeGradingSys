@@ -1,5 +1,4 @@
 ﻿using CollegeGradingSys.Models;
-using CollegeGradingSys.Models.Repositories;
 using CollegeGradingSys.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using cloudscribe.Pagination.Models;
 using Microsoft.AspNetCore.Authorization;
+using CollegeGradingSys.Repositories.Interfaces;
 
 namespace CollegeGradingSys.Controllers
 {

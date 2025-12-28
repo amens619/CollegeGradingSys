@@ -1,5 +1,5 @@
 ﻿using CollegeGradingSys.Models;
-using CollegeGradingSys.Models.Repositories;
+using CollegeGradingSys.Repositories.Interfaces;
 using CollegeGradingSys.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -14,10 +14,10 @@ namespace CollegeGradingSys.Controllers
     public class HomeController : Controller
     {
         
-        private readonly ICollegeGradingSysRepository<AcademicYear> _AcademicYearRepository;
+        private readonly IAcademicYearRepository _AcademicYearRepository;
         private readonly ICollegeGradingSysRepository<StPersonalData> _StPersonalDataRepository;
 
-        public HomeController(ICollegeGradingSysRepository<AcademicYear> AcademicYearRepository,
+        public HomeController(IAcademicYearRepository AcademicYearRepository,
             ICollegeGradingSysRepository<StPersonalData> StPersonalDataRepository)
         {
             
@@ -25,10 +25,10 @@ namespace CollegeGradingSys.Controllers
             _StPersonalDataRepository = StPersonalDataRepository;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             
-            var academicYear = _AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true);
+            var academicYear =await _AcademicYearRepository.GetCurrentYearAsync();
             var stPersonalData = _StPersonalDataRepository.List().Where(x => x.EnrollmentYear.Id == academicYear.Id).ToList();
             var homeIndexData = new HomeIndexData();
             if (academicYear != null)

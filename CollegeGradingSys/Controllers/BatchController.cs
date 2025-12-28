@@ -1,15 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CollegeGradingSys.Data;
+using CollegeGradingSys.Models;
+using CollegeGradingSys.Repositories.Implementations;
+using CollegeGradingSys.Repositories.Interfaces;
+using CollegeGradingSys.Services.Interfaces;
+using CollegeGradingSys.Utilities.Exceptions;
+using CollegeGradingSys.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using CollegeGradingSys.Data;
-using CollegeGradingSys.Models;
-using CollegeGradingSys.Models.Repositories;
-using CollegeGradingSys.ViewModels;
-using Microsoft.AspNetCore.Authorization;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Controllers
 {
@@ -17,64 +20,76 @@ namespace CollegeGradingSys.Controllers
     public class BatchController : Controller
     {
        
-        private readonly ICollegeGradingSysRepository<Batch> _studentBatchRepository;
-        private readonly ICollegeGradingSysRepository<Specialization> _specializationRepository;
-        private readonly ICollegeGradingSysRepository<StAcademicData> StAcademicDataRepository;
+        private readonly IBatchService _batchService;
+        private readonly IGenericService<Specialization> _specializationService;
+        private readonly IStAcademicDataService StAcademicDataRepository;
 
-        public BatchController(ICollegeGradingSysRepository<Batch> studentBatchRepository,
-            ICollegeGradingSysRepository<Specialization> specializationRepository,
-            ICollegeGradingSysRepository<StAcademicData> StAcademicDataRepository)
+        public BatchController(IBatchService batchService,
+            IGenericService<Specialization> specializationService,
+            IStAcademicDataService StAcademicDataRepository)
         {
-            _studentBatchRepository = studentBatchRepository;
-            _specializationRepository = specializationRepository;
+            _batchService = batchService;
+            _specializationService = specializationService;
             this.StAcademicDataRepository = StAcademicDataRepository;
         }
 
         // GET: Batche
         public async Task<IActionResult> Index(int? id , int? SpecializationId)
         {
-            //if (id != null)
-            //{
-            //    AcademicYearId = id;
-            //}
-            var viewModel = new BatchIndexData();
-            IList<Batch> Batches = _studentBatchRepository.List().OrderByDescending(x => x.Id).ToList();
 
-            if (SpecializationId is not null and not (-1))
+
+            var viewModel = new BatchIndexData
             {
-                viewModel.SpecializationId = SpecializationId;
-                Batches = Batches.Where(a => a.Specialization.Id == SpecializationId).ToList();
+                Batches = await _batchService.GetBatchesAsync(SpecializationId),
+                SpecializationId = SpecializationId
+            };
 
-            }
-            viewModel.Batches = Batches;
-            ViewData["SpecializationId"] = new SelectList(FillSelectSpecializationsList("-- الكل --"), "Id", "SpecializationName", SpecializationId ?? -1);
+            ViewData["SpecializationId"] = new SelectList(
+                await _specializationService.GetAllAsync(),
+                "Id",
+                "SpecializationName",
+                SpecializationId ?? -1
+            );
+
             return View(viewModel);
+           
         }
+
+      
 
         // GET: Batche/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
+            if (id <= 0)
                 return NotFound();
-            }            
-            var studentBatch = _studentBatchRepository.Find(id ?? 0);
-               
-            if (studentBatch == null)
-            {
-                return NotFound();
-            }
 
-            return View(studentBatch);
+            var batch = await _batchService.GetByIdAsync(id ?? 0);
+            if (batch == null)
+                return NotFound();
+
+            var vm = new BatchDetailsVM
+            {
+                Id = batch.Id,
+                BatchName = batch.BatchName,
+                Note = batch.Note,
+                SpecializationName = batch.Specialization?.SpecializationName
+            };
+
+            return View(vm);
+           
         }
 
         // GET: Batche/Create
         
         [Authorize(Policy = "CreateBatchPolicy")]
-        public IActionResult Create()
+        public async Task<IActionResult> CreateAsync()
         {
-
-            ViewData["SpecializationId"] = new SelectList(FillSelectSpecializationsList("-- اختر --"), "Id", "SpecializationName");
+            ViewData["SpecializationId"] = new SelectList(
+               await FillSelectSpecializationsListAsync(),
+               "Id",
+               "SpecializationName"
+           );
+           
             return View();
         }
 
@@ -84,72 +99,58 @@ namespace CollegeGradingSys.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "CreateBatchPolicy")]
-        public  IActionResult Create([Bind("Id,BatchName,SpecializationId,Note")] BatchCreateData  batchCreateData)
+        public async Task<IActionResult> Create(BatchCreateDataVM  batchCreateData)
         {
-            ViewData["SpecializationId"] = new SelectList(FillSelectSpecializationsList("-- اختر --"), "Id", "SpecializationName");
-            if (ModelState.IsValid)
+            ViewData["SpecializationId"] =
+                    new SelectList(await FillSelectSpecializationsListAsync(),
+                      "Id", "SpecializationName");
+
+            if (!ModelState.IsValid)
+                return View(batchCreateData);
+
+            try
             {
-                if (batchCreateData.BatchName == null)
-                {
-
-                    ModelState.Clear();
-                    ModelState.AddModelError(nameof(batchCreateData.BatchName), "الرجاء ادخال اسم الدفعة");
-
-                    return View(batchCreateData);
-                }
-
-                if (isBatchNameExists((batchCreateData.BatchName).Trim()))
-                {
-                    ModelState.AddModelError(nameof(batchCreateData.BatchName), "لقد تم إيجاد دفعة سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
-                    return View(batchCreateData);
-                }
-
-                if (batchCreateData.SpecializationId == -1)
-                {
-                    ViewBag.Message = "الرجاء اختيار  العام الدراسي من القائمة";
-                    
-                    return View(batchCreateData);
-                }
-                var specialization = _specializationRepository.Find(batchCreateData.SpecializationId);
-                Batch batch = new Batch
-                {
-                    Id = batchCreateData.Id,
-                    BatchName = batchCreateData.BatchName,
-                    Note = batchCreateData.Note,
-                    Specialization = specialization
-                };
-                _studentBatchRepository.Add(batch);
+                await _batchService.CreateAsync(batchCreateData);
                 return RedirectToAction(nameof(Index));
             }
-            return View(batchCreateData);
+            catch (DomainException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(batchCreateData);
+            }          
+          
         }
 
         // GET: Batche/Edit/5
         [Authorize(Policy = "EditBatchPolicy")]
         public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
+            if (id <= 0)            
                 return NotFound();
-            }
+           
 
-            var studentBatch = _studentBatchRepository.Find(id);
+            var Batch =await _batchService.GetByIdAsync(id);
 
-            if (studentBatch == null)
-            {
+            if (Batch == null)            
                 return NotFound();
-            }
+           
             
-            var model = new BatchCreateData
+            var model = new BatchCreateDataVM
             {
                 
-                Id = studentBatch.Id,
-                BatchName = studentBatch.BatchName,
-                SpecializationId = studentBatch.Specialization.Id,
-                Note = studentBatch.Note
+                Id = Batch.Id,
+                BatchName = Batch.BatchName,
+                SpecializationId = Batch.Specialization?.Id ?? 0,
+                Note = Batch.Note
                  
-            };
-            ViewData["SpecializationId"] = new SelectList(_specializationRepository.List().ToList(), "Id", "SpecializationName");
+            };  
+            
+            ViewData["SpecializationId"] = new SelectList(
+                  await _specializationService.GetAllAsync(),
+                  "Id",
+                  "SpecializationName",
+                  model.SpecializationId
+              );
             return View(model);
         }
 
@@ -159,115 +160,103 @@ namespace CollegeGradingSys.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "EditBatchPolicy")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,BatchName,SpecializationId,Note")] BatchCreateData studentBatchVM)
+        public async Task<IActionResult> Edit(int id, BatchEditVM vm)
         {
-            if (id == null)
-            {
+            if (id != vm.Id)
                 return NotFound();
+
+            if (!ModelState.IsValid)
+            {
+                vm.Specializations = await _specializationService.GetAllAsync();
+                return View(vm);
             }
 
-            if (id != studentBatchVM.Id)
+            try
             {
-                return NotFound();
-            }
-            ViewData["SpecializationId"] = new SelectList(_specializationRepository.List().ToList(), "Id", "SpecializationName");
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    if (studentBatchVM.BatchName == null)
-                    {
-
-                        ModelState.Clear();
-                        ModelState.AddModelError(nameof(studentBatchVM.BatchName), "الرجاء ادخال اسم الدفعة");
-
-                        return View(studentBatchVM);
-                    }
-
-                    var department1 = _studentBatchRepository.List().SingleOrDefault(x => x.BatchName == studentBatchVM.BatchName);
-                    if (department1 != null && department1.Id != studentBatchVM.Id)
-                    {
-                        ModelState.AddModelError(nameof(studentBatchVM.BatchName), "لقد تم إيجاد دفعة سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
-                        return View(studentBatchVM);
-                    }
-                    var specialization = _specializationRepository.Find(studentBatchVM.SpecializationId);
-                    var studentBatch = _studentBatchRepository.Find(studentBatchVM.Id);
-
-                    studentBatch.BatchName = studentBatchVM.BatchName;
-                    studentBatch.Specialization = specialization;
-                    studentBatch.Note = studentBatchVM.Note;
-                        
-                    
-                    _studentBatchRepository.Update(id, studentBatch);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    return View(studentBatchVM);
-                }
+                await _batchService.UpdateBatchAsync(vm);
                 return RedirectToAction(nameof(Index));
             }
-            return View(studentBatchVM);
+            catch (DomainException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+
+            vm.Specializations = await _specializationService.GetAllAsync();
+            return View(vm);
+
         }
 
         // GET: Batche/Delete/5
         [Authorize(Policy = "DeleteBatchPolicy")]
         public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
+            if (id <= 0)
                 return NotFound();
-            }
 
-            var studentBatch = _studentBatchRepository.Find(id);
-            if (studentBatch == null)
-            {
+            var batch = await _batchService.GetByIdAsync(id);
+            if (batch == null)
                 return NotFound();
-            }
 
-            return View(studentBatch);
+            var vm = new BatchDeleteVM
+            {
+                Id = batch.Id,
+                BatchName = batch.BatchName,
+                SpecializationName = batch.Specialization?.SpecializationName
+            };
+
+            return View(vm);
+           
+          
+
+          
+
+           
+          
         }
 
         // POST: Batche/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "DeleteBatchPolicy")]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             try
             {
-                var StAcademicDatasOFBatch = StAcademicDataRepository.List().Where(x => x.Batch.Id == id).ToList();
-                if (StAcademicDatasOFBatch != null && StAcademicDatasOFBatch.Count > 0)
-                {
-                    var studentBatch = _studentBatchRepository.Find(id);
-                    ViewBag.Message = "لا يمكن حذف الدفعة بسبب وجود سجل اكاديمي لبعض الطلاب تابعة لها.. الرجاء حذف السجلات التابعة لها أولا ";
-                    return View(studentBatch);
-                }
-                _studentBatchRepository.Delete(id);
+                await _batchService.DeleteAsync(id);
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (DomainException ex)
             {
-                return View();
-            }
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return RedirectToAction(nameof(Delete), new { id });
+            }           
           
         }
 
-        //private bool BatchExists(int id)
+      
+
+        //async Task<List<Specialization>> FillSelectSpecializationsListAsync(string specializationName)
         //{
-        //    return _context.Batch.Any(e => e.Id == id);
+        //    var specializations = (await _specializationService.GetAllAsync()).ToList();
+        //    specializations.Insert(0, new Specialization { Id = -1, SpecializationName = specializationName });
+
+        //    return specializations;
         //}
 
-        List<Specialization> FillSelectSpecializationsList(string specializationName)
+        async Task<List<SelectItemVM>> FillSelectSpecializationsListAsync()
         {
-            var specializations = _specializationRepository.List().ToList();
-            specializations.Insert(0, new Specialization { Id = -1,  SpecializationName  = specializationName });
-
-            return specializations;
+            var SelectItemVM = await _specializationService.GetSelectItemsAsync(b => new SelectItemVM
+            {
+                Id = b.Id,
+                Name = b.SpecializationName
+            }, "-- أختر --");
+            return SelectItemVM;
         }
 
-        private bool isBatchNameExists(string batchName)
-        {
-            return _studentBatchRepository.List().Any(e => e.BatchName == batchName);
-        }
+
     }
+
+    //public class task<T>
+    //{
+    //}
 }
