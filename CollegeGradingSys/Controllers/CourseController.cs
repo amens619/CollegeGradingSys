@@ -1,6 +1,6 @@
-﻿using CollegeGradingSys.Models.Enums;
+﻿using CollegeGradingSys.Models;
+using CollegeGradingSys.Models.Enums;
 using CollegeGradingSys.Services.Interfaces;
-using CollegeGradingSys.Utilities.Exceptions;
 using CollegeGradingSys.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,35 +18,23 @@ namespace CollegeGradingSys.Controllers
         {
             _courseService = courseService;
         }
-
         // GET: CourseController
         public async Task<ActionResult> Index(Term? term, Level? level, int? SpecializationId)
         {
-            var courses = await _courseService.GetFilteredCoursesAsync(term, level, SpecializationId);
-            var vm = new CourseIndexViewModel
-            {
-                Term = term,
-                Level = level,
-                SpecializationId = SpecializationId,
-                Courses = courses
-            };
-            
-            var specializations = await _courseService.GetSpecializationsSelectItemsAsync();
-            ViewData["Specializations"] = new SelectList(specializations, "Id", "Name");
-            
+            var vm = await _courseService.GetIndexViewModelAsync(term, level, SpecializationId);
+            var specializations = await _courseService.GetSpecializationsAsync();
+            ViewData["Specializations"] = new SelectList(specializations, "Id", "SpecializationName");
             return View(vm);
         }
 
         // GET: CourseController/Details/5
         public async Task<ActionResult> Details(int id)
         {
-            if (id <= 0)
-                return NotFound();
-
-            var vm = await _courseService.GetCourseDetailsAsync(id);
+            var vm = await _courseService.GetDetailsViewModelAsync(id);
             if (vm == null)
+            {
                 return NotFound();
-
+            }
             return View(vm);
         }
 
@@ -54,10 +42,15 @@ namespace CollegeGradingSys.Controllers
         //[Authorize(Policy = " CreateCoursePolicy")]
         public async Task<ActionResult> Create()
         {
-            var model = await _courseService.PrepareCreateCourseViewModelAsync();
-            await FillViewDataAsync();
+            var model = await _courseService.GetCreateViewModelAsync();
+            await FullAllListsAsync();
             return PartialView("_Create", model);
         }
+
+       
+
+       
+
 
         // POST: CourseController/Create
         [HttpPost]
@@ -65,37 +58,57 @@ namespace CollegeGradingSys.Controllers
         //[Authorize(Policy = " CreateCoursePolicy")]
         public async Task<ActionResult> Create(CreateCourseViewModel model)
         {
-            if (!ModelState.IsValid)
+            ModelState.ClearValidationState(nameof(model));
+
+            if (!TryValidateModel(model, nameof(model)))
             {
-                await FillViewDataAsync();
+                await FullAllListsAsync();
                 return PartialView("_Create", model);
             }
 
-            try
+            var (success, errorMessage) = await _courseService.CreateCourseAsync(model);
+            
+            if (!success)
             {
-                await _courseService.CreateCourseAsync(model);
+                if (errorMessage.Contains("الدرجة الكبرى"))
+                {
+                    ModelState.AddModelError(nameof(model.BigGrade), errorMessage);
+                }
+                else if (errorMessage.Contains("الدرجة الصغرى"))
+                {
+                    ModelState.AddModelError(nameof(model.SmallGrade), errorMessage);
+                }
+                else if (errorMessage.Contains("اسم المادة"))
+                {
+                    ModelState.AddModelError(nameof(model.CourseName), errorMessage);
+                }
+                else if (errorMessage.Contains("المادة الاساسية"))
+                {
+                    ModelState.AddModelError(nameof(model.ParentId), errorMessage);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, errorMessage);
+                }
+
+                await FullAllListsAsync();
                 return PartialView("_Create", model);
             }
-            catch (DomainException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                await FillViewDataAsync();
-                return PartialView("_Create", model);
-            }
+
+            await FullAllListsAsync();
+            return PartialView("_Create", model);
         }
 
         // GET: CourseController/Edit/5
         //[Authorize(Policy = " EditCoursePolicy")]
         public async Task<ActionResult> Edit(int id)
         {
-            if (id <= 0)
-                return NotFound();
-
-            var model = await _courseService.PrepareEditCourseViewModelAsync(id);
+            var model = await _courseService.GetEditViewModelAsync(id);
             if (model == null)
+            {
                 return NotFound();
-
-            await FillViewDataAsync();
+            }
+            await FullAllListsAsync();
             return PartialView("_Edit", model);
         }
 
@@ -105,71 +118,95 @@ namespace CollegeGradingSys.Controllers
         //[Authorize(Policy = " EditCoursePolicy")]
         public async Task<ActionResult> Edit(int id, EditCourseViewModel model)
         {
-            if (id != model.Id)
-                return NotFound();
+            ModelState.ClearValidationState(nameof(model));
 
-            if (!ModelState.IsValid)
+            if (!TryValidateModel(model, nameof(model)))
             {
-                await FillViewDataAsync();
+                await FullAllListsAsync();
                 return PartialView("_Edit", model);
             }
 
-            try
+            var (success, errorMessage) = await _courseService.UpdateCourseAsync(model);
+            
+            if (!success)
             {
-                await _courseService.UpdateCourseAsync(model);
+                if (errorMessage.Contains("الدرجة الكبرى"))
+                {
+                    ModelState.AddModelError(nameof(model.BigGrade), errorMessage);
+                }
+                else if (errorMessage.Contains("الدرجة الصغرى"))
+                {
+                    ModelState.AddModelError(nameof(model.SmallGrade), errorMessage);
+                }
+                else if (errorMessage.Contains("اسم المادة"))
+                {
+                    ModelState.AddModelError(nameof(model.CourseName), errorMessage);
+                }
+                else if (errorMessage.Contains("المادة الاساسية"))
+                {
+                    ModelState.AddModelError(nameof(model.ParentId), errorMessage);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, errorMessage);
+                }
+
+                await FullAllListsAsync();
                 return PartialView("_Edit", model);
             }
-            catch (DomainException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                await FillViewDataAsync();
-                return PartialView("_Edit", model);
-            }
+
+            await FullAllListsAsync();
+            return PartialView("_Edit", model);
         }
 
         // GET: CourseController/Delete/5
         [Authorize(Policy = " DeleteCoursePolicy")]
         public async Task<ActionResult> Delete(int id)
         {
-            if (id <= 0)
+            if (id == null || id == 0)
+            {
                 return NotFound();
-
-            var vm = await _courseService.PrepareDeleteCourseViewModelAsync(id);
-            if (vm == null)
+            }
+            var course = await _courseService.GetByIdAsync(id);
+            if (course is null)
+            {
                 return NotFound();
+            }
+           
 
-            return PartialView("_Delete", vm);
+            return PartialView("_Delete", course);
         }
 
         // POST: CourseController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = " DeleteCoursePolicy")]
-        public async Task<ActionResult> Delete(int id, CourseDeleteViewModel vm)
+        public async Task<ActionResult> Delete(int id, Course course)
         {
-            if (id != vm.Id)
-                return NotFound();
-
             try
             {
-                await _courseService.DeleteCourseAsync(id);
-                return PartialView("_Delete", vm);
+                var (canDelete, errorMessage) = await _courseService.CanDeleteCourseAsync(id);
+                
+                if (!canDelete)
+                {
+                    ModelState.AddModelError(nameof(course.CourseName), "");
+                    ViewBag.Message = errorMessage;
+                    return PartialView("_Delete", course);
+                }
+
+                await _courseService.DeleteAsync(id);
+                return PartialView("_Delete", course);
             }
-            catch (DomainException ex)
+            catch
             {
-                vm.ErrorMessage = ex.Message;
-                ModelState.AddModelError(string.Empty, ex.Message);
-                return PartialView("_Delete", vm);
+                return PartialView("_Delete", course);
             }
         }
 
-        private async Task FillViewDataAsync()
-        {
-            var parentCourses = await _courseService.GetParentCoursesSelectItemsAsync();
-            var specializations = await _courseService.GetSpecializationsSelectItemsAsync();
-            
-            ViewData["ParentsCourses"] = new SelectList(parentCourses, "Id", "Name");
-            ViewData["Specializations"] = new SelectList(specializations, "Id", "Name");
+        async Task FullAllListsAsync()
+        {   
+            ViewData["ParentsCourses"] = new SelectList(await _courseService.GetParentCoursesAsync(), "Id", "CourseName");
+            ViewData["Specializations"] = new SelectList(await _courseService.GetSpecializationsAsync(), "Id", "SpecializationName");
         }
     }
 }

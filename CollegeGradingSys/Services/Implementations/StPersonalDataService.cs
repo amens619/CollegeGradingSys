@@ -2,6 +2,7 @@
 using CollegeGradingSys.Repositories.Interfaces;
 using CollegeGradingSys.Services.Interfaces;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Services.Implementations
@@ -22,6 +23,12 @@ namespace CollegeGradingSys.Services.Implementations
 
         public Task<IList<StPersonalData>> GetAllFullAsync()
             => _repo.ListFullAsync();
+
+        public async Task<IEnumerable<StPersonalData>> GetByEnrollmentYearAsync(int enrollmentYearId)
+        {
+            var allStudents = await GetAllFullAsync();
+            return allStudents.Where(x => x.EnrollmentYear?.Id == enrollmentYearId);
+        }
     }
 
 }

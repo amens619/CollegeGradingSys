@@ -1,12 +1,7 @@
-﻿using CollegeGradingSys.Models;
-using CollegeGradingSys.Repositories.Interfaces;
+﻿using CollegeGradingSys.Services.Interfaces;
 using CollegeGradingSys.ViewModels;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Controllers
@@ -14,23 +9,16 @@ namespace CollegeGradingSys.Controllers
     [Authorize(Roles = "Admin,Owner")]
     public class DepartmentController : Controller
     {
-        private readonly ICollegeGradingSysRepository<Department> DepartmentRepository;
-        private readonly ICollegeGradingSysRepository<College> CollegeRepository;
-        private readonly ICollegeGradingSysRepository<Specialization> SpecializationRepository;
+        private readonly IDepartmentService _departmentService;
 
-        public DepartmentController(ICollegeGradingSysRepository<Department> DepartmentRepository,
-            ICollegeGradingSysRepository<College> CollegeRepository,
-            ICollegeGradingSysRepository<Specialization> SpecializationRepository)
+        public DepartmentController(IDepartmentService departmentService)
         {
-            this.DepartmentRepository = DepartmentRepository;
-            this.CollegeRepository = CollegeRepository;
-            this.SpecializationRepository = SpecializationRepository;
+            _departmentService = departmentService;
         }
         // GET: DepartmentController
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            var departments = DepartmentRepository.List();
-            
+            var departments = await _departmentService.GetAllAsync();
             return View(departments);
         }
 
@@ -43,14 +31,9 @@ namespace CollegeGradingSys.Controllers
 
         // GET: DepartmentController/Create
         [Authorize(Policy = "CreateDepartmentPolicy")]
-        public ActionResult Create()
+        public async Task<ActionResult> Create()
         {
-
-            var model = new CollegeDepartmentViewModel
-            {
-                 Colleges = FillSelectList()
-            };
-
+            var model = await _departmentService.GetCreateViewModelAsync();
             return View(model);
         }
 
@@ -58,68 +41,53 @@ namespace CollegeGradingSys.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "CreateDepartmentPolicy")]
-        public ActionResult Create(CollegeDepartmentViewModel  model)
+        public async Task<ActionResult> Create(CollegeDepartmentViewModel model)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                model.Colleges = FillSelectList();
-                if (model.DepartmentName == null)
-                {
-
-                    ModelState.Clear();
-                    ModelState.AddModelError(nameof(model.DepartmentName), " الرجاء كتابة اسم القسم");
-
-                    return View(model);
-                }
-
-                if (isDepartmentExistsByName((model.DepartmentName).Trim()))
-                {
-                    ModelState.AddModelError(nameof(model.DepartmentName), "لقد تم إيجاد قسم سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
-                    return View(model);
-                }
-                if (model.CollegeId == -1)
-                {
-                    ViewBag.Message = "الرجاء اختيار الكلية من القائمة";
-
-                    return View(GetAllColleges());
-                }
-                var college = CollegeRepository.Find(model.CollegeId);
-                Department department = new Department
-                {
-                    Id = model.Id,
-                     DepartmentName  = model.DepartmentName,
-                     College = college,                    
-                };                
-                DepartmentRepository.Add(department);
-                return RedirectToAction(nameof(Index));
+                model.Colleges = await _departmentService.GetCollegesAsync();
+                return View(model);
             }
-            catch
+
+            var (success, errorMessage) = await _departmentService.CreateDepartmentAsync(model);
+            
+            if (!success)
             {
-                return View();
+                if (errorMessage.Contains("اسم القسم"))
+                {
+                    ModelState.AddModelError(nameof(model.DepartmentName), errorMessage);
+                }
+                else if (errorMessage.Contains("الكلية"))
+                {
+                    ViewBag.Message = errorMessage;
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, errorMessage);
+                }
+
+                model.Colleges = await _departmentService.GetCollegesAsync();
+                return View(model);
             }
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: DepartmentController/Edit/5
         [Authorize(Policy = "EditDepartmentPolicy")]
-        public ActionResult Edit(int id)
+        public async Task<ActionResult> Edit(int id)
         {
             if (id == null || id == 0)
             {
                 return NotFound();
             }
-            var department = DepartmentRepository.Find(id);
-            if (department is null)
+
+            var model = await _departmentService.GetEditViewModelAsync(id);
+            if (model == null)
             {
                 return NotFound();
             }
-            var collegeId = department.College.Id ;
-            var model = new CollegeDepartmentViewModel
-            { 
-                Id = department.Id,
-                DepartmentName = department.DepartmentName,
-                 CollegeId= collegeId,
-                Colleges = CollegeRepository.List().ToList()
-        };
+
             return View(model);
         }
 
@@ -127,53 +95,48 @@ namespace CollegeGradingSys.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "EditDepartmentPolicy")]
-        public ActionResult Edit(int id,CollegeDepartmentViewModel model)
+        public async Task<ActionResult> Edit(int id, CollegeDepartmentViewModel model)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                if (model.DepartmentName == null)
+                model.Colleges = await _departmentService.GetCollegesAsync();
+                return View(model);
+            }
+
+            var (success, errorMessage) = await _departmentService.UpdateDepartmentAsync(id, model);
+            
+            if (!success)
+            {
+                if (errorMessage.Contains("اسم القسم"))
                 {
-
-                    ModelState.Clear();
-                    ModelState.AddModelError(nameof(model.DepartmentName), " الرجاء كتابة اسم القسم");
-
-                    return View(model);
+                    ModelState.AddModelError(nameof(model.DepartmentName), errorMessage);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, errorMessage);
                 }
 
-                var department1 = DepartmentRepository.List().SingleOrDefault(x => x.DepartmentName == model.DepartmentName);
-                if (department1 !=null && department1.Id != model.Id)
-                {
-                    ModelState.AddModelError(nameof(model.DepartmentName), "لقد تم إيجاد قسم سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
-                    return View(model);
-                }
-                var college = CollegeRepository.Find(model.CollegeId);
-                var department = DepartmentRepository.Find(model.Id);
+                model.Colleges = await _departmentService.GetCollegesAsync();
+                return View(model);
+            }
 
-                department.DepartmentName = model.DepartmentName;
-                department.College = college;
-                              
-                DepartmentRepository.Update(id, department);
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: DepartmentController/Delete/5
         [Authorize(Policy = "DeleteDepartmentPolicy")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
             if (id == null || id == 0)
             {
                 return NotFound();
             }
-            var department = DepartmentRepository.Find(id);
-            if (department is null)
+
+            var department = await _departmentService.GetByIdAsync(id);
+            if (department == null)
             {
                 return NotFound();
-            }         
+            }
             
             return View(department);       
         }
@@ -182,46 +145,27 @@ namespace CollegeGradingSys.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "DeleteDepartmentPolicy")]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             try
             {
-                var SpecializationsOFDepartment = SpecializationRepository.List().Where(x => x.Department.Id == id).ToList();
-                if (SpecializationsOFDepartment != null && SpecializationsOFDepartment.Count > 0)
+                var (canDelete, errorMessage) = await _departmentService.CanDeleteDepartmentAsync(id);
+                
+                if (!canDelete)
                 {
-                    var department = DepartmentRepository.Find(id);
-                    ViewBag.Message = "لا يمكن حذف القسم بسبب وجود تخصصات تابعة له.. الرجاء حذف التخصصات التابعة له أولا ";
+                    var department = await _departmentService.GetByIdAsync(id);
+                    ViewBag.Message = errorMessage;
                     return View(department);
                 }
-                DepartmentRepository.Delete(id);
+
+                await _departmentService.DeleteAsync(id);
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return View();
+                var department = await _departmentService.GetByIdAsync(id);
+                return View(department);
             }
-        }
-
-        List<College> FillSelectList()
-        {
-            var Colleges = CollegeRepository.List().ToList();
-            Colleges.Insert(0, new College { Id = -1,  CollegeName = "-- أختر --" });
-
-            return Colleges;
-        }
-
-        CollegeDepartmentViewModel GetAllColleges()
-        {
-            var vmodel = new CollegeDepartmentViewModel
-            {
-                 Colleges  = FillSelectList()
-            };
-            return vmodel;
-        }
-
-        private bool isDepartmentExistsByName(string DepartmentName)
-        {
-            return DepartmentRepository.List().Any(e => e.DepartmentName == DepartmentName);
         }
     }
 }

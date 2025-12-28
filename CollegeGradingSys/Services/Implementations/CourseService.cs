@@ -2,9 +2,7 @@
 using CollegeGradingSys.Models.Enums;
 using CollegeGradingSys.Repositories.Interfaces;
 using CollegeGradingSys.Services.Interfaces;
-using CollegeGradingSys.Utilities.Exceptions;
 using CollegeGradingSys.ViewModels;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -73,102 +71,8 @@ namespace CollegeGradingSys.Services.Implementations
             return await _courseRepository.ExistsAsync(id);
         }
 
-        // Use Cases Implementation
-        public async Task<IList<Course>> GetFilteredCoursesAsync(Term? term, Level? level, int? specializationId)
-        {
-            var courses = (await GetAllAsync())
-                .OrderBy(x => x.Level)
-                .ThenBy(x => x.Term)
-                .ToList();
-
-            if (specializationId != null && specializationId != -1)
-            {
-                courses = courses.Where(x => x.Specialization?.Id == specializationId).ToList();
-            }
-
-            if (level != null)
-            {
-                courses = courses.Where(x => x.Level == level).ToList();
-            }
-
-            if (term != null)
-            {
-                courses = courses.Where(x => x.Term == term).ToList();
-            }
-
-            return courses;
-        }
-
-        public async Task<bool> IsCourseNameExistsAsync(string courseName, int? excludeId = null)
-        {
-            var courses = await GetAllAsync();
-            if (excludeId.HasValue)
-            {
-                return courses.Any(e => e.CourseName == courseName && e.Id != excludeId.Value);
-            }
-            return courses.Any(e => e.CourseName == courseName);
-        }
-
-        public async Task ValidateCourseNameAsync(string courseName, int? excludeId = null)
-        {
-            if (string.IsNullOrWhiteSpace(courseName))
-            {
-                throw new DomainException("الرجاء إدخال اسم المادة بطول 40 حرفًا على الاكثر.");
-            }
-
-            if (await IsCourseNameExistsAsync(courseName.Trim(), excludeId))
-            {
-                throw new DomainException("لقد تم إيجاد مادة بنفس اسم .. الرجاء كتابة اسم آخر");
-            }
-        }
-
-        public async Task ValidateGradesAsync(string bigGrade, string smallGrade)
-        {
-            var cultureInfo = new CultureInfo("en");
-            
-            if (string.IsNullOrEmpty(bigGrade))
-            {
-                throw new DomainException("الرجاء إدخال الدرجة الكبرى رقماً صحيحا بين 0 - 100.");
-            }
-
-            if (!int.TryParse(bigGrade, NumberStyles.Integer, cultureInfo, out var bigGradeValue) || 
-                !(bigGradeValue >= 0 && bigGradeValue <= 100))
-            {
-                throw new DomainException("الرجاء إدخال الدرجة الكبرى رقماً صحيحا بين 0 - 100.");
-            }
-
-            if (string.IsNullOrEmpty(smallGrade))
-            {
-                throw new DomainException("الرجاء إدخال الدرجة الصغرى رقماً صحيحا بين 0 - 100.");
-            }
-
-            if (!int.TryParse(smallGrade, NumberStyles.Integer, cultureInfo, out var smallGradeValue) || 
-                !(smallGradeValue >= 0 && smallGradeValue <= 100))
-            {
-                throw new DomainException("الرجاء إدخال الدرجة الصغرى رقماً صحيحا بين 0 - 100.");
-            }
-        }
-
-        public async Task<(int bigGrade, int smallGrade)> ParseGradesAsync(string bigGrade, string smallGrade)
-        {
-            await ValidateGradesAsync(bigGrade, smallGrade);
-            
-            var cultureInfo = new CultureInfo("en");
-            int.TryParse(bigGrade, NumberStyles.Integer, cultureInfo, out var bigGradeValue);
-            int.TryParse(smallGrade, NumberStyles.Integer, cultureInfo, out var smallGradeValue);
-            
-            return (bigGradeValue, smallGradeValue);
-        }
-
-        public async Task ValidateSubCourseAsync(bool isSubCourse, int? parentId)
-        {
-            if (isSubCourse && (parentId == -1 || parentId == null))
-            {
-                throw new DomainException("الرجاء اختيار المادة الاساسية من القائمة");
-            }
-        }
-
-        public async Task<CourseDetailsViewModel> GetCourseDetailsAsync(int id)
+        // Use Cases
+        public async Task<CourseDetailsViewModel> GetDetailsViewModelAsync(int id)
         {
             var course = await GetByIdWithRelationsAsync(id);
             if (course == null)
@@ -177,20 +81,52 @@ namespace CollegeGradingSys.Services.Implementations
             return new CourseDetailsViewModel
             {
                 Id = course.Id,
-                CourseName = course.CourseName,
                 Level = course.Level,
                 Term = course.Term,
+                CourseName = course.CourseName,
                 BigGrade = course.BigGrade,
                 SmallGrade = course.SmallGrade,
+                Note = course.Note,
                 Course_sGender = course.Course_sGender,
+                ParentId = course.ParentId,
                 IsSubCourse = course.IsSubCourse,
-                ParentCourseName = course.Parent?.CourseName,
                 SpecializationName = course.Specialization?.SpecializationName,
-                Note = course.Note
+                ParentCourseName = course.Parent?.CourseName
             };
         }
 
-        public async Task<CreateCourseViewModel> PrepareCreateCourseViewModelAsync()
+        public async Task<CourseIndexViewModel> GetIndexViewModelAsync(Term? term, Level? level, int? specializationId)
+        {
+            var courses = (await GetAllAsync())
+                .OrderBy(x => x.Level)
+                .ThenBy(x => x.Term)
+                .ToList();
+
+            var vm = new CourseIndexViewModel();
+
+            if (specializationId != null && specializationId != -1)
+            {
+                vm.SpecializationId = specializationId;
+                courses = courses.Where(x => x.Specialization.Id == specializationId).ToList();
+            }
+
+            if (level != null)
+            {
+                vm.Level = level;
+                courses = courses.Where(x => x.Level == level).ToList();
+            }
+
+            if (term != null)
+            {
+                vm.Term = term;
+                courses = courses.Where(x => x.Term == term).ToList();
+            }
+
+            vm.Courses = courses;
+            return vm;
+        }
+
+        public async Task<CreateCourseViewModel> GetCreateViewModelAsync()
         {
             return new CreateCourseViewModel
             {
@@ -200,9 +136,78 @@ namespace CollegeGradingSys.Services.Implementations
             };
         }
 
-        public async Task<EditCourseViewModel> PrepareEditCourseViewModelAsync(int id)
+        public async Task<(bool Success, string ErrorMessage)> CreateCourseAsync(CreateCourseViewModel model)
         {
-            var course = await GetByIdWithRelationsAsync(id);
+            // Validate BigGrade
+            if (string.IsNullOrEmpty(model.BigGrade))
+            {
+                return (false, "الرجاء إدخال  الدرجة الكبرى رقماً صحيحا بين 0 - 100.");
+            }
+
+            var cultureInfo = new CultureInfo("en");
+            if (!int.TryParse(model.BigGrade, NumberStyles.Integer, cultureInfo, out var bigGrade) || 
+                !(bigGrade >= 0 && bigGrade <= 100))
+            {
+                return (false, "الرجاء إدخال  الدرجة الكبرى رقماً صحيحا بين 0 - 100.");
+            }
+
+            // Validate SmallGrade
+            if (string.IsNullOrEmpty(model.SmallGrade))
+            {
+                return (false, "الرجاء إدخال  الدرجة الصغرى رقماً صحيحا بين 0 - 100.");
+            }
+
+            if (!int.TryParse(model.SmallGrade, NumberStyles.Integer, cultureInfo, out var smallGrade) || 
+                !(smallGrade >= 0 && smallGrade <= 100))
+            {
+                return (false, "الرجاء إدخال  الدرجة الصغرى رقماً صحيحا بين 0 - 100.");
+            }
+
+            // Validate CourseName
+            if (string.IsNullOrEmpty(model.CourseName))
+            {
+                return (false, "الرجاء إدخال اسم المادة بطول  40 حرفًا على الاكثر.");
+            }
+
+            if (await IsCourseNameExistsAsync(model.CourseName.Trim()))
+            {
+                return (false, "لقد تم إيجاد مادة بنفس اسم .. الرجاء كتابة اسم آخر");
+            }
+
+            // Validate ParentId if IsSubCourse
+            if (model.IsSubCourse && (model.ParentId == -1 || model.ParentId == null))
+            {
+                return (false, "الرجاء اختيار المادة الاساسية من القائمة");
+            }
+
+            var specialization = await _specializationService.GetByIdAsync(model.SpecializationId);
+            if (specialization == null)
+            {
+                return (false, "التخصص المحدد غير موجود");
+            }
+
+            var course = new Course
+            {
+                Id = model.Id,
+                CourseName = model.CourseName.Trim(),
+                BigGrade = bigGrade,
+                SmallGrade = smallGrade,
+                IsSubCourse = model.IsSubCourse,
+                Level = model.Level,
+                Course_sGender = model.Course_sGender,
+                ParentId = model.ParentId,
+                Term = model.Term,
+                Note = model.Note,
+                Specialization = specialization
+            };
+
+            await CreateAsync(course);
+            return (true, string.Empty);
+        }
+
+        public async Task<EditCourseViewModel> GetEditViewModelAsync(int id)
+        {
+            var course = await GetByIdAsync(id);
             if (course == null)
                 return null;
 
@@ -218,153 +223,126 @@ namespace CollegeGradingSys.Services.Implementations
                 Course_sGender = course.Course_sGender,
                 Note = course.Note,
                 ParentId = course.ParentId,
-                SpecializationId = course.Specialization?.Id ?? 0,
+                SpecializationId = course.Specialization.Id,
                 Specialization = course.Specialization
             };
         }
 
-        public async Task CreateCourseAsync(CreateCourseViewModel viewModel)
+        public async Task<(bool Success, string ErrorMessage)> UpdateCourseAsync(EditCourseViewModel model)
         {
-            // Validate
-            await ValidateCourseNameAsync(viewModel.CourseName?.Trim());
-            var (bigGrade, smallGrade) = await ParseGradesAsync(viewModel.BigGrade, viewModel.SmallGrade);
-            await ValidateSubCourseAsync(viewModel.IsSubCourse, viewModel.ParentId);
-
-            // Get specialization
-            var specialization = await _specializationService.GetByIdAsync(viewModel.SpecializationId);
-            if (specialization == null)
-                throw new DomainException("التخصص المحدد غير موجود");
-
-            // Create course
-            var course = new Course
+            // Validate BigGrade
+            if (string.IsNullOrEmpty(model.BigGrade))
             {
-                Id = viewModel.Id,
-                CourseName = viewModel.CourseName.Trim(),
-                BigGrade = bigGrade,
-                SmallGrade = smallGrade,
-                IsSubCourse = viewModel.IsSubCourse,
-                Level = viewModel.Level,
-                Course_sGender = viewModel.Course_sGender,
-                ParentId = viewModel.ParentId,
-                Term = viewModel.Term,
-                Note = viewModel.Note,
-                Specialization = specialization
-            };
+                return (false, "الرجاء إدخال  الدرجة الكبرى رقماً صحيحا بين 0 - 100.");
+            }
 
-            await CreateAsync(course);
-        }
+            var cultureInfo = new CultureInfo("en");
+            if (!int.TryParse(model.BigGrade, NumberStyles.Integer, cultureInfo, out var bigGrade) || 
+                !(bigGrade >= 0 && bigGrade <= 100))
+            {
+                return (false, "الرجاء إدخال  الدرجة الكبرى رقماً صحيحا بين 0 - 100.");
+            }
 
-        public async Task UpdateCourseAsync(EditCourseViewModel viewModel)
-        {
-            // Validate
-            await ValidateCourseNameAsync(viewModel.CourseName?.Trim(), viewModel.Id);
-            var (bigGrade, smallGrade) = await ParseGradesAsync(viewModel.BigGrade, viewModel.SmallGrade);
-            await ValidateSubCourseAsync(viewModel.IsSubCourse, viewModel.ParentId);
+            // Validate SmallGrade
+            if (string.IsNullOrEmpty(model.SmallGrade))
+            {
+                return (false, "الرجاء إدخال  الدرجة الصغرى رقماً صحيحا بين 0 - 100.");
+            }
 
-            // Get specialization
-            var specialization = await _specializationService.GetByIdAsync(viewModel.SpecializationId);
+            if (!int.TryParse(model.SmallGrade, NumberStyles.Integer, cultureInfo, out var smallGrade) || 
+                !(smallGrade >= 0 && smallGrade <= 100))
+            {
+                return (false, "الرجاء إدخال  الدرجة الصغرى رقماً صحيحا بين 0 - 100.");
+            }
+
+            // Validate CourseName
+            if (string.IsNullOrEmpty(model.CourseName))
+            {
+                return (false, "الرجاء إدخال اسم المادة بطول  40 حرفًا على الاكثر.");
+            }
+
+            if (await IsCourseNameExistsAsync(model.CourseName.Trim(), model.Id))
+            {
+                return (false, "لقد تم إيجاد مادة بنفس اسم .. الرجاء كتابة اسم آخر");
+            }
+
+            // Validate ParentId if IsSubCourse
+            if (model.IsSubCourse && (model.ParentId == -1 || model.ParentId == null))
+            {
+                return (false, "الرجاء اختيار المادة الاساسية من القائمة");
+            }
+
+            var specialization = await _specializationService.GetByIdAsync(model.SpecializationId);
             if (specialization == null)
-                throw new DomainException("التخصص المحدد غير موجود");
+            {
+                return (false, "التخصص المحدد غير موجود");
+            }
 
-            // Get existing course
-            var course = await GetByIdAsync(viewModel.Id);
+            var course = await GetByIdAsync(model.Id);
             if (course == null)
-                throw new DomainException("المادة غير موجودة");
+            {
+                return (false, "المادة غير موجودة");
+            }
 
-            // Update course
-            course.CourseName = viewModel.CourseName.Trim();
+            course.CourseName = model.CourseName.Trim();
             course.BigGrade = bigGrade;
             course.SmallGrade = smallGrade;
-            course.Level = viewModel.Level;
-            course.Term = viewModel.Term;
-            course.IsSubCourse = viewModel.IsSubCourse;
-            course.Course_sGender = viewModel.Course_sGender;
-            course.Note = viewModel.Note;
-            course.ParentId = viewModel.ParentId;
+            course.Level = model.Level;
+            course.Term = model.Term;
+            course.IsSubCourse = model.IsSubCourse;
+            course.Course_sGender = model.Course_sGender;
+            course.Note = model.Note;
+            course.ParentId = model.ParentId;
             course.Specialization = specialization;
 
             await UpdateAsync(course);
+            return (true, string.Empty);
         }
 
-        public async Task<CourseDeleteViewModel> PrepareDeleteCourseViewModelAsync(int id)
-        {
-            var course = await GetByIdAsync(id);
-            if (course == null)
-                return null;
-
-            return new CourseDeleteViewModel
-            {
-                Id = course.Id,
-                CourseName = course.CourseName
-            };
-        }
-
-        public async Task<CourseDeleteResult> CanDeleteCourseAsync(int id)
+        public async Task<(bool CanDelete, string ErrorMessage)> CanDeleteCourseAsync(int id)
         {
             var allCourses = await GetAllAsync();
             var subCourses = allCourses.Where(x => x.ParentId == id).ToList();
-            
             if (subCourses != null && subCourses.Count > 0)
             {
-                return new CourseDeleteResult
-                {
-                    CanDelete = false,
-                    ErrorMessage = "لا يمكن حذف المادة بسبب وجود مواد فرعية تابعة لها"
-                };
+                return (false, "لا يمكن حذف المادة بسبب وجود مواد فرعية تابعة لها");
             }
 
             var allCourseGrades = await _courseGradeService.GetAllAsync();
-            var courseGrades = allCourseGrades.Where(x => x.Course?.Id == id).ToList();
-            
+            var courseGrades = allCourseGrades.Where(x => x.Course.Id == id).ToList();
             if (courseGrades != null && courseGrades.Count > 0)
             {
-                return new CourseDeleteResult
-                {
-                    CanDelete = false,
-                    ErrorMessage = "لا يمكن حذف المادة بسبب وجود درجات مرصودة للطلاب في هذه المادة"
-                };
+                return (false, "لا يمكن حذف المادة بسبب وجود درجات مرصودة للطلاب في هذه المادة");
             }
 
-            return new CourseDeleteResult { CanDelete = true };
+            return (true, string.Empty);
         }
 
-        public async Task DeleteCourseAsync(int id)
+        public async Task<bool> IsCourseNameExistsAsync(string courseName, int? excludeId = null)
         {
-            var deleteResult = await CanDeleteCourseAsync(id);
-            if (!deleteResult.CanDelete)
+            var courses = await GetAllAsync();
+            if (excludeId.HasValue)
             {
-                throw new DomainException(deleteResult.ErrorMessage);
+                return courses.Any(e => e.CourseName == courseName && e.Id != excludeId.Value);
             }
-
-            await DeleteAsync(id);
+            return courses.Any(e => e.CourseName == courseName);
         }
 
-        public async Task<List<SelectItemVM>> GetSpecializationsSelectItemsAsync()
-        {
-            var specializations = await _specializationService.GetAllAsync();
-            return specializations.Select(s => new SelectItemVM
-            {
-                Id = s.Id,
-                Name = s.SpecializationName
-            }).ToList();
-        }
-
-        public async Task<List<SelectItemVM>> GetParentCoursesSelectItemsAsync()
+        public async Task<List<Course>> GetParentCoursesAsync()
         {
             var allCourses = await GetAllAsync();
-            var parentCourses = allCourses
-                .Where(x => !x.IsSubCourse)
+            var courses = allCourses
+                .Where(x => x.IsSubCourse == false)
                 .OrderBy(x => x.Level)
                 .ThenBy(x => x.Term)
-                .Select(c => new SelectItemVM
-                {
-                    Id = c.Id,
-                    Name = c.CourseName
-                })
                 .ToList();
+            courses.Insert(0, new Course { Id = -1, CourseName = "-- أختر --" });
+            return courses;
+        }
 
-            parentCourses.Insert(0, new SelectItemVM { Id = -1, Name = "-- أختر --" });
-            return parentCourses;
+        public async Task<List<Specialization>> GetSpecializationsAsync()
+        {
+            return (await _specializationService.GetAllAsync()).ToList();
         }
     }
 }

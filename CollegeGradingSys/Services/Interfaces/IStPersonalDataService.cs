@@ -1,5 +1,6 @@
 ﻿using CollegeGradingSys.Models;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Services.Interfaces
@@ -8,5 +9,6 @@ namespace CollegeGradingSys.Services.Interfaces
     {
         Task<StPersonalData> GetFullAsync(int academicId);
         Task<IList<StPersonalData>> GetAllFullAsync();
+        Task<IEnumerable<StPersonalData>> GetByEnrollmentYearAsync(int enrollmentYearId);
     }
 }

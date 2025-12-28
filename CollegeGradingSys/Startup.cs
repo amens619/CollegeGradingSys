@@ -259,10 +259,12 @@ namespace CollegeGradingSys
             services.AddScoped<IRepository<DBSettings>, DBSettingsDbRepository>();
 
             services.AddScoped<IRepository<Department>, DepartmentDbRepository>();
+            services.AddScoped<IDepartmentService, DepartmentService>();
 
             services.AddScoped<IRepository<Specialization>, SpecializationDbRepository>();
-
+            services.AddScoped<IRepository<Course>, CourseDbRepository>();
             services.AddScoped<IRepository<Batch>, BatchDbRepository>();
+            services.AddScoped<ISpecializationService, SpecializationService>();
 
             services.AddScoped<IRepository<StAcademicData>, StAcademicDataDbRepository>();
             services.AddScoped<IStAcademicDataService, StAcademicDataService>();           

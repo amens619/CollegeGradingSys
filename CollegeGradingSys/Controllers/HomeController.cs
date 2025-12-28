@@ -1,10 +1,6 @@
-﻿using CollegeGradingSys.Models;
-using CollegeGradingSys.Repositories.Interfaces;
+﻿using CollegeGradingSys.Services.Interfaces;
 using CollegeGradingSys.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,30 +9,28 @@ namespace CollegeGradingSys.Controllers
 {
     public class HomeController : Controller
     {
-        
-        private readonly IAcademicYearRepository _AcademicYearRepository;
-        private readonly ICollegeGradingSysRepository<StPersonalData> _StPersonalDataRepository;
+        private readonly IAcademicYearService _academicYearService;
+        private readonly IStPersonalDataService _stPersonalDataService;
 
-        public HomeController(IAcademicYearRepository AcademicYearRepository,
-            ICollegeGradingSysRepository<StPersonalData> StPersonalDataRepository)
+        public HomeController(
+            IAcademicYearService academicYearService,
+            IStPersonalDataService stPersonalDataService)
         {
-            
-            _AcademicYearRepository = AcademicYearRepository;
-            _StPersonalDataRepository = StPersonalDataRepository;
+            _academicYearService = academicYearService;
+            _stPersonalDataService = stPersonalDataService;
         }
 
         public async Task<IActionResult> Index()
         {
-            
-            var academicYear =await _AcademicYearRepository.GetCurrentYearAsync();
-            var stPersonalData = _StPersonalDataRepository.List().Where(x => x.EnrollmentYear.Id == academicYear.Id).ToList();
+            var academicYear = await _academicYearService.GetCurrentYearAsync();
             var homeIndexData = new HomeIndexData();
+            
             if (academicYear != null)
             {
-                homeIndexData.StudentsNO = stPersonalData.Count();
+                var stPersonalData = await _stPersonalDataService.GetByEnrollmentYearAsync(academicYear.Id);
+                homeIndexData.StudentsNO = stPersonalData?.Count() ?? 0;
                 homeIndexData.AcademicYearName = academicYear.AcademicYearName;                 
             }
-           
             
             return View(homeIndexData);
         }

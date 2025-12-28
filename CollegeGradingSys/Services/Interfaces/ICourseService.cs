@@ -12,27 +12,15 @@ namespace CollegeGradingSys.Services.Interfaces
         Task<IList<Course>> GetAllWithRelationsAsync();
         
         // Use Cases
-        Task<IList<Course>> GetFilteredCoursesAsync(Term? term, Level? level, int? specializationId);
+        Task<CourseIndexViewModel> GetIndexViewModelAsync(Term? term, Level? level, int? specializationId);
+        Task<CourseDetailsViewModel> GetDetailsViewModelAsync(int id);
+        Task<CreateCourseViewModel> GetCreateViewModelAsync();
+        Task<(bool Success, string ErrorMessage)> CreateCourseAsync(CreateCourseViewModel model);
+        Task<EditCourseViewModel> GetEditViewModelAsync(int id);
+        Task<(bool Success, string ErrorMessage)> UpdateCourseAsync(EditCourseViewModel model);
+        Task<(bool CanDelete, string ErrorMessage)> CanDeleteCourseAsync(int id);
         Task<bool> IsCourseNameExistsAsync(string courseName, int? excludeId = null);
-        Task ValidateCourseNameAsync(string courseName, int? excludeId = null);
-        Task ValidateGradesAsync(string bigGrade, string smallGrade);
-        Task<(int bigGrade, int smallGrade)> ParseGradesAsync(string bigGrade, string smallGrade);
-        Task ValidateSubCourseAsync(bool isSubCourse, int? parentId);
-        Task<CourseDetailsViewModel> GetCourseDetailsAsync(int id);
-        Task<CreateCourseViewModel> PrepareCreateCourseViewModelAsync();
-        Task<EditCourseViewModel> PrepareEditCourseViewModelAsync(int id);
-        Task CreateCourseAsync(CreateCourseViewModel viewModel);
-        Task UpdateCourseAsync(EditCourseViewModel viewModel);
-        Task<CourseDeleteViewModel> PrepareDeleteCourseViewModelAsync(int id);
-        Task<CourseDeleteResult> CanDeleteCourseAsync(int id);
-        Task DeleteCourseAsync(int id);
-        Task<List<SelectItemVM>> GetSpecializationsSelectItemsAsync();
-        Task<List<SelectItemVM>> GetParentCoursesSelectItemsAsync();
-    }
-
-    public class CourseDeleteResult
-    {
-        public bool CanDelete { get; set; }
-        public string ErrorMessage { get; set; }
+        Task<List<Course>> GetParentCoursesAsync();
+        Task<List<Specialization>> GetSpecializationsAsync();
     }
 }

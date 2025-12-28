@@ -1,12 +1,8 @@
 ﻿using CollegeGradingSys.Models;
-using CollegeGradingSys.Repositories.Interfaces;
+using CollegeGradingSys.Services.Interfaces;
 using CollegeGradingSys.ViewModels;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Controllers
@@ -14,46 +10,35 @@ namespace CollegeGradingSys.Controllers
     [Authorize(Roles = "Admin,Owner")]
     public class SpecializationController : Controller
     {
-        private readonly ICollegeGradingSysRepository<Specialization> SpecializationRepository;
-        private readonly ICollegeGradingSysRepository<Department> DepartmentRepository;
-        private readonly ICollegeGradingSysRepository<Course> CourseRepository;
-        private readonly ICollegeGradingSysRepository<Batch> BatchRepository;
+        private readonly ISpecializationService _specializationService;
 
-        public SpecializationController(ICollegeGradingSysRepository<Specialization> SpecializationRepository,
-            ICollegeGradingSysRepository<Department> DepartmentRepository
-            ,ICollegeGradingSysRepository<Course> CourseRepository
-            ,ICollegeGradingSysRepository<Batch> BatchRepository)
+        public SpecializationController(ISpecializationService specializationService)
         {
-            this.SpecializationRepository = SpecializationRepository;
-            this.DepartmentRepository = DepartmentRepository;
-            this.CourseRepository = CourseRepository;
-            this.BatchRepository = BatchRepository;
+            _specializationService = specializationService;
         }
         // GET: SpecializationController
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            var Specializations = SpecializationRepository.List();
-            
-            return View(Specializations);
+            var specializations = await _specializationService.GetAllAsync();
+            return View(specializations);
         }
 
         // GET: SpecializationController/Details/5
-        public ActionResult Details(int id)
+        public async Task<ActionResult> Details(int id)
         {
-            var department = SpecializationRepository.Find(id);
-            return View(department);
+            var specialization = await _specializationService.GetByIdAsync(id);
+            if (specialization == null)
+            {
+                return NotFound();
+            }
+            return View(specialization);
         }
 
         // GET: SpecializationController/Create
         [Authorize(Policy = "CreateSpecializationPolicy")]
-        public ActionResult Create()
+        public async Task<ActionResult> Create()
         {
-
-            var model = new DepartmentSpecializationViewModel
-            {
-                Departments = FillSelectList()
-            };
-
+            var model = await _specializationService.GetCreateViewModelAsync();
             return View(model);
         }
 
@@ -61,66 +46,53 @@ namespace CollegeGradingSys.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "CreateSpecializationPolicy")]
-        public ActionResult Create(DepartmentSpecializationViewModel  model)
+        public async Task<ActionResult> Create(DepartmentSpecializationViewModel model)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                if (model.SpecializationName == null)
-                {
-                    ModelState.Clear();
-                    ModelState.AddModelError(nameof(model.SpecializationName), " الرجاء كتابة اسم التخصص");
-                    return View(GetAllDepartments(model));
-                }
-
-                if (SpecializationExistsByName((model.SpecializationName).Trim()))
-                {
-                    ModelState.AddModelError(nameof(model.SpecializationName), "لقد تم إيجاد تخصص سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
-                    return View(GetAllDepartments(model));
-                }
-
-                if (model.DepartmentId == -1)
-                {
-                    ViewBag.Message = "الرجاء اختيار القسم من القائمة";
-
-                    return View(GetAllDepartments(model));
-                }
-                var department = DepartmentRepository.Find(model.DepartmentId);
-                Specialization specialization = new()
-                {
-                    Id = model.Id,
-                     SpecializationName  = model.SpecializationName,
-                     Department = department,                    
-                };                
-                SpecializationRepository.Add(specialization);
-                return RedirectToAction(nameof(Index));
+                model.Departments = await _specializationService.GetDepartmentsAsync();
+                return View(model);
             }
-            catch
+
+            var (success, errorMessage) = await _specializationService.CreateSpecializationAsync(model);
+            
+            if (!success)
             {
-                return View();
+                if (errorMessage.Contains("اسم التخصص"))
+                {
+                    ModelState.AddModelError(nameof(model.SpecializationName), errorMessage);
+                }
+                else if (errorMessage.Contains("القسم"))
+                {
+                    ViewBag.Message = errorMessage;
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, errorMessage);
+                }
+
+                model.Departments = await _specializationService.GetDepartmentsAsync();
+                return View(model);
             }
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: SpecializationController/Edit/5
         [Authorize(Policy = "EditSpecializationPolicy")]
-        public ActionResult Edit(int id)
+        public async Task<ActionResult> Edit(int id)
         {
             if (id == null || id == 0)
             {
                 return NotFound();
             }
-            var specialization = SpecializationRepository.Find(id);
-            if (specialization is null)
+
+            var model = await _specializationService.GetEditViewModelAsync(id);
+            if (model == null)
             {
                 return NotFound();
-            }           
-            var departmentId =  specialization.Department.Id;
-            var model = new DepartmentSpecializationViewModel
-            { 
-                Id = specialization.Id,
-                SpecializationName = specialization.SpecializationName,
-                 DepartmentId= departmentId,
-                Departments = DepartmentRepository.List().ToList()
-        };
+            }
+
             return View(model);
         }
 
@@ -128,46 +100,43 @@ namespace CollegeGradingSys.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "EditSpecializationPolicy")]
-        public ActionResult Edit(int id,DepartmentSpecializationViewModel model)
+        public async Task<ActionResult> Edit(int id, DepartmentSpecializationViewModel model)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                if (model.SpecializationName == null)
+                model.Departments = await _specializationService.GetDepartmentsAsync();
+                return View(model);
+            }
+
+            var (success, errorMessage) = await _specializationService.UpdateSpecializationAsync(id, model);
+            
+            if (!success)
+            {
+                if (errorMessage.Contains("اسم التخصص"))
                 {
-
-                    ModelState.Clear();
-                    ModelState.AddModelError(nameof(model.SpecializationName), " الرجاء كتابة اسم التخصص");
-
-                    return View(GetAllDepartments(model));
+                    ModelState.AddModelError(nameof(model.SpecializationName), errorMessage);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, errorMessage);
                 }
 
-                var Specialization1 = SpecializationRepository.List().SingleOrDefault(x => x.SpecializationName == model.SpecializationName);
-                if (Specialization1 != null && Specialization1.Id != model.Id)
-                {
-                    ModelState.AddModelError(nameof(model.SpecializationName), "لقد تم إيجاد تخصص سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
-                    return View(GetAllDepartments(model));
-                }
-                
-                var department = DepartmentRepository.Find(model.DepartmentId);
-                var specialization = SpecializationRepository.Find(model.Id);
+                model.Departments = await _specializationService.GetDepartmentsAsync();
+                return View(model);
+            }
 
-                specialization.SpecializationName = model.SpecializationName;
-                specialization.Department = department;
-                                
-                SpecializationRepository.Update(id, specialization);
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: SpecializationController/Delete/5
         [Authorize(Policy = "DeleteSpecializationPolicy")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            var specialization = SpecializationRepository.Find(id);
+            var specialization = await _specializationService.GetByIdAsync(id);
+            if (specialization == null)
+            {
+                return NotFound();
+            }
             
             return View(specialization);       
         }
@@ -176,56 +145,27 @@ namespace CollegeGradingSys.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "DeleteSpecializationPolicy")]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             try
             {
-                var CoursesOFSpecialization = CourseRepository.List().Where(x => x.Specialization.Id == id).ToList();
-                if (CoursesOFSpecialization != null && CoursesOFSpecialization.Count > 0)
+                var (canDelete, errorMessage) = await _specializationService.CanDeleteSpecializationAsync(id);
+                
+                if (!canDelete)
                 {
-                    var specialization = SpecializationRepository.Find(id);
-                    ViewBag.Message = "لا يمكن حذف التخصص بسبب وجود مواد تابعة له.. الرجاء حذف المواد التابعة له أولا ";
+                    var specialization = await _specializationService.GetByIdAsync(id);
+                    ViewBag.Message = errorMessage;
                     return View(specialization);
                 }
-                var BatchsOFSpecialization = BatchRepository.List().Where(x => x.Specialization.Id == id).ToList();
-                if (BatchsOFSpecialization != null && BatchsOFSpecialization.Count > 0)
-                {
-                    var specialization = SpecializationRepository.Find(id);
-                    ViewBag.Message = "لا يمكن حذف التخصص بسبب وجود دفعات تابعة له.. الرجاء حذف الدفعات التابعة له أولا ";
-                    return View(specialization);
-                }
-                SpecializationRepository.Delete(id);
+
+                await _specializationService.DeleteAsync(id);
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return View();
+                var specialization = await _specializationService.GetByIdAsync(id);
+                return View(specialization);
             }
-        }
-
-        List<Department> FillSelectList()
-        {
-            var Departments = DepartmentRepository.List().ToList();
-            Departments.Insert(0, new Department { Id = -1,  DepartmentName = "-- أختر --" });
-
-            return Departments;
-        }
-
-        DepartmentSpecializationViewModel GetAllDepartments(DepartmentSpecializationViewModel model)
-        {
-            var vmodel = new DepartmentSpecializationViewModel
-            {
-                Id=model.Id,
-                DepartmentId = model.DepartmentId,
-                SpecializationName = model.SpecializationName,
-                Departments  = FillSelectList()
-            };
-            return vmodel;
-        }
-
-        private bool SpecializationExistsByName(string specializationName)
-        {
-            return SpecializationRepository.List().Any(e => e.SpecializationName == specializationName);
         }
     }
 }
