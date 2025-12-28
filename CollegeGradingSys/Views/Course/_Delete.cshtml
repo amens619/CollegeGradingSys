@@ -1,4 +1,4 @@
-﻿@model CollegeGradingSys.Models.Course
+﻿@model CollegeGradingSys.ViewModels.CourseDeleteViewModel
 <!-- Modal -->
 <div class="modal fade " id="add-contact" tabindex="-1" role="dialog" aria-labelledby="addContactLabel" aria-hidden="true">
     <form asp-action="Delete">
@@ -18,9 +18,9 @@
                     @*<input name="IsValid" type="hidden" value="True" />*@
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <input type="hidden" asp-for="Id" />
-                    @if (ViewBag.Message != null)
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
                     {
-                        <h6 class="alert alert-danger">@ViewBag.Message</h6>
+                        <h6 class="alert alert-danger">@Model.ErrorMessage</h6>
                     }
                     else
                     {

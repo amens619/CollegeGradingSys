@@ -1,4 +1,4 @@
-﻿@model CollegeGradingSys.Models.Course
+﻿@model CollegeGradingSys.ViewModels.CourseDetailsViewModel
 
 @{
     ViewData["Title"] = "التفصيل";
@@ -61,10 +61,10 @@
                                     <span class="badge bg-warning">مادة فرعية</span>
                                 </div>
                                 <div class="col-sm-3 my-2">
-                                    @Html.DisplayNameFor(model => model.ParentId)
+                                    المادة الأساسية
                                 </div>
                                 <div class="col-sm-9 my-2">
-                                    @Html.DisplayFor(model => model.Parent.CourseName)
+                                    @Html.DisplayFor(model => model.ParentCourseName)
                                 </div>
                             }
                             else
@@ -73,6 +73,18 @@
                                     <span class="badge bg-success">مادة أساسية</span>
                                 </div>
                             }
+                            <div class="col-sm-3 my-2">
+                                @Html.DisplayNameFor(model => model.Course_sGender)
+                            </div>
+                            <div class="col-sm-9 my-2">
+                                @Html.DisplayFor(model => model.Course_sGender)
+                            </div>
+                            <div class="col-sm-3 my-2">
+                                @Html.DisplayNameFor(model => model.SpecializationName)
+                            </div>
+                            <div class="col-sm-9 my-2">
+                                @Html.DisplayFor(model => model.SpecializationName)
+                            </div>
                             <div class="col-sm-3 my-2">
                                 @Html.DisplayNameFor(model => model.Note)
                             </div>
