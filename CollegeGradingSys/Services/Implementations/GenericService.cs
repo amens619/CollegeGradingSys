@@ -1,9 +1,11 @@
 ﻿using CollegeGradingSys.Repositories.Interfaces;
 using CollegeGradingSys.Services.Interfaces;
 using CollegeGradingSys.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Services.Implementations
@@ -58,17 +60,52 @@ namespace CollegeGradingSys.Services.Implementations
         }
 
         public async Task<List<SelectItemVM>> GetSelectItemsAsync(
-            Func<TEntity, SelectItemVM> selector,
+            Expression<Func<TEntity, SelectItemVM>> selector,
             string placeholder = "-- اختر --")
-            {
-                var items = await Repository.ListAsync();
+        {
+            // نستخدم Query (التي ترجع IQueryable) لتنفيذ الـ Select داخل SQL
+            var list = await Repository.Query()
+                                       .Select(selector)
+                                       .ToListAsync();
 
-                var list = items.Select(selector).ToList();
+            list.Insert(0, new SelectItemVM { Id = -1, Name = placeholder });
 
-                list.Insert(0, new SelectItemVM { Id = -1, Name = placeholder });
+            return list;
+        }
 
-                return list;
-            }
+        public async Task<List<SelectItemVM>> GetSelectItemsAsync(
+            Expression<Func<TEntity, SelectItemVM>> selector)
+        {
+            var list = await Repository.Query()
+                                       .Select(selector)
+                                       .ToListAsync();
+
+            return list;
+        }
+
+        //public async Task<List<SelectItemVM>> GetSelectItemsAsync(
+        //    Func<TEntity, SelectItemVM> selector,
+        //    string placeholder = "-- اختر --")
+        //    {
+        //        var items = await Repository.ListAsync();
+
+        //        var list = items.Select(selector).ToList();
+
+        //        list.Insert(0, new SelectItemVM { Id = -1, Name = placeholder });
+
+        //        return list;
+        //    }
+
+        //public async Task<List<SelectItemVM>> GetSelectItemsAsync(
+        //    Func<TEntity, SelectItemVM> selector)
+        //{
+        //    var items = await Repository.ListAsync();
+
+        //    var list = items.Select(selector).ToList();          
+
+
+        //    return list;
+        //}
 
     }
 }

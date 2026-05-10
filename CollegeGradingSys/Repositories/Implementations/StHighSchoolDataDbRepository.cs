@@ -67,6 +67,7 @@
 using CollegeGradingSys.Data;
 using CollegeGradingSys.Models;
 using CollegeGradingSys.Repositories.Interfaces;
+using CollegeGradingSys.Services.Implementations;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,8 +75,7 @@ using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Repositories.Implementations
 {
-    public class StHighSchoolDataDbRepository
-        : IStHighSchoolDataRepository
+    public class StHighSchoolDataDbRepository :  IStHighSchoolDataRepository 
     {
         private readonly ApplicationDbContext _db;
 

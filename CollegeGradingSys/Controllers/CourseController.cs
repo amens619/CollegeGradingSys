@@ -1,8 +1,10 @@
 ﻿using CollegeGradingSys.Models;
 using CollegeGradingSys.Models.Enums;
 using CollegeGradingSys.Services.Interfaces;
-using CollegeGradingSys.ViewModels;
+using CollegeGradingSys.ViewModels.Batch;
+using CollegeGradingSys.ViewModels.Course;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Threading.Tasks;
@@ -19,12 +21,59 @@ namespace CollegeGradingSys.Controllers
             _courseService = courseService;
         }
         // GET: CourseController
-        public async Task<ActionResult> Index(Term? term, Level? level, int? SpecializationId)
+        public async Task<ActionResult> Index(Term? term, Level? level, int? SpecializationId, bool clear = false)
         {
+            // 1. هل طلب المستخدم إلغاء التصفية؟
+            if (clear)
+            {
+                HttpContext.Session.Remove("FilterTerm");
+                HttpContext.Session.Remove("FilterLevel");
+                HttpContext.Session.Remove("FilterSpecId");
+
+                return RedirectToAction(nameof(Index)); // إعادة تحميل الصفحة بدون فلاتر
+            }
+            // 2. هل قام المستخدم بالضغط على زر "تصفية" الآن؟
+            // نعرف ذلك إذا كان الرابط (URL) يحتوي على أسماء الحقول
+            bool hasNewFilters = Request.Query.ContainsKey("Term") ||
+                                 Request.Query.ContainsKey("Level") ||
+                                 Request.Query.ContainsKey("SpecializationId");
+
+            if (hasNewFilters)
+            {
+                // المستخدم أرسل فلاتر جديدة -> نحفظها في الجلسة (Session)
+                if (term.HasValue) HttpContext.Session.SetInt32("FilterTerm", (int)term.Value);
+                else HttpContext.Session.Remove("FilterTerm");
+
+                if (level.HasValue) HttpContext.Session.SetInt32("FilterLevel", (int)level.Value);
+                else HttpContext.Session.Remove("FilterLevel");
+
+                if (SpecializationId.HasValue) HttpContext.Session.SetInt32("FilterSpecId", SpecializationId.Value);
+                else HttpContext.Session.Remove("FilterSpecId");
+            }
+            else
+            {
+                // المستخدم دخل الصفحة بشكل عادي -> نحاول جلب الفلاتر السابقة من الجلسة
+                var sessionTerm = HttpContext.Session.GetInt32("FilterTerm");
+                if (sessionTerm.HasValue) term = (Term)sessionTerm.Value;
+
+                var sessionLevel = HttpContext.Session.GetInt32("FilterLevel");
+                if (sessionLevel.HasValue) level = (Level)sessionLevel.Value;
+
+                SpecializationId = HttpContext.Session.GetInt32("FilterSpecId");
+            }
+
+            // 3. جلب البيانات بناءً على الفلاتر (سواء كانت جديدة أو قادمة من الجلسة)
             var vm = await _courseService.GetIndexViewModelAsync(term, level, SpecializationId);
+
+            // تأكد من تمرير القيم للـ ViewModel حتى تظل القوائم المنسدلة محتفظة بالخيارات المختارة
             var specializations = await _courseService.GetSpecializationsAsync();
-            ViewData["Specializations"] = new SelectList(specializations, "Id", "SpecializationName");
+            vm.SpecializationsList = new SelectList(specializations, "Id", "SpecializationName", SpecializationId);
+           
             return View(vm);
+            //var vm = await _courseService.GetIndexViewModelAsync(term, level, SpecializationId);
+            //var specializations = await _courseService.GetSpecializationsAsync();
+            //ViewData["Specializations"] = new SelectList(specializations, "Id", "SpecializationName");
+          
         }
 
         // GET: CourseController/Details/5
@@ -42,7 +91,7 @@ namespace CollegeGradingSys.Controllers
         //[Authorize(Policy = " CreateCoursePolicy")]
         public async Task<ActionResult> Create()
         {
-            var model = await _courseService.GetCreateViewModelAsync();
+            var model =  _courseService.GetCreateViewModelAsync();
             await FullAllListsAsync();
             return PartialView("_Create", model);
         }
@@ -160,27 +209,41 @@ namespace CollegeGradingSys.Controllers
         }
 
         // GET: CourseController/Delete/5
-        [Authorize(Policy = " DeleteCoursePolicy")]
-        public async Task<ActionResult> Delete(int id)
+        //[Authorize(Policy = " DeleteCoursePolicy")]
+        //public async Task<ActionResult> Delete(int id)
+        //{
+        //    if (id == null || id == 0)
+        //    {
+        //        return NotFound();
+        //    }
+        //    var course = await _courseService.GetByIdAsync(id);
+        //    if (course is null)
+        //    {
+        //        return NotFound();
+        //    }
+
+
+        //    return PartialView("_Delete", course);
+        //}
+        [HttpGet]
+        [Authorize(Policy = "DeleteCoursePolicy")]
+        public async Task<IActionResult> Delete(int id)
         {
             if (id == null || id == 0)
             {
                 return NotFound();
             }
             var course = await _courseService.GetByIdAsync(id);
-            if (course is null)
-            {
-                return NotFound();
-            }
-           
+            if (course == null) return NotFound();
 
-            return PartialView("_Delete", course);
+            // إرجاع الشاشة الكاملة
+            return View(course);
         }
 
         // POST: CourseController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Policy = " DeleteCoursePolicy")]
+        [Authorize(Policy = "DeleteCoursePolicy")]
         public async Task<ActionResult> Delete(int id, Course course)
         {
             try
@@ -191,15 +254,15 @@ namespace CollegeGradingSys.Controllers
                 {
                     ModelState.AddModelError(nameof(course.CourseName), "");
                     ViewBag.Message = errorMessage;
-                    return PartialView("_Delete", course);
+                    return View("Delete", course);
                 }
 
                 await _courseService.DeleteAsync(id);
-                return PartialView("_Delete", course);
+                return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return PartialView("_Delete", course);
+                return View("Delete", course);
             }
         }
 

@@ -1,4 +1,5 @@
-﻿@model cloudscribe.Pagination.Models.PagedResult<Governorate>
+﻿@using cloudscribe.Pagination.Models;
+@model cloudscribe.Pagination.Models.PagedResult<CollegeGradingSys.ViewModels.Governorate.GovernorateIndexVM>
 
 @using Microsoft.AspNetCore.Authorization
 @inject IAuthorizationService authorizationService
@@ -43,7 +44,7 @@
                                     @Html.DisplayFor(modelItem => item.GovernorateName)
                                 </td>
                                 <td class="text-center td-font-size">
-                                    @Html.DisplayFor(modelItem => item.Nationality.CountryName)
+                                    @Html.DisplayFor(modelItem => item.NationalityName)
                                 </td>
                                 <td class="text-center">
                                     @if ((await authorizationService.AuthorizeAsync(User, "EditGovernoratePolicy")).Succeeded)

@@ -3,7 +3,7 @@ using CollegeGradingSys.Repositories.Interfaces;
 using CollegeGradingSys.Services.Implementations;
 using CollegeGradingSys.Services.Interfaces;
 using CollegeGradingSys.Utilities.Exceptions;
-using CollegeGradingSys.ViewModels;
+using CollegeGradingSys.ViewModels.College;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +17,7 @@ namespace CollegeGradingSys.Controllers
     [Authorize(Roles = "Admin,Owner")]
     public class CollegeController : Controller
     {
-        //private readonly GenericService<College> _collegeService;
+      
         private readonly ICollegeService _collegeService;
       
 
@@ -155,7 +155,10 @@ namespace CollegeGradingSys.Controllers
             }
             catch
             {
+                // من الأفضل إظهار رسالة خطأ للمستخدم بدلاً من إعادة عرض View فارغ
+                ModelState.AddModelError(string.Empty, "حدث خطأ أثناء محاولة الحذف. قد تكون الكلية مرتبطة ببيانات أخرى.");
                 return View();
+                
             }
         }
 

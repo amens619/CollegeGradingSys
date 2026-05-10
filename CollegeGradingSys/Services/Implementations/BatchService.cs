@@ -1,8 +1,10 @@
 ﻿using CollegeGradingSys.Models;
+using CollegeGradingSys.Repositories.Implementations;
 using CollegeGradingSys.Repositories.Interfaces;
 using CollegeGradingSys.Services.Interfaces;
 using CollegeGradingSys.Utilities.Exceptions;
 using CollegeGradingSys.ViewModels;
+using CollegeGradingSys.ViewModels.Batch;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,40 +12,28 @@ using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Services.Implementations
 {
-    public class BatchService : IBatchService
+    public class BatchService : GenericService<Batch>, IBatchService
     {
         private readonly IRepository<Batch> _batchRepo;
-        private readonly IGenericService<Batch> _genericService;
         private readonly IRepository<Specialization> _specializationRepo;
-        private readonly IRepository<StAcademicData> _stAcademicRepo;
-
+        private readonly IStAcademicDataRepository _stAcademicRepo;
 
         public BatchService(IRepository<Batch> batchRepo,
-            IGenericService<Batch> genericService,
             IRepository<Specialization> specializationRepo,
-            IRepository<StAcademicData> stAcademicRepo
-            )
+            IStAcademicDataRepository stAcademicRepo) : base(batchRepo)
         {
             _batchRepo = batchRepo;
-            _genericService = genericService;
             _specializationRepo = specializationRepo;
-            _stAcademicRepo= stAcademicRepo;
+            _stAcademicRepo = stAcademicRepo;
         }
 
-        // CRUD عام
-        public  Task<IList<Batch>> GetAllAsync()
-            => _genericService.GetAllAsync();
-        public Task<Batch?> GetByIdAsync(int id)
-            => _genericService.GetByIdAsync(id);
 
-      
-       
 
-       
+
 
         // =======================
         // منطق خاص بـ Batch
-        // =======================
+        // =======================       
         public async Task<Batch> CreateAsync(BatchCreateDataVM dto)
         {
             if (string.IsNullOrWhiteSpace(dto.BatchName))
@@ -55,19 +45,19 @@ namespace CollegeGradingSys.Services.Implementations
             if (dto.SpecializationId <= 0)
                 throw new DomainException("يجب اختيار التخصص");
 
-            var specialization = await _specializationRepo.FindAsync(dto.SpecializationId);
-            if (specialization == null)
-                throw new DomainException("التخصص غير موجود");
+            var specialization = await _specializationRepo.FindAsync(dto.SpecializationId)
+                ?? throw new DomainException("التخصص غير موجود");
 
             var batch = new Batch
             {
-                BatchName = dto.BatchName.Trim(),                
+                BatchName = dto.BatchName.Trim(),
                 Note = dto.Note,
                 Specialization = specialization
             };
 
-            return await _genericService.CreateAsync(batch);
+            return await _batchRepo.AddAsync(batch);
         }
+               
 
         public async Task UpdateBatchAsync(BatchEditVM vm)
         {
@@ -90,6 +80,7 @@ namespace CollegeGradingSys.Services.Implementations
             await _batchRepo.UpdateAsync(batch);
         }
 
+
         public async Task DeleteAsync(int id)
         {
             var batch = await _batchRepo.FindAsync(id)
@@ -99,7 +90,7 @@ namespace CollegeGradingSys.Services.Implementations
                 .AnyAsync(x => x.Batch.Id == id);
 
             if (isUsed)
-                throw new DomainException("لا يمكن حذف دفعة مرتبطة بطلاب");
+                throw new DomainException("لا يمكن حذف دفعة مرتبطة بطلاب مقيدين");
 
             await _batchRepo.DeleteAsync(id);
         }
@@ -118,23 +109,15 @@ namespace CollegeGradingSys.Services.Implementations
                 .OrderByDescending(x => x.Id)
                 .ToListAsync();
         }
+              
 
         public async Task<bool> IsBatchNameExistsAsync(string batchName)
         {
             return await _batchRepo.Query()
-           .AnyAsync(x => x.BatchName == batchName);          
+                .AnyAsync(x => x.BatchName == batchName);
         }
 
-        public async Task<List<BatchSelectItemVM>> GetBatchsSelectItemAsync(string placeholder = "-- أختر --")
-        {
-            var batchs = await _batchRepo.ListAsync();
-            var list = batchs                
-                .Select(b => new BatchSelectItemVM { Id = b.Id, Name = b.BatchName })
-                .ToList();
-
-            list.Insert(0, new BatchSelectItemVM { Id = -1, Name = placeholder });
-            return list;
-        }
+       
     }
 
 }

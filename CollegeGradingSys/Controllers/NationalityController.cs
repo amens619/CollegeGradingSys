@@ -1,5 +1,9 @@
 ﻿using CollegeGradingSys.Models;
 using CollegeGradingSys.Repositories.Interfaces;
+using CollegeGradingSys.Services.Implementations;
+using CollegeGradingSys.Services.Interfaces;
+using CollegeGradingSys.Utilities.Exceptions;
+using CollegeGradingSys.ViewModels.Nationality;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,199 +17,172 @@ namespace CollegeGradingSys.Controllers
     [Authorize(Roles = "Admin,Owner")]
     public class NationalityController : Controller
     {
-        private readonly ICollegeGradingSysRepository<Nationality> _NationalityRepository;
-        private readonly ICollegeGradingSysRepository<Governorate> _GovernorateRepository;
-        private readonly ICollegeGradingSysRepository<StPersonalData> _StPersonalDataRepository;
+        private readonly INationalityService _nationalityService;
 
-        public NationalityController(ICollegeGradingSysRepository<Nationality> NationalityRepository,
-            ICollegeGradingSysRepository<Governorate> GovernorateRepository,
-            ICollegeGradingSysRepository<StPersonalData> StPersonalDataRepository)
+        public NationalityController(INationalityService nationalityService)
         {
-            this._NationalityRepository = NationalityRepository;
-            _GovernorateRepository = GovernorateRepository;
-            _StPersonalDataRepository = StPersonalDataRepository;
+            _nationalityService = nationalityService;
         }
         // GET: NationalityController
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            var nationalites = _NationalityRepository.List();
-            return View(nationalites);
+            // 1. جلب البيانات الأساسية من السيرفس
+            var nationalities = await _nationalityService.GetAllAsync();
+
+            // 2. تحويل الكيانات إلى ViewModels
+            var vm = nationalities.Select(n => new NationalityIndexVM
+            {
+                Id = n.Id,
+                // افترضت أن اسم الخاصية هو NationalityName، قم بتعديله إذا كان مختلفاً (مثل Name)
+                NationalityName = n.NationalityName,
+                CountryName = n.CountryName
+            }).ToList();
+
+            // 3. إرسال قائمة الـ ViewModels إلى الشاشة
+            return View(vm);
         }
 
-        // GET: NationalityController/Details/5
-        //public ActionResult Details(int id)
-        //{
-        //    var nationality = _NationalityRepository.Find(id);
-        //    return View(nationality);
-        //}
+
 
         // GET: NationalityController/Create
         [Authorize(Policy = "CreateNationalityPolicy")]
         public ActionResult Create()
         {
 
-            return View();
+            return View(new NationalityVM());
         }
 
         // POST: NationalityController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Policy = "CreateNationalityPolicy")]
-        public ActionResult Create(Nationality nationality)
+        [Authorize(Policy = "CreateNationalityPolicy")]       
+        public async Task<IActionResult> Create(NationalityVM vm)
         {
+            // 1. التحقق من صحة المدخلات
+            if (!ModelState.IsValid)
+                return View(vm);
+
             try
-            {                
-                if (nationality.CountryName == null)
+            {
+                // 2. تحويل الـ VM إلى Entity للحفظ
+                var nationality = new Models.Nationality
                 {
-                    ModelState.Clear();
-                    ModelState.AddModelError(nameof(nationality.CountryName), " الرجاء كتابة اسم الدولة");
+                    CountryName = vm.CountryName.Trim(),
+                    NationalityName = vm.NationalityName.Trim()
+                };
 
-                    return View(nationality);
-                }
-                if (nationality.NationalityName == null)
-                {
-                    ModelState.Clear();
-                    ModelState.AddModelError(nameof(nationality.NationalityName), " الرجاء كتابة اسم الجنسية");
-
-                    return View(nationality);
-                }
-
-                if (isCountryNameExists((nationality.CountryName).Trim()))
-                {
-                    ModelState.AddModelError(nameof(nationality.CountryName), "لقد تم إيجاد دولة سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
-                    return View(nationality);
-                }
-
-                if (isNationalityNameExists((nationality.NationalityName).Trim()))
-                {
-                    ModelState.AddModelError(nameof(nationality.NationalityName), "لقد تم إيجاد جنسية سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
-                    return View(nationality);
-                }
-                
-                _NationalityRepository.Add(nationality);
+                await _nationalityService.CreateAsync(nationality);
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (DomainException ex)
             {
-                return View();
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(vm);
             }
         }
 
         // GET: NationalityController/Edit/5
         [Authorize(Policy = "EditNationalityPolicy")]
-        public ActionResult Edit(int id)
+        public async Task<ActionResult> Edit(int id) 
         {
-            if (id == null || id == 0)
-            {
+            if (id <= 0)
                 return NotFound();
-            }
-            var nationality = _NationalityRepository.Find(id);
-            if (nationality is null)
-            {
-                return NotFound();
-            }
+
             
-            return View(nationality);
+            var nationality = await _nationalityService.GetByIdAsync(id);
+            if (nationality == null)
+                return NotFound();
+
+           
+            var vm = new NationalityVM
+            {
+                Id = nationality.Id,
+                CountryName = nationality.CountryName,
+                NationalityName = nationality.NationalityName
+            };
+
+            return View(vm);
         }
 
         // POST: NationalityController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "EditNationalityPolicy")]
-        public ActionResult Edit(int id,Nationality model)
+        public async Task<IActionResult> Edit(NationalityVM vm)
         {
+            if (!ModelState.IsValid)
+                return View(vm);
+
             try
             {
-                if (model.CountryName == null)
-                {
-                    ModelState.Clear();
-                    ModelState.AddModelError(nameof(model.CountryName), " الرجاء كتابة اسم الدولة");
+                // جلب السجل القديم من قاعدة البيانات
+                var nationality = await _nationalityService.GetByIdAsync(vm.Id);
+                if (nationality == null)
+                    return NotFound();
 
-                    return View(model);
-                }
-                if (model.NationalityName == null)
-                {
-                    ModelState.Clear();
-                    ModelState.AddModelError(nameof(model.NationalityName), " الرجاء كتابة اسم الجنسية");
+                // تحديث البيانات
+                nationality.CountryName = vm.CountryName.Trim();
+                nationality.NationalityName = vm.NationalityName.Trim();
 
-                    return View(model);
-                }
-
-
-                var nationality1 = _NationalityRepository.List().SingleOrDefault(x => x.CountryName == model.CountryName);
-                if (nationality1 != null && nationality1.Id != model.Id)
-                {
-                    ModelState.AddModelError(nameof(model.CountryName), "لقد تم إيجاد دولة سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
-                    return View(model);
-                }
-
-                var nationality2 = _NationalityRepository.List().SingleOrDefault(x => x.NationalityName == model.NationalityName);
-                if (nationality2 != null && nationality2.Id != model.Id)
-                {
-                    ModelState.AddModelError(nameof(model.NationalityName), "لقد تم إيجاد جنسية سابقة بنفس اسم .. الرجاء كتابة اسم آخر ");
-                    return View(model);
-                }
-                var nationality = _NationalityRepository.Find(model.Id);
-                nationality.CountryName = model.CountryName;
-                nationality.NationalityName = model.NationalityName;
-
-                _NationalityRepository.Update(id, nationality);
+                await _nationalityService.UpdateAsync(nationality);
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (DomainException ex)
             {
-                return View();
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(vm);
             }
         }
 
         // GET: NationalityController/Delete/5
         [Authorize(Policy = "DeleteNationalityPolicy")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id) 
         {
-            var nationality = _NationalityRepository.Find(id);
-            return View(nationality);
+            if (id <= 0) return NotFound();
+
+          
+            var nationality = await _nationalityService.GetByIdAsync(id);
+            if (nationality == null) return NotFound(); // التحقق من القيمة الفارغة
+
+            var vm = new NationalityVM
+            {
+                Id = nationality.Id,
+                CountryName = nationality.CountryName,
+                NationalityName = nationality.NationalityName
+            };
+
+            return View(vm);
         }
 
         // POST: NationalityController/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "DeleteNationalityPolicy")]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             try
             {
-                var GovernoratesOFNationality = _GovernorateRepository.List().Where(x => x.Nationality.Id == id).ToList();
-                if (GovernoratesOFNationality != null && GovernoratesOFNationality.Count > 0)
-                {
-                    var nationality = _NationalityRepository.Find(id);
-                    ViewBag.Message = "لا يمكن حذف الدولة بسبب وجود محافظات تابعة لها.. الرجاء حذف المحافظات التابعة لها أولا ";
-                    return View(nationality);
-
-                }
-                var StPersonalDatasOFNationality = _StPersonalDataRepository.List().Where(x => x.Nationality.Id == id || x.Birthcountry.Id == id).ToList();
-                if (StPersonalDatasOFNationality != null && StPersonalDatasOFNationality.Count > 0)
-                {
-                    var nationality = _NationalityRepository.Find(id);
-                    ViewBag.Message = "لا يمكن حذف الدولة بسبب وجود بيانات طلاب تابعة لها.. الرجاء حذف البيانات التابعة لها أولا ";
-                    return View(nationality);
-                }
-                _NationalityRepository.Delete(id);
+                await _nationalityService.DeleteWithValidationAsync(id);
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (DomainException ex)
             {
-                return View();
+                ViewBag.Message = ex.Message;
+
+                // عند حدوث خطأ أثناء الحذف، نعيد تحميل البيانات للشاشة عبر الـ VM
+                var nationality = await _nationalityService.GetByIdAsync(id);
+                var vm = new NationalityVM
+                {
+                    Id = nationality.Id,
+                    CountryName = nationality.CountryName,
+                    NationalityName = nationality.NationalityName
+                };
+
+                return View(vm);
             }
         }
 
-        private bool isCountryNameExists(string countryName)
-        {
-            return _NationalityRepository.List().Any(e =>  e.CountryName == countryName);
-        }
 
-        private bool isNationalityNameExists(string nationalityName)
-        {
-            return _NationalityRepository.List().Any(e => e.NationalityName == nationalityName );
-        }
+
     }
 }

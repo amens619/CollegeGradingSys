@@ -42,6 +42,9 @@ namespace CollegeGradingSys.Data.Migrations
                     b.Property<DateTime>("AcademicYearStart")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsClosed")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsCurrentYear")
                         .HasColumnType("bit");
 
@@ -136,6 +139,9 @@ namespace CollegeGradingSys.Data.Migrations
                     b.Property<int>("Course_sGender")
                         .HasColumnType("int");
 
+                    b.Property<int>("Hours")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsSubCourse")
                         .HasColumnType("bit");
 
@@ -182,6 +188,10 @@ namespace CollegeGradingSys.Data.Migrations
 
                     b.Property<float?>("Grade")
                         .HasColumnType("real");
+
+                    b.Property<string>("GradeLetter")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<int?>("StAcademicDataId")
                         .HasColumnType("int");
@@ -277,6 +287,9 @@ namespace CollegeGradingSys.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("SystemLicenseKey")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

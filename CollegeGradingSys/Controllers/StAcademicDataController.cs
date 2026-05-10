@@ -1,2569 +1,328 @@
 ﻿using cloudscribe.Pagination.Models;
-using CollegeGradingSys.Data;
 using CollegeGradingSys.Models;
 using CollegeGradingSys.Models.Enums;
-using CollegeGradingSys.Repositories.Interfaces;
+using CollegeGradingSys.Services.Implementations;
 using CollegeGradingSys.Services.Interfaces;
-using CollegeGradingSys.Utilities.Results;
-using CollegeGradingSys.ViewModels;
+using CollegeGradingSys.Utilities.Exceptions;
+using CollegeGradingSys.ViewModels.CourseGrade;
+using CollegeGradingSys.ViewModels.StAcademic;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using OfficeOpenXml;
-using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Drawing;
-using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Controllers
 {
     public class StAcademicDataController : Controller
-    {       
-        
-        private readonly ICollegeGradingSysRepository<StPersonalData> _StPersonalDataRepository;
-        private readonly ICollegeGradingSysRepository<Batch> _BatchRepository;
-        private readonly IAcademicYearRepository _AcademicYearRepository;
-        private readonly ICollegeGradingSysRepository<Specialization> _SpecializationRepository;
-        private readonly ICollegeGradingSysRepository<CourseGrade> _courseGradeRepository;
-        private readonly ICollegeGradingSysRepository<Course> _courseRepository;
-        private readonly ICollegeGradingSysRepository<GeneralInfo> _generalInfoRepository;
-        private readonly IAcademicYearService academicYearService;
-        private readonly IStAcademicDataService _stAcademicDataService;
+    {
+        private readonly IStAcademicDataService _service;
+        private readonly IStPersonalDataService _stPersonalDataService;
+        private readonly IExcelExportService _excelExportService;
 
-
-        public StAcademicDataController(ICollegeGradingSysRepository<StAcademicData> StAcademicDataRepository
-            , ICollegeGradingSysRepository<StPersonalData> StPersonalDataRepository
-            , ICollegeGradingSysRepository<Batch> BatchRepository
-            , IAcademicYearRepository AcademicYearRepository
-            ,ICollegeGradingSysRepository<Specialization> SpecializationRepository
-            ,ICollegeGradingSysRepository<CourseGrade> CourseGradeRepository
-            , ICollegeGradingSysRepository<GeneralInfo> GeneralInfoRepository
-            , ICollegeGradingSysRepository<Course> CourseRepository
-            , IAcademicYearService academicYearService
-            , IStAcademicDataService stAcademicDataService)
+        public StAcademicDataController(IStAcademicDataService service,
+            IStPersonalDataService stPersonalDataService,
+            IExcelExportService excelExportService)
         {
-            _stAcademicDataService = stAcademicDataService;
-            academicYearService = academicYearService;
-            _StPersonalDataRepository = StPersonalDataRepository;
-            _BatchRepository = BatchRepository;
-            _AcademicYearRepository = AcademicYearRepository;
-            _SpecializationRepository = SpecializationRepository;
-            _courseGradeRepository = CourseGradeRepository;
-            _courseRepository = CourseRepository;
-            _generalInfoRepository = GeneralInfoRepository;
+            _service = service;
+            _stPersonalDataService = stPersonalDataService;
+            _excelExportService = excelExportService;
         }
 
-        // GET: StAcademicData
-        public async Task<IActionResult> Index(
-     string Message,
-     string sortOrder,
-     string currentFilter,
-     bool IsSelectCurrentYear,
-     string StNameSearch,
-     int? BatchId,
-     int? AcademicYearId,
-     StStatus? stStatus,
-     Term? term,
-     Level? level,
-     StudyType? studyType,
-     bool IsCurrentYear,
-     int? SearchAcademicID,
-     int pageNumber = 1,
-     int pageSize = 5)
+        public async Task<IActionResult> Index(StAcademicDataUnifiedVM filter, int pageNumber = 1, int pageSize = 10)
         {
-            ViewBag.Message = Message;
-            FullAllListes("-- الكل --");
 
-            var model = new StAcademicDataIndexViewModel();
-
-            ViewBag.NameSortParm = string.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
-
-            // ===================== Search =====================
-            StNameSearch ??= currentFilter;
-            ViewBag.CurrentFilter = StNameSearch;
-
-            // ===================== Academic Year =====================
-            var currentYear = await _AcademicYearRepository.GetCurrentYearAsync();
-
-            if (IsSelectCurrentYear && currentYear != null)
-                AcademicYearId = currentYear.Id;
-
-            if (AcademicYearId.HasValue)
-            {
-                ViewData["AcademicYearId"] = new SelectList(
-                    await FillSelectAcademicYearesList(),
-                    "Id",
-                    "AcademicYearName",
-                    AcademicYearId.Value);
-
-                var academicYear = await _AcademicYearRepository.FindAsync(AcademicYearId.Value);
-                model.IsCurrentYear = academicYear.IsCurrentYear;
-            }
-
-            term ??= Term.الأول;
-            model.Term = term;
-
-            if (BatchId.HasValue && BatchId != -1)
-            {
-                ViewData["BatchId"] = new SelectList(
-                    FillSelectBatchsList("-- الكل --"),
-                    "Id",
-                    "BatchName",
-                    BatchId);
-            }
-
-            model.StStatus = stStatus;
-            model.StudyType = studyType;
-
-            // ===================== DATA FROM SERVICE (الأساس) =====================
-            var stAcademicData = await _stAcademicDataService.GetFilteredAsync(
-                AcademicYearId,
-                BatchId,
-                StNameSearch,
-                stStatus,
-                term,
-                studyType
-            );
-
-            // ===================== Mapping =====================
-            model.StAcademicDataVMs = stAcademicData.Select(stA => new StAcademicDataVM
-            {
-                Id = stA.Id,
-                AcademicYear = stA.AcademicYear,
-                Average = stA.Average,
-                Batch = stA.Batch,
-                GPA = stA.GPA,
-                IsCurrentYear = stA.IsTerm,
-                StLevel = stA.StLevel,
-                StStatus = stA.StStatus,
-                StudyType = stA.StudyType,
-                Term = stA.Term,
-                Valuation = stA.Valuation,
-                StPersonalData = stA.StPersonalData,
-                IsSelected = false
-            }).ToList();
+            var model = await _service.GetIndexDataAsync(filter, pageNumber, pageSize);
+           
 
             return View(model);
         }
 
+        public async Task<IActionResult> StudentAcademicHistory(int academicID)
+        {
+            try
+            {
+                var model = await _service.GetStudentAcademicHistoryAsync(academicID);
+                return View(model);
+            }
+            catch (DomainException ex)
+            {
+                return RedirectToAction(nameof(Index), new { Message = ex.Message });
+            }
+        }
 
-        //public async Task<IActionResult> PrintConfEnroll(int id)
+        [HttpGet]
+        public async Task<IActionResult> Create(int id)
+        {
+            try
+            {
+                var model = await _service.GetCreateFormAsync(id);
+                return View(model);
+            }
+            catch (DomainException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CreateStAcademicDataDataViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                await _service.FillListsForModelAsync(model);
+                return View(model);
+            }
+
+            try
+            {
+                await _service.CreateAsync(model);
+                return RedirectToAction(nameof(StudentAcademicHistory), new { academicID = model.AcademicID });
+            }
+            catch (DomainException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                await _service.FillListsForModelAsync(model);
+                return View(model);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            try
+            {
+                var model = await _service.GetEditFormAsync(id);
+                return View(model);
+            }
+            catch (DomainException)
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(CreateStAcademicDataDataViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                await _service.FillListsForModelAsync(model);
+                return View(model);
+            }
+
+            try
+            {
+                await _service.EditAsync(model);
+                return RedirectToAction(nameof(StudentAcademicHistory), new { academicID = model.AcademicID });
+            }
+            catch (DomainException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                await _service.FillListsForModelAsync(model);
+                return View(model);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                // قد تحتاج لتعديل بسيط هنا لتمكين إعادة التوجيه الصحيحة
+                // عن طريق إرجاع الـ academicID من دالة الحذف
+                await _service.DeleteAsync(id);
+                return Ok();
+            }
+            catch (DomainException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        public async Task<IActionResult> AddAcademicDataForAllSts()
+        {
+            //try
+            //{
+            //    await _service.PromoteAllStudentsToNextYearAsync();
+            //    return RedirectToAction(nameof(Index), new { IsSelectCurrentYear = true });
+            //}
+            //catch (DomainException ex)
+            //{
+            //    return RedirectToAction(nameof(Index), new { IsSelectCurrentYear = true, Message = ex.Message });
+            //}
+
+            try
+            {
+                // محاولة تنفيذ دالة الترحيل
+                await _service.PromoteAllStudentsToNextYearAsync();
+
+                // إذا نجحت الدالة مستقبلاً، يمكنك إضافة رسالة نجاح هنا
+                TempData["SuccessMessage"] = "تم ترحيل الطلاب بنجاح!";
+                return RedirectToAction(nameof(Index), new { IsSelectCurrentYear = true });
+            }
+            catch (NotImplementedException ex)
+            {
+                // 👈 هنا نصطاد الخطأ ونأخذ الرسالة ونضعها في TempData
+                TempData["WarningMessage"] = ex.Message; // ستكون قيمتها: "يجب تطبيق منطق الترحيل هنا"
+                return RedirectToAction(nameof(Index), new { IsSelectCurrentYear = true });
+            }
+            catch (Exception ex)
+            {
+                // 👈 اصطياد أي أخطاء أخرى غير متوقعة
+                TempData["WarningMessage"] = "حدث خطأ غير متوقع: " + ex.Message;
+                return RedirectToAction(nameof(Index), new { IsSelectCurrentYear = true });
+            }
+        }
+
+
+        //public async Task<IActionResult> AllStAcademicDatas(int id)
         //{
-        //    var stAcademicData = _StAcademicDataRepository.Find(id);
-        //    var currentYear = await _AcademicYearRepository.GetCurrentYearAsync();
-        //    var generalInfo = GetGeneralInfo();
 
-        //    var model = new PrintConfEnrollVM()
+
+
+        //    var stPersonalData = await _stPersonalDataService.GetByIdAsync(id);
+
+        //    IList<StAcademicData> stAcademicDatas = new List<StAcademicData>();
+        //    if (id != null)
         //    {
-        //        PrintConfEnrollDate = DateTime.Now.ToString("yyyy/MM/dd", CultureInfo.GetCultureInfo("en")),
-        //        PrintConfEnrollDateH = DateTime.Now.ToString("yyyy/MM/dd", CultureInfo.GetCultureInfo("ar-SA")),
-        //        StName = stAcademicData.StPersonalData.StName,
-        //        AcademicID = stAcademicData.StPersonalData.AcademicID.ToString(),
-        //        AcademicYearName = currentYear.AcademicYearNameH + "هـ" + " - " + currentYear.AcademicYearName + "م",
+        //        stAcademicDatas = _StAcademicDataRepository.List().Where(s => s.StPersonalData.AcademicID.Equals(id))
+        //            .OrderBy(x => x.AcademicYear.AcademicYearStart.Year)
+        //            .ThenBy(x => x.StLevel)
+        //            .ThenBy(x => x.Term)
+        //            .ToList();
 
-        //        StDepartmentHead = generalInfo.StDepartmentHead,
-
-        //        Nationality = stAcademicData.StPersonalData.Nationality.NationalityName,
-
-        //        StLevel = stAcademicData.StLevel.ToString(),
-
-
-
+        //    }
+        //    var model = new StAcademicDataDataViewModel()
+        //    {
+        //        Id = id,
+        //        AcademicID = stPersonalData.AcademicID,
+        //        StName = stPersonalData.StName,
+        //        IsCanRegisterInCurrentYear = false,
+        //        StAcademicDatas = stAcademicDatas
         //    };
+        //    var currentYear = await _AcademicYearRepository.GetCurrentYearAsync();
+        //    var stACourseGrades = stAcademicDatas.Where(x => x.AcademicYear.Id == currentYear.Id).ToList();
+        //    if (stACourseGrades == null || stACourseGrades.Count <= 0)
+        //    {
+
+        //        var isSTwithdrew = stAcademicDatas.Any(x => x.StStatus == StStatus.منحسب);
+        //        model.IsCanRegisterInCurrentYear = !isSTwithdrew;
+
+        //    }
+
+
 
 
         //    return View(model);
         //}
 
+
+        // ================= Printing & Export =================
         public async Task<IActionResult> PrintConfEnroll(int id)
         {
-            var stAcademicData = await _stAcademicDataService.GetByIdAsync(id);
-            if (stAcademicData == null)
-                return NotFound();
-
-            var currentYear = await academicYearService.();
-            var ACurrentYear = await _AcademicYearRepository.FindAsync(currentYear.);
-            var generalInfo = GetGeneralInfo();
-
-            var now = DateTime.Now;
-
-            var model = new PrintConfEnrollVM
-            {
-                PrintConfEnrollDate = now.ToString("yyyy/MM/dd", CultureInfo.GetCultureInfo("en")),
-                PrintConfEnrollDateH = now.ToString("yyyy/MM/dd", CultureInfo.GetCultureInfo("ar-SA")),
-
-                StName = stAcademicData.StPersonalData.StName,
-                AcademicID = stAcademicData.StPersonalData.AcademicID.ToString(),
-
-                AcademicYearName =
-                    $"{currentYear.}هـ - {currentYear.AcademicYearName}م",
-
-                StDepartmentHead = generalInfo.StDepartmentHead,
-
-                Nationality = stAcademicData.StPersonalData.Nationality.NationalityName,
-
-                StLevel = stAcademicData.StLevel.ToString()
-            };
-
+            var model = await _service.GetPrintConfEnrollAsync(id);
             return View(model);
         }
-
 
         public async Task<IActionResult> PrintGradeReport(int id)
         {
-            var stAcademicData = _StAcademicDataRepository.Find(id);
-            var currentYear = await _AcademicYearRepository.GetCurrentYearAsync();
-            var generalInfo = GetGeneralInfo();
-
-            var model = new PrintConfEnrollVM()
-            {
-                PrintConfEnrollDate = DateTime.Now.ToString("yyyy/MM/dd", CultureInfo.GetCultureInfo("en")),
-                PrintConfEnrollDateH = DateTime.Now.ToString("yyyy/MM/dd", CultureInfo.GetCultureInfo("ar-SA")),
-                StName = stAcademicData.StPersonalData.StName,
-                AcademicID = stAcademicData.StPersonalData.AcademicID.ToString(),
-                AcademicYearName = currentYear.AcademicYearNameH + "هـ" + " - " + currentYear.AcademicYearName + "م",
-
-                StDepartmentHead = generalInfo.StDepartmentHead,
-
-                Nationality = stAcademicData.StPersonalData.Nationality.NationalityName,
-
-                StLevel = stAcademicData.StLevel.ToString(),
-
-
-
-            };
-
-
+            var model = await _service.GetPrintGradeReportAsync(id);
             return View(model);
         }
 
-        public async Task<IActionResult> PrintGraduatStatement(int id)
-        {
-            var stAcademicData = _StAcademicDataRepository.Find(id);
-            var currentYear = await _AcademicYearRepository.GetCurrentYearAsync();
-            var generalInfo = GetGeneralInfo();
-
-            var model = new PrintGraduatStatementVM()
-            {
-                PrintConfEnrollDate = DateTime.Now.ToString("yyyy/MM/dd", CultureInfo.GetCultureInfo("en")),
-                PrintConfEnrollDateH = DateTime.Now.ToString("yyyy/MM/dd", CultureInfo.GetCultureInfo("ar-SA")),
-                StName = stAcademicData.StPersonalData.StName,
-                AcademicID = stAcademicData.StPersonalData.AcademicID.ToString(),
-                Birthcountry = stAcademicData.StPersonalData.Birthcountry.CountryName,
-                BirthDate = stAcademicData.StPersonalData.BirthDate.Year.ToString(),
-                GraduationYear = currentYear.AcademicYearName,
-                GraduationYearH = currentYear.AcademicYearNameH,
-
-                StDepartmentHead = generalInfo.StDepartmentHead,
-
-                Nationality = stAcademicData.StPersonalData.Nationality.NationalityName,
-
-                StLevel = stAcademicData.StLevel.ToString(),
-
-
-
-            };
-
-
-            return View(model);
-        }
-
-        public async Task<IActionResult> PrintAlmushayakhaStatement(int id)
-        {
-            var stAcademicData = _StAcademicDataRepository.Find(id);
-            var currentYear = await _AcademicYearRepository.GetCurrentYearAsync();
-            var generalInfo = GetGeneralInfo();
-
-            var model = new PrintAlmushayakhaStatementVM()
-            {
-                PrintConfEnrollDate = DateTime.Now.ToString("yyyy/MM/dd", CultureInfo.GetCultureInfo("en")),
-                StName = stAcademicData.StPersonalData.StName,
-                AcademicID = stAcademicData.StPersonalData.AcademicID.ToString(),
-                Birthcountry = stAcademicData.StPersonalData.Birthcountry.CountryName,
-                BirthDate = stAcademicData.StPersonalData.BirthDate.Year.ToString(),
-                GraduationYear = currentYear.AcademicYearName,
-                GraduationYearH = currentYear.AcademicYearNameH,
-
-                StDepartmentHead = generalInfo.StDepartmentHead,
-                BranchHeadName =generalInfo.BranchHeadName, 
-                Nationality = stAcademicData.StPersonalData.Nationality.NationalityName,
-                CollegeName = stAcademicData.Batch.Specialization.Department.College.CollegeName,
-                DepartmentName = stAcademicData.Batch.Specialization.Department.DepartmentName
-             
-            };
-
-
-            return View(model);
-        }
-        public async Task<IActionResult> AllStAcademicDatas (int id)
-        {
-
-
-            //ViewBag.Message = "يجب اقفال الفصل  بإدخال جميع درجات المواد";
-            var stPersonalData = _StPersonalDataRepository.Find(id);
-            
-            IList<StAcademicData> stAcademicDatas =new List<StAcademicData>();
-            if (id != null)
-            {
-                stAcademicDatas = _StAcademicDataRepository.List().Where(s => s.StPersonalData.AcademicID.Equals(id))
-                    .OrderBy(x => x.AcademicYear.AcademicYearStart.Year)
-                    .ThenBy(x => x.StLevel)
-                    .ThenBy(x => x.Term)
-                    .ToList();
-                
-            }
-            var model = new StAcademicDataDataViewModel()
-            {
-                Id = id,
-                AcademicID = stPersonalData.AcademicID,
-                StName = stPersonalData.StName,
-                IsCanRegisterInCurrentYear = false,
-                StAcademicDatas = stAcademicDatas                
-            };
-            var currentYear =await _AcademicYearRepository.GetCurrentYearAsync();
-            var stACourseGrades = stAcademicDatas.Where(x => x.AcademicYear.Id == currentYear.Id).ToList();
-            if(stACourseGrades == null || stACourseGrades.Count <= 0)
-            {
-
-                var isSTwithdrew = stAcademicDatas.Any(x => x.StStatus == StStatus.منحسب);
-                model.IsCanRegisterInCurrentYear = !isSTwithdrew;
-               
-            }
-            
-                
-            
-           
-            return View(model);
-        }
-
-        // GET: StAcademicData/Details/5
-        //public async Task<IActionResult> Details(int? id)
+        //[Authorize(Policy = "ExportSthighSchoolToExcelPolicy")]
+        //public async Task<ActionResult> ExportSthighSchoolToExcel(bool IsSelectCurrentYear, int? AcademicYearId)
         //{
-        //    if (id == null)
+        //    // 1. تحديد السنة الأكاديمية المطلوبة
+        //    if (IsSelectCurrentYear)
         //    {
-        //        return NotFound();
+        //        var currentYear = await _academicYearService.GetCurrentYearAsync();
+        //        if (currentYear != null)
+        //        {
+        //            AcademicYearId = currentYear.Id;
+        //        }
         //    }
 
-        //    var stAcademicData = await _context.StAcademicData
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (stAcademicData == null)
-        //    {
-        //        return NotFound();
-        //    }
+        //    // 2. جلب كل الطلاب مع بياناتهم المرتبطة لتجنب N+1 Queries
+        //    var allStudents = await _stPersonalDataService.FindFullAsync();
 
-        //    return View(stAcademicData);
+
+
+        //    // 4. توليد التقرير من الخدمة مباشرة
+        //    byte[] fileContents = await _excelExportService.GenerateStudentTranscriptExcelAsync(allStudents);
+
+        //    // 5. إرجاع الملف
+        //    return File(
+        //        fileContents,
+        //        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        //        "بيان درجات من واقع شهادة الثانوية.xlsx"
+        //    );
         //}
-
-
-        public IActionResult NextLevel(StAcademicDataIndexViewModel model)
+        // 2. الدالة المسؤولة عن التحميل
+        [HttpGet]
+        public async Task<IActionResult> DownloadTranscript(int id)
         {
-
-            if (model != null)
-            {
-                FullAllListes("-- أختر --");
-            }
-
-            return View();
-        }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult NextLevel([Bind("Id,StLevel,Term,StStatus,Average,GPA,Valuation,IsCurrentYear,AcademicID,AcademicYearId,BatchId")] CreateStAcademicDataDataViewModel model)
-        {
-            return RedirectToAction(nameof(Index));
-        }
-
-
-
-        // GET: StAcademicData/Create
-        public async Task<IActionResult> Create(int id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-            var stPersonalData = _StPersonalDataRepository.Find(id);
-            if (stPersonalData == null)
-            {
-                return NotFound();
-            }
-            FullAllListes("-- أختر --");
-            var model = new CreateStAcademicDataDataViewModel()
-            {
-                StName = stPersonalData.StName,
-                AcademicID = stPersonalData.AcademicID,
-                AcademicYearId =(await _AcademicYearRepository.GetCurrentYearAsync()).Id
-            };
-            var StAcademicDatalistTerm = _StAcademicDataRepository.List().Where(x => x.StPersonalData.AcademicID == id).LastOrDefault();
-            //Level nextlevel = GetNextStAcademicDataLevel(StAcademicDatalistTerm);
-            
-         
-            
-            if(StAcademicDatalistTerm !=null)
-            {
-                model.BatchId = StAcademicDatalistTerm.StStatus == StStatus.ناجح ? StAcademicDatalistTerm.Batch.Id: -1;
-                //model.StLevel = nextlevel;
-                model.preAcademicYear = StAcademicDatalistTerm.AcademicYear.AcademicYearName;
-                model.preStStatus = StAcademicDatalistTerm.StStatus.ToString();
-                model.preGPA = StAcademicDatalistTerm.GPA.ToString();
-                model.preSpecialization = StAcademicDatalistTerm.Batch.Specialization.SpecializationName;
-                model.preValuation = StAcademicDatalistTerm.Valuation.ToString();
-                model.preLevel = StAcademicDatalistTerm.StLevel.ToString();
-            }
-          
-           
-           
-            return View(model);
-        }
-
-       
-            // POST: StAcademicData/Create
-            // To protect from overposting attacks, enable the specific properties you want to bind to.
-            // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-            [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateStAcademicDataDataViewModel model)
-        {
-            ModelState.ClearValidationState(nameof(model));
-            if (model.BatchId == -1)
-            {
-                ModelState.AddModelError(nameof(model.BatchId), "الرجاء اختيار الدفعة من القائمة");
-                   
-            }
-            if (!TryValidateModel(model, nameof(model)))
-            {
-                FullAllListes("-- أختر --");
-                return View(model);
-            }
-
-
             try
-            {
-                var stPersonalData = _StPersonalDataRepository.Find(model.AcademicID);
-                var studentBatch = _BatchRepository.Find(model.BatchId);
-                var academicYear =await _AcademicYearRepository.GetCurrentYearAsync(); 
-                
-                //var stAcademicData = new StAcademicData()
-                //{
-                //    StLevel = model.StLevel,
-                //    //Term = model.Term,
-                //    StStatus =  StStatus.مقيد,
-                //    //Average = model.Average,
-                //    //GPA = model.GPA,
-                //     StudyType = model.StudyType,
-                   
-                //    //IsTerm = model.IsCurrentYear,
-                //    StPersonalData = stPersonalData,
-                //    AcademicYear = academicYear,
-                //    Batch = studentBatch
-                //};
-                
+            {               
+                // استدعاء الخدمة التي قمنا ببرمجتها مسبقاً لتوليد ملف الإكسل
+                var excelData = await _excelExportService.GenerateStudentTranscriptExcelAsync(id);
 
-                //_StAcademicDataRepository.Add(stAcademicData);
-                //var stAcCourses = _courseRepository.List().Where(x => x.Level == stAcademicData.StLevel).Where(x => x.Term == stAcademicData.Term).Where(x => x.Specialization == stAcademicData.Batch.Specialization).ToList();
-                //foreach (var course in stAcCourses)
-                //{
-
-                //    var courseGrade = new CourseGrade()
-                //    {
-                //        Course = course,
-                //        CourseType = true,
-                //        StAcademicData = stAcademicData,
-                //        StStatusForCourse = StStatusForCourse.غير_محدد,
-                //    };
-                //    _courseGradeRepository.Add(courseGrade);
-                //}
-            //========================Add StAcademicData to Repository  Term.الأول,.================================
-
-           
-
-            var stAcademicData = new StAcademicData()
-            {
-                StLevel = model.StLevel,
-                Term = Term.الأول,
-                StStatus = StStatus.مقيد,
-                Valuation = Valuation.غير_محدد,
-                IsTerm = true,
-                 StudyType = model.StudyType,
-                StPersonalData = stPersonalData,
-                AcademicYear = academicYear,
-                Batch = studentBatch
-            };
-
-
-            _StAcademicDataRepository.Add(stAcademicData);
-            //=================================================
-            //===================Add CourseGrade to Repository Term.الأول,.==============================
-
-            AddCourseGradeTostAcademicData(stAcademicData);
-
-
-
-            //========================Add StAcademicData to Repository  Term.الثاني.================================
-            var stAcademicData2 = new StAcademicData()
-            {
-                StLevel = model.StLevel,
-                Term = Term.الثاني,
-                StStatus = StStatus.مقيد,
-                Valuation = Valuation.غير_محدد,
-                IsTerm = true,
-                StudyType = model.StudyType,
-                StPersonalData = stPersonalData,
-                AcademicYear = academicYear,
-                Batch = studentBatch
-            };
-
-            _StAcademicDataRepository.Add(stAcademicData2);
-            //===================Add CourseGrade to Repository Term.الثاني.==============================
-
-
-            AddCourseGradeTostAcademicData(stAcademicData2);
-                //========================================================
-            }
-            catch
-            {
-                return View(model);
-            }
-            return RedirectToAction(nameof(AllStAcademicDatas), new { id =model.AcademicID });           
-        }
-
-       
-
-        // GET: StAcademicData/Edit/5
-        public IActionResult Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-            var stAcademicData = _StAcademicDataRepository.Find(id ?? 0);
-            if (stAcademicData == null)
-            {
-                return NotFound();
-            }
-            var stringGPA = "";
-            if (stAcademicData.GPA != null)
-            {
-                stringGPA = stAcademicData.GPA.Value.ToString("N2", new CultureInfo("en"));
-            }
-            var stringAverage = "";
-            if (stAcademicData.Average != null)
-            {
-                stringAverage = stAcademicData.Average.Value.ToString("N2", new CultureInfo("en"));
-            }
-            var model = new CreateStAcademicDataDataViewModel()
-            {
-                AcademicID = stAcademicData.StPersonalData.AcademicID,
-                StLevel = stAcademicData.StLevel,
-                Term = stAcademicData.Term,
-                StName = stAcademicData.StPersonalData.StName,
-                //IsCurrentYear = stAcademicData.IsTerm,
-                StStatus = stAcademicData.StStatus,
-                StudyType = stAcademicData.StudyType,
-                AcademicYearId = stAcademicData.AcademicYear.Id,
-                BatchId = stAcademicData.Batch.Id,
-                GPA = stringGPA,
-                Average = stringAverage,
-                Valuation = stAcademicData.Valuation,
-                Id = stAcademicData.Id
-            };
-
-            FullAllListes();
-            return View(model);           
-        }
-
-        // POST: StAcademicData/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, [Bind("Id,StLevel,Term,StStatus,Average,GPA,Valuation,IsCurrentYear,AcademicID,StudyType,AcademicYearId,BatchId")] CreateStAcademicDataDataViewModel model)
-        {
-            FullAllListes();
-            if (id != model.Id)
-            {
-                return NotFound();
-            }
-            ModelState.ClearValidationState(nameof(model));
-
-            //var studentBatch = _BatchRepository.Find(model.BatchId);
-
-            var stAcademicData = _StAcademicDataRepository.Find(model.Id);
-            model.AcademicYearId = stAcademicData.AcademicYear.Id;
-            model.BatchId = stAcademicData.Batch.Id;
-            model.StLevel = stAcademicData.StLevel;
-            model.Term = stAcademicData.Term;
-            var courseGradesFailed = CourseGradesFailed(model.AcademicID);
-
-            if (model.StStatus == StStatus.متخرج)
-            {
-                if (model.StLevel != Level.الرابع || model.Term != Term.الثاني)
+                // التحقق من أن الخدمة أعادت بيانات ولم تفشل
+                if (excelData == null || excelData.Length == 0)
                 {
-                    ViewBag.Message = "عذراً .. يتم اختيار حالة الطالب 'متخرج' فقط في حالة النجاح في الفصل الثاني من المستوى الرابع   ";
-                    return View(model);
-                }
-                if ( (!IsAllStfaildedCourseGradesSucceeded(model.AcademicID))   || (courseGradesFailed is not null && courseGradesFailed.Count() > 0))
-                {
-                    ViewBag.Message = "يجب النجاح في جميع المواد المقررة للطالب العامة والتكميلي";
-                    return View(model);
+                    // في حال عدم وجود طالب أو خطأ ما، نعيده للصفحة مع رسالة خطأ
+                    TempData["ErrorMessage"] = "عذراً، لم يتم العثور على بيانات أو درجات لهذا الطالب.";
+
+                    // يمكنك تغيير "Index" إلى اسم الشاشة التي يعود إليها
+                    return RedirectToAction(nameof(Index));
                 }
 
-               
-                
+                // تحديد اسم الملف عند التحميل (مثال: بيان_درجات_الطالب_12345.xlsx)
+                string fileName = $"بيان_درجات_الطالب_{id}.xlsx";
+
+                // الـ MIME Type الخاص بملفات إكسل الحديثة
+                string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+                // إرجاع الملف للمتصفح ليبدأ التحميل تلقائياً
+                return File(excelData, contentType, fileName);
             }
-            if (model.StStatus == StStatus.ناجح )
-            { 
-                if (model.StLevel == Level.الرابع && model.Term == Term.الثاني)
-                {
-                    ViewBag.Message = "في حالة النجاح في الفصل الثاني من المستوى الرابع يجب اختيار 'متخرج'  ";
-                    return View(model);
-                }
-            }
-            if (model.StStatus == StStatus.ناجح || model.StStatus == StStatus.متخرج)
+            catch (Exception ex)
             {
-                if (!IsCourseGradesEntered(model.Id))
-                {
-                    ViewBag.Message = "يجب اقفال الفصل  بإدخال جميع درجات المواد";
-                    return View(model);
-                }
-                
-                if (model.Average is not null)
-                {
-                    var cultureInfo = new CultureInfo("en");
-                    if (!(float.TryParse(model.Average.ToString(),
-                        NumberStyles.Float,
-                        cultureInfo, out var modelAverage)) || !(modelAverage >= 0 && modelAverage <= 100))
-                    {
-                        ModelState.AddModelError(nameof(model.Average), " الرجاء إدخال  المعدل رقماً  بين 0 - 100.");
-
-
-                    }
-                    else { stAcademicData.Average = modelAverage; }
-                }
-                else
-                {
-                    ModelState.AddModelError(nameof(model.Average), "الرجاء إدخال  المعدل  رقماً بين 0 - 100.");
-                }
-                if (model.GPA is not null)
-                {
-                    var cultureInfo = new CultureInfo("en");
-                    if (!(float.TryParse(model.GPA.ToString(),
-                        NumberStyles.Float,
-                        cultureInfo, out var modelGPA)) || !(modelGPA >= 0 && modelGPA <= 100))
-                    {
-                        ModelState.AddModelError(nameof(model.GPA), " الرجاء إدخال  المعدل التراكمي رقماً بين 0 - 100.");
-
-
-                    }
-                    else { stAcademicData.GPA = modelGPA; }
-                }
-                else
-                {
-                    ModelState.AddModelError(nameof(model.GPA), "الرجاء إدخال  المعدل التراكمي  رقماً بين 0 - 100.");
-                }
-                if (model.Valuation == Valuation.غير_محدد)
-                {
-                    ModelState.AddModelError(nameof(model.Valuation), " الرجاء تحديد التقدير من القائمة.");                    
-                }
-                else { stAcademicData.Valuation = model.Valuation; }
-            }
-
-            if (model.StStatus == StStatus.متخرج)
-            {
-
-            }
-
-
-            if (!TryValidateModel(model, nameof(model)))
-            {
-                FullAllListes();
-                return View(model);
-            }
-
-            stAcademicData.StudyType = model.StudyType;
-            stAcademicData.StStatus = model.StStatus;          
-        //    stAcademicData.Batch = studentBatch;
-
-            if (model.StStatus == StStatus.ناجح)
-            {
-               
-                // اضافة المواد الرسوب الى التكميلي
-                foreach (var courseGradeFailed in courseGradesFailed)
-                {
-
-                    var courseGrade = new CourseGrade()
-         
-                    {
-                        Course = courseGradeFailed.Course,
-                        CourseType = false,
-                        StAcademicData = stAcademicData,
-                        StStatusForCourse = StStatusForCourse.غير_محدد,
-                    };
-
-                    _courseGradeRepository.Add(courseGrade);
-                }
-            }
-
-            _StAcademicDataRepository.Update(id,stAcademicData);              
-                
-
-                return RedirectToAction(nameof(AllStAcademicDatas), new { id = model.AcademicID });
-           
-           
-           
-            
-            //return View(stAcademicData);
-        }
-
-        // GET: StAcademicDataController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-            var stAcademicData = _StAcademicDataRepository.Find(id);
-
-            return PartialView("_Delete", stAcademicData);
-        }
-
-        // POST: StAcademicDataController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, StAcademicData stAcademicData)
-        {
-
-            try
-            {
-
-                _StAcademicDataRepository.Delete(id);
-                return PartialView("_Delete", stAcademicData);
-            }
-            catch
-            {
-                return PartialView("_Delete", stAcademicData);
+                // يفضل هنا تسجيل الخطأ في السيرفر (Logging) إن وجد
+                TempData["ErrorMessage"] = "حدث خطأ غير متوقع أثناء توليد بيان الدرجات.";
+                return RedirectToAction(nameof(Index));
             }
         }
 
-
-
-        // GET: AddAcademicDataForAllSts
-        public async Task<IActionResult> AddAcademicDataForAllSts()
+        public async Task<IActionResult> ExportStAcademicDataToExcel(StAcademicDataFilterVM filter)
         {
-            //=======================  Get previousYear ================================
-
-            // 1. Get current and previous years
-            var currentYear =await _AcademicYearRepository.GetCurrentYearAsync();
-            var previousYear =await GetpreviousYear(currentYear.Id); 
-
-            foreach (var StAcademicData in previousYear.StAcademicDatas)
-            {
-                var oldStAcademicData = _StAcademicDataRepository.Find(StAcademicData.Id);
-
-                // 2. Check if data can be added
-                if (!isCanAddStAcademicData(oldStAcademicData))
-                {
-                    continue; // Skip to the next student data if not allowed
-                }
-
-                // 3. Find existing data for both terms
-                var oldTerm1Data = _StAcademicDataRepository.List()
-                    .FirstOrDefault(x => x.StPersonalData.AcademicID == oldStAcademicData.StPersonalData.AcademicID
-                                     && x.AcademicYear == oldStAcademicData.AcademicYear
-                                     && x.Term == Term.الأول);
-                var oldTerm2Data = _StAcademicDataRepository.List()
-                    .FirstOrDefault(x => x.StPersonalData.AcademicID == oldStAcademicData.StPersonalData.AcademicID
-                                     && x.AcademicYear == oldStAcademicData.AcademicYear
-                                     && x.Term == Term.الثاني);
-
-                //var oldStAcademicData1 = _StAcademicDataRepository.List().FirstOrDefault(x => x.StPersonalData.AcademicID == oldStAcademicData.StPersonalData.AcademicID && x.AcademicYear == oldStAcademicData.AcademicYear && x.Term == Term.الأول);
-                //var oldStAcademicData2 = _StAcademicDataRepository.List().FirstOrDefault(x=> x.StPersonalData.AcademicID == oldStAcademicData.StPersonalData.AcademicID && x.AcademicYear == oldStAcademicData.AcademicYear && x.Term == Term.الثاني);
-                Batch studentBatch;
-
-                if (oldTerm1Data.StStatus == StStatus.راسب || oldTerm2Data.StStatus == StStatus.راسب)
-                {
-                    //========================if  StAcademicData.StStatus == StStatus.راسب then well move to the next batch ================================    
-                    studentBatch = GetNextBatch(oldStAcademicData);
-                    if (studentBatch == null)
-                        return RedirectToAction(nameof(Index), new { IsSelectCurrentYear = true, Message = "عذراً...لم يتم اكمال الاجراء بسبب انه لم يتم إضافة دفعة جديدة في السنة الحالية " });
-                }
-                else
-                {
-                    studentBatch = oldStAcademicData.Batch;
-                }
-                //========================Add StAcademicData to Repository  Term.الأول,.================================
-                // 5. Get next level based on both terms' status
-                Level stNextLevel = GetNextStAcademicDataLevel(oldTerm1Data, oldTerm2Data);
-                
-               
-
-                    var stAcademicData = new StAcademicData()
-                    {
-                        StLevel = stNextLevel,
-                        Term = Term.الأول,
-                        StStatus = StStatus.مقيد,
-                        Valuation = Valuation.غير_محدد,
-                        IsTerm = true,
-                        StudyType = oldStAcademicData.StudyType,
-                        StPersonalData = oldStAcademicData.StPersonalData,
-                        AcademicYear = currentYear,
-                        Batch = studentBatch
-                    };
-
-
-                  
-
-
-
-                    ////========================Add StAcademicData to Repository  Term.الثاني.================================
-                    var stAcademicData2 = new StAcademicData()
-                    {
-                        StLevel = stNextLevel,
-                        Term = Term.الثاني,
-                        StStatus = StStatus.مقيد,
-                        Valuation = Valuation.غير_محدد,
-                        IsTerm = true,
-                        StudyType = oldStAcademicData.StudyType,
-                        StPersonalData = oldStAcademicData.StPersonalData,
-                        AcademicYear = currentYear,
-                        Batch = studentBatch
-                    };
-
-
-                // 7. Add data and course grades (function calls not shown)
-
-                _StAcademicDataRepository.Add(stAcademicData);
-               ////===================Add CourseGrade to Repository Term.الأول,.==============================
-                AddCourseGradeTostAcademicData(stAcademicData);
-
-
-                _StAcademicDataRepository.Add(stAcademicData2);
-                    ////===================Add CourseGrade to Repository Term.الثاني.==============================
-                AddCourseGradeTostAcademicData(stAcademicData2);
-                 
-                   
-
-               
-            }
-               
-            return RedirectToAction(nameof(Index), new { IsSelectCurrentYear = true });
-
-        }
-        
- public ActionResult ExportStsGradesToExcel(bool IsCurrentYear, bool IsSelectCurrentYear, int? AcademicYearId, int? BatchId, StudyType? studyType)
-        {
-            var stream = new MemoryStream();
-
+            var stream = await _service.ExportStAcademicDataToExcelAsync(filter);
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "كشف المقيدين.xlsx");
         }
-            public async Task<ActionResult> ExportGraduateStToExcel(bool IsCurrentYear ,bool IsSelectCurrentYear, int? AcademicYearId, int? BatchId, StudyType? studyType )
+
+        public async Task<IActionResult> ExportGraduateStToExcel(StAcademicDataFilterVM filter)
         {
-            var StPersonalDatasR = _StPersonalDataRepository.List();
-
-            var currentYear =await _AcademicYearRepository.GetCurrentYearAsync();
-
-
-            if (IsSelectCurrentYear == true)
-            {
-
-                if (currentYear != null)
-                {
-                    AcademicYearId = currentYear.Id;
-
-                }
-            }
-            IList<StAcademicData> stAcademicDataList = new List<StAcademicData>();
-
-            stAcademicDataList =await GetStAcademicDatas(IsCurrentYear, IsSelectCurrentYear, AcademicYearId, BatchId, studyType,StStatus.متخرج , Term.الثاني);
-
-         
-
-            var stream = new MemoryStream();
-            using (var xlPackage = new ExcelPackage(stream))
-            {
-                var worksheet = xlPackage.Workbook.Worksheets.Add("(1)");
-                worksheet.View.RightToLeft = true;
-                worksheet.Cells.Style.Font.Bold = true;
-                var namedStyle = xlPackage.Workbook.Styles.CreateNamedStyle("HyperLink");
-                namedStyle.Style.Font.UnderLine = true;
-                namedStyle.Style.Font.Color.SetColor(Color.Blue);
-                const int startRow = 5;
-                var row = startRow;
-
-                worksheet.Column(1).Width = 4.57;
-                worksheet.Column(2).Width = 37.57;
-                worksheet.Column(3).Width = 10.57;
-                worksheet.Column(4).Width = 13;
-                worksheet.Column(5).Width = 18;
-                worksheet.Column(6).Width = 16.57;
-                worksheet.Column(7).Width = 21.29;
-                worksheet.Column(8).Width = 16.29;
-                worksheet.Column(9).Width = 15.29;
-                worksheet.Column(10).Width = 12.29;
-                worksheet.Column(11).Width = 15.29;
-                worksheet.Column(12).Width = 10;
-                worksheet.Column(13).Width = 13;
-                worksheet.Column(14).Width = 9.57;
-                worksheet.Column(15).Width = 9;
-                worksheet.Column(16).Width = 9.43;
-                worksheet.Column(17).Width = 14.71;
-                worksheet.Column(18).Width = 19;
-                worksheet.Column(19).Width = 22.14;
-                //==========================
-                worksheet.Row(1).Height = 24.75;
-                worksheet.Row(2).Height = 30.25;
-                worksheet.Row(3).Height = 18.75;
-                worksheet.Row(4).Height = 53.5;            
-               
-                //============================
-                var academicYear =await _AcademicYearRepository.GetCurrentYearAsync();
-                worksheet.Cells["I2"].Value = academicYear.AcademicYearName;
-                Color colGradFromHex = System.Drawing.ColorTranslator.FromHtml("#F2F2F2");
-                Color LightYellowFromHex = System.Drawing.ColorTranslator.FromHtml("#FFFFCC");
-                Color BrownFromHex = System.Drawing.ColorTranslator.FromHtml("#974706");
-                Color PinkFromHex = System.Drawing.ColorTranslator.FromHtml("#F2DCDB");
-                
-               
-               
-                //================================
-                worksheet.Cells["A1"].Value = "اسم الجامعة";
-                using (var r = worksheet.Cells["A1:E1"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-                    r.Style.Border.Top.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thick;
-                }
-                //================================
-                worksheet.Cells["F1"].Value = "للعام الدراسي";
-                using (var r = worksheet.Cells["F1:N1"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-                    r.Style.Border.Top.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thick;
-                }
-                //================================
-                worksheet.Cells["O1"].Value = "Name Of University";
-                using (var r = worksheet.Cells["O1:S1"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-                    r.Style.Border.Top.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thick;
-                }
-                //================================
-                worksheet.Cells["A2"].Value = "جامعة الإيمان فرع حضرموت";
-                using (var r = worksheet.Cells["A2:E2"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(colGradFromHex);
-                    r.Style.Border.Top.Style = ExcelBorderStyle.None;
-                    r.Style.Border.Left.Style = ExcelBorderStyle.None;
-                    r.Style.Border.Right.Style = ExcelBorderStyle.None;
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                }
-                //================================
-                worksheet.Cells["F2"].Value = academicYear.AcademicYearName + "  " + academicYear.AcademicYearNameH;
-                using (var r = worksheet.Cells["F2:N2"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(colGradFromHex);
-                    r.Style.Border.Top.Style = ExcelBorderStyle.None;
-                    r.Style.Border.Left.Style = ExcelBorderStyle.None;
-                    r.Style.Border.Right.Style = ExcelBorderStyle.None;
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                }
-                //================================
-                worksheet.Cells["O2"].Value = "";
-                using (var r = worksheet.Cells["O2:S2"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(colGradFromHex);
-                    r.Style.Border.Top.Style = ExcelBorderStyle.None;
-                    r.Style.Border.Left.Style = ExcelBorderStyle.None;
-                    r.Style.Border.Right.Style = ExcelBorderStyle.None;
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                }
-
-                //================================
-                worksheet.Cells["A3"].Value = "م";
-                using (var r = worksheet.Cells["A3:A4"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-
-                //================================
-                worksheet.Cells["B3"].Value = "اسم الطالب";
-                using (var r = worksheet.Cells["B3:B4"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-                //================================
-                worksheet.Cells["C3"].Value = "الجنس";
-                using (var r = worksheet.Cells["C3:C4"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    r.Style.TextRotation = 90;
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-
-                //================================
-                worksheet.Cells["D3"].Value = "الجنسية";
-                using (var r = worksheet.Cells["D3:D4"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-                //================================
-                worksheet.Cells["E3"].Value = "محل للميلاد";
-                using (var r = worksheet.Cells["E3:E4"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-
-                //================================
-                worksheet.Cells["F3"].Value = "تاريخ الميلاد";
-                using (var r = worksheet.Cells["F3:F4"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-                //================================
-                worksheet.Cells["G3"].Value = "الرقم الوطني (الهوية)";
-                using (var r = worksheet.Cells["G3:G4"])
-                {
-                    r.Merge = true;
-                    r.Style.WrapText = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-                //================================
-                worksheet.Cells["H3"].Value = "رقم القيد";
-                using (var r = worksheet.Cells["H3:H4"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-
-                //================================
-                worksheet.Cells["I3"].Value = "اسم الكلية";
-                using (var r = worksheet.Cells["I3:I4"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-
-                //================================
-                worksheet.Cells["J3"].Value = "اسم القسم";
-                using (var r = worksheet.Cells["J3:J4"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-
-                //================================
-                worksheet.Cells["K3"].Value = "التخصص";
-                using (var r = worksheet.Cells["K3:K4"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-                //================================
-                worksheet.Cells["L3"].Value = "عام الالتحاق";
-                using (var r = worksheet.Cells["L3:L4"])
-                {
-                    r.Merge = true;
-                    r.Style.WrapText = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(PinkFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-                //================================
-                worksheet.Cells["M3"].Value = "النسبة المئوية للتخرج %";
-                using (var r = worksheet.Cells["M3:M4"])
-                {
-                    r.Merge = true;
-                    r.Style.WrapText = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(PinkFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-                //================================
-                worksheet.Cells["N3"].Value = "التقدير العام";
-                using (var r = worksheet.Cells["N3:N4"])
-                {
-                    r.Merge = true;
-                    r.Style.WrapText = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(PinkFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-                //================================
-                worksheet.Cells["O3"].Value = "نظام الدراسة";
-                using (var r = worksheet.Cells["O3:O4"])
-                {
-                    r.Merge = true;
-                    r.Style.WrapText = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-                //================================
-                worksheet.Cells["P3"].Value = "بيانات المؤهل السابق";
-                using (var r = worksheet.Cells["P3:S3"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-
-                //================================
-                worksheet.Cells["p4"].Value = "نوعه";
-
-                worksheet.Cells["p4"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                worksheet.Cells["p4"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                worksheet.Cells["p4"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                worksheet.Cells["p4"].Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                worksheet.Cells["p4"].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                worksheet.Cells["p4"].Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                worksheet.Cells["p4"].Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                worksheet.Cells["p4"].Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                worksheet.Cells["p4"].Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                worksheet.Cells["p4"].Style.Border.Bottom.Color.SetColor(BrownFromHex);
-
-                //================================
-                worksheet.Cells["Q4"].Value = "تاريخ الحصول عليه";
-                worksheet.Cells["Q4"].Style.WrapText = true;
-                worksheet.Cells["Q4"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                worksheet.Cells["Q4"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                worksheet.Cells["Q4"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                worksheet.Cells["Q4"].Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                worksheet.Cells["Q4"].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                worksheet.Cells["Q4"].Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                worksheet.Cells["Q4"].Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                worksheet.Cells["Q4"].Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                worksheet.Cells["Q4"].Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                worksheet.Cells["Q4"].Style.Border.Bottom.Color.SetColor(BrownFromHex);
-
-
-                //================================
-                worksheet.Cells["R4"].Value = "جهة الحصول عليه";
-                worksheet.Cells["R4"].Style.WrapText = true;
-                worksheet.Cells["R4"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                worksheet.Cells["R4"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                worksheet.Cells["R4"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                worksheet.Cells["R4"].Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                worksheet.Cells["R4"].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                worksheet.Cells["R4"].Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                worksheet.Cells["R4"].Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                worksheet.Cells["R4"].Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                worksheet.Cells["R4"].Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                worksheet.Cells["R4"].Style.Border.Bottom.Color.SetColor(BrownFromHex);
-
-                //================================
-                worksheet.Cells["S4"].Value = "النسبة المئوية %";
-
-                worksheet.Cells["S4"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                worksheet.Cells["S4"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                worksheet.Cells["S4"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                worksheet.Cells["S4"].Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                worksheet.Cells["S4"].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                worksheet.Cells["S4"].Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                worksheet.Cells["S4"].Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                worksheet.Cells["S4"].Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                worksheet.Cells["S4"].Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                worksheet.Cells["S4"].Style.Border.Bottom.Color.SetColor(BrownFromHex);
-
-
-                row = 5;
-                var no = 1;
-                foreach (var stAcademicData in stAcademicDataList)
-                {
-                    
-
-                    worksheet.Cells[row, 1].Value = no;
-                    worksheet.Cells[row, 2].Value = stAcademicData.StPersonalData.StName;
-                    worksheet.Cells[row, 3].Value = stAcademicData.StPersonalData.Sex;
-                    worksheet.Cells[row, 4].Value = stAcademicData.StPersonalData.Nationality.CountryName;
-                    worksheet.Cells[row, 5].Value = stAcademicData.StPersonalData.BirthGovernorate.GovernorateName;
-                    worksheet.Cells[row, 6].Value = stAcademicData.StPersonalData.BirthDate.Date.ToString("d");
-                    worksheet.Cells[row, 7].Value = stAcademicData.StPersonalData.IdentificatioNO;
-                    worksheet.Cells[row, 8].Value = stAcademicData.StPersonalData.AcademicID;
-                    worksheet.Cells[row, 9].Value = stAcademicData.Batch.Specialization.SpecializationName;
-                    worksheet.Cells[row, 10].Value = stAcademicData.Batch.Specialization.Department.DepartmentName;
-                    worksheet.Cells[row, 11].Value = stAcademicData.Batch.Specialization.SpecializationName;
-                    worksheet.Cells[row, 12].Value = stAcademicData.StPersonalData.EnrollmentYear.AcademicYearName;
-                    worksheet.Cells[row, 13].Value = stAcademicData.GPA;
-                    worksheet.Cells[row, 14].Value = stAcademicData.Valuation.ToString();
-
-                    worksheet.Cells[row, 15].Value = stAcademicData.StudyType;
-                    if (stAcademicData.StPersonalData.StHighSchoolData != null)
-                    {
-                        worksheet.Cells[row, 16].Value = stAcademicData.StPersonalData.StHighSchoolData.CertificateType;
-                        worksheet.Cells[row, 17].Value = stAcademicData.StPersonalData.StHighSchoolData.CertificateYear;
-                        worksheet.Cells[row, 18].Value = stAcademicData.StPersonalData.StHighSchoolData.Source;
-                        worksheet.Cells[row, 19].Value = stAcademicData.StPersonalData.StHighSchoolData.Average;
-                    }
-                    else
-                    {
-                        worksheet.Cells[row, 16].Value = "";
-                        worksheet.Cells[row, 17].Value = "";
-                        worksheet.Cells[row, 18].Value = "";
-                        worksheet.Cells[row, 19].Value = "";
-                    }
-
-
-                    string modelRange = "A" + row.ToString() + ":S" + row.ToString();
-                    var modelTable = worksheet.Cells[modelRange];
-                    worksheet.Row(row).Height = 42.5;
-                    modelTable.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    modelTable.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    modelTable.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    modelTable.Style.Border.Left.Color.SetColor(Color.Black);
-
-                    modelTable.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    modelTable.Style.Border.Right.Color.SetColor(Color.Black);
-
-                    modelTable.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                    modelTable.Style.Border.Bottom.Color.SetColor(Color.Black);
-
-                     modelRange = "L" + row.ToString() + ":N" + row.ToString();
-                     modelTable = worksheet.Cells[modelRange];
-                    modelTable.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    modelTable.Style.Fill.BackgroundColor.SetColor(PinkFromHex);
-
-
-                    //worksheet.Cells[row, 17].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    //worksheet.Cells[row, 17].Style.Border.Left.Color.SetColor(Color.Black);
-
-
-                    row++;
-                    no++;
-                }
-
-                // set some core property values
-                xlPackage.Workbook.Properties.Title = "User List";
-                xlPackage.Workbook.Properties.Author = "Ameen Bashaaib";
-                xlPackage.Workbook.Properties.Subject = "User List";
-                // save the new spreadsheet
-                xlPackage.Save();
-                // Response.Clear();
-            }
-            stream.Position = 0;
+            var stream = await _service.ExportGraduateStToExcelAsync(filter);
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "كشف الخريجين.xlsx");
         }
-        //==============================================
-        public async Task<ActionResult> ExportStAcademicDataToExcel(bool IsCurrentYear, bool IsSelectCurrentYear, int? AcademicYearId, int? BatchId, StudyType? studyType)
-        {
-            var StPersonalDatasR = _StPersonalDataRepository.List();
 
-            if (IsSelectCurrentYear == true)
+        public async Task<IActionResult> StudentGradesReport(int id, int? level, int? term, int? yearId)
+        {
+            // استدعاء الخدمة فقط لتجهيز كل شيء
+            var viewModel = await _service.GetStudentGradesReportAsync(id, level, term, yearId);
+
+            // إذا رجع null، يعني الطالب غير موجود
+            if (viewModel == null)
             {
-                var currentYear =await _AcademicYearRepository.GetCurrentYearAsync();
-                if (currentYear != null)
-                {
-                    AcademicYearId = currentYear.Id;
-                }
-
-            }
-            ViewData["IsSelectCurrentYear"] = IsSelectCurrentYear;
-            
-            if (AcademicYearId != null)
-            {
-                ViewData["AcademicYearId"] = new SelectList(await FillSelectAcademicYearesList(), "Id", "AcademicYearName", AcademicYearId ?? 0);
-                StPersonalDatasR = StPersonalDatasR.Where(x => x.EnrollmentYear.Id == AcademicYearId).ToList();
-            }
-            // Get the user list 
-            //var users = GetlistOfUsers();
-
-            var stream = new MemoryStream();
-            using (var xlPackage = new ExcelPackage(stream))
-            {
-                var worksheet = xlPackage.Workbook.Worksheets.Add("(1)");
-                worksheet.View.RightToLeft = true;
-                worksheet.Cells.Style.Font.Bold = true;
-                var namedStyle = xlPackage.Workbook.Styles.CreateNamedStyle("HyperLink");
-                namedStyle.Style.Font.UnderLine = true;
-                namedStyle.Style.Font.Color.SetColor(Color.Blue);
-                const int startRow = 8;
-                var row = startRow;
-
-                worksheet.Column(1).Width = 6.71;
-                worksheet.Column(2).Width = 50.29;
-                worksheet.Column(3).Width = 12.71;
-                worksheet.Column(4).Width = 15.29;
-                worksheet.Column(5).Width = 26.57;
-                worksheet.Column(6).Width = 17.57;
-                worksheet.Column(7).Width = 27.86;
-                worksheet.Column(8).Width = 20.86;
-                worksheet.Column(9).Width = 18;
-                worksheet.Column(10).Width = 17.29;
-                worksheet.Column(11).Width = 17.71;
-                worksheet.Column(12).Width = 20.57;
-                worksheet.Column(13).Width = 14.43;
-                worksheet.Column(14).Width = 10.71;
-                worksheet.Column(15).Width = 14.86;
-                worksheet.Column(16).Width = 11;
-                worksheet.Column(17).Width = 15.86;
-                worksheet.Column(18).Width = 22.43;
-                worksheet.Column(19).Width = 17.29;               
-                //==========================
-                worksheet.Row(1).Height = 25;
-                worksheet.Row(2).Height = 25;
-                worksheet.Row(3).Height = 25;               
-                worksheet.Row(4).Height = 30;
-                worksheet.Row(5).Height = 30;
-                worksheet.Row(6).Height = 30;
-                worksheet.Row(7).Height = 55;
-
-
-
-                //Create Headers and format them
-                worksheet.Cells["B1"].Value = "الجمهورية اليمنية";
-                worksheet.Cells["B2"].Value = "وزارة التعليم العالي والبحث العلمي";
-                worksheet.Cells["B3"].Value = "قطاع الشؤون التعليمية";
-                using (var r = worksheet.Cells["B1:B3"])
-                {                   
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                }
-                //=============================
-                worksheet.Cells["A4:P7"].Style.Font.Size = 22;
-                //=============================
-                worksheet.Cells["E2"].Value = "كشف الطلاب المقيدين للعام الدراسي:";
-                using (var r = worksheet.Cells["E2:H2"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                }
-                //============================
-                var academicYear = await _AcademicYearRepository.GetCurrentYearAsync();
-                worksheet.Cells["I2"].Value = academicYear.AcademicYearName;
-                Color colGradFromHex = System.Drawing.ColorTranslator.FromHtml("#F2F2F2");
-                Color LightYellowFromHex = System.Drawing.ColorTranslator.FromHtml("#FFFFCC");
-                Color BrownFromHex = System.Drawing.ColorTranslator.FromHtml("#974706");
-                Color PinkFromHex = System.Drawing.ColorTranslator.FromHtml("#F2DCDB");
-                using (var r = worksheet.Cells["I2:J2"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(colGradFromHex);
-                }
-                //================================
-                worksheet.Cells["M2"].Value = "نظام الدراسة :";
-                using (var r = worksheet.Cells["M2:M2"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                }
-                //===============================================               
-                worksheet.Cells["N2"].Value = studyType.ToString() ?? "الكل";
-                using (var r = worksheet.Cells["N2:N2"])
-                {                   
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(colGradFromHex);
-                }
-                //================================
-                worksheet.Cells["A4"].Value = "اسم الجامعة";
-                using (var r = worksheet.Cells["A4:E4"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-                    r.Style.Border.Top.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thick;
-                }
-                //================================
-                worksheet.Cells["F4"].Value = "للعام الدراسي";
-                using (var r = worksheet.Cells["F4:K4"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-                    r.Style.Border.Top.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thick;
-                }
-                //================================
-                worksheet.Cells["L4"].Value = "Name Of University";
-                using (var r = worksheet.Cells["L4:R4"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-                    r.Style.Border.Top.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thick;
-                }
-                //================================
-                worksheet.Cells["A5"].Value = "جامعة الإيمان فرع حضرموت";
-                using (var r = worksheet.Cells["A5:E5"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(colGradFromHex);
-                    r.Style.Border.Top.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thick;
-                }
-                //================================
-                worksheet.Cells["F5"].Value = academicYear.AcademicYearName + "  " + academicYear.AcademicYearNameH;
-                using (var r = worksheet.Cells["F5:K5"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(colGradFromHex);
-                    r.Style.Border.Top.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thick;
-                }
-                //================================
-                worksheet.Cells["L5"].Value = "";
-                using (var r = worksheet.Cells["L5:R5"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(colGradFromHex);
-                    r.Style.Border.Top.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thick;
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thick;
-                }
-
-                //================================
-                worksheet.Cells["A6"].Value = "م";
-                using (var r = worksheet.Cells["A6:A7"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-
-                //================================
-                worksheet.Cells["B6"].Value = "اسم الطالب";
-                using (var r = worksheet.Cells["B6:B7"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-                //================================
-                worksheet.Cells["C6"].Value = "الجنس";
-                using (var r = worksheet.Cells["C6:C7"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    //r.Style.TextRotation = 90;
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-
-                //================================
-                worksheet.Cells["D6"].Value = "الجنسية";
-                using (var r = worksheet.Cells["D6:D7"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-                //================================
-                worksheet.Cells["E6"].Value = "محل للميلاد";
-                using (var r = worksheet.Cells["E6:E7"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-
-                //================================
-                worksheet.Cells["F6"].Value = "تاريخ الميلاد";
-                using (var r = worksheet.Cells["F6:F7"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-                //================================
-                worksheet.Cells["G6"].Value = "الرقم الوطني (الهوية)";
-                using (var r = worksheet.Cells["G6:G7"])
-                {
-                    r.Merge = true;
-                    r.Style.WrapText = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-                //================================
-                worksheet.Cells["H6"].Value = "رقم القيد";
-                using (var r = worksheet.Cells["H6:H7"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-
-                //================================
-                worksheet.Cells["I6"].Value = "الكلية";
-                using (var r = worksheet.Cells["I6:I7"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-
-                //================================
-                worksheet.Cells["J6"].Value = "القسم";
-                using (var r = worksheet.Cells["J6:J7"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-
-                //================================
-                worksheet.Cells["K6"].Value = "التخصص";
-                using (var r = worksheet.Cells["K6:K7"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-                //================================
-                worksheet.Cells["L6"].Value = "عام الالتحاق";
-                using (var r = worksheet.Cells["L6:L7"])
-                {
-                    r.Merge = true;
-                    r.Style.WrapText = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(PinkFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-                //================================
-                worksheet.Cells["M6"].Value = "المستوى الحالي";
-                using (var r = worksheet.Cells["M6:M7"])
-                {
-                    r.Merge = true;
-                    r.Style.WrapText = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(PinkFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-               
-                //================================
-                worksheet.Cells["N6"].Value = "نظام الدراسة";
-                using (var r = worksheet.Cells["N6:N7"])
-                {
-                    r.Merge = true;
-                    r.Style.WrapText = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-                //================================
-                worksheet.Cells["O6"].Value = "بيانات المؤهل السابق";
-                using (var r = worksheet.Cells["O6:R6"])
-                {
-                    r.Merge = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-
-                //================================
-                worksheet.Cells["O7"].Value = "نوعه";             
-
-                //================================
-                worksheet.Cells["P7"].Value = "تاريخ الحصول عليه";          
-
-
-                //================================
-                worksheet.Cells["Q7"].Value = "جهة الحصول عليه";
-               
-              
-
-                //================================
-                worksheet.Cells["R7"].Value = "النسبة المئوية %";
-
-               
-                
-
-                using (var r = worksheet.Cells["O7:R7"])
-                {
-                   
-                    r.Style.WrapText = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-                //================================
-                worksheet.Cells["S6"].Value = "ملاحظات";
-                using (var r = worksheet.Cells["S6:S7"])
-                {
-                    r.Merge = true;
-                    r.Style.WrapText = true;
-                    r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    r.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-                    r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    r.Style.Fill.BackgroundColor.SetColor(LightYellowFromHex);
-
-
-                    r.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Left.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    r.Style.Border.Right.Color.SetColor(BrownFromHex);
-
-                    r.Style.Border.Bottom.Style = ExcelBorderStyle.Double;
-                    r.Style.Border.Bottom.Color.SetColor(BrownFromHex);
-                }
-
-
-                    row = 8;
-                var no = 1;
-                IList<StAcademicData> stAcademicDataList = new List<StAcademicData>();
-
-               
-
-                    stAcademicDataList =await GetStAcademicDatas(IsCurrentYear, IsSelectCurrentYear, AcademicYearId, BatchId, studyType, StStatus.مقيد , Term.الأول);
-                foreach (var stAcademicData in stAcademicDataList)
-                {
-
-
-                    worksheet.Cells[row, 1].Value = no;
-                    worksheet.Cells[row, 2].Value = stAcademicData.StPersonalData.StName;
-                    worksheet.Cells[row, 3].Value = stAcademicData.StPersonalData.Sex;
-                    worksheet.Cells[row, 4].Value = stAcademicData.StPersonalData.Nationality.CountryName;
-                    worksheet.Cells[row, 5].Value = stAcademicData.StPersonalData.BirthGovernorate.GovernorateName;
-                    worksheet.Cells[row, 6].Value = stAcademicData.StPersonalData.BirthDate.Date.ToString("d");
-                    worksheet.Cells[row, 7].Value = stAcademicData.StPersonalData.IdentificatioNO;
-                    worksheet.Cells[row, 8].Value = stAcademicData.StPersonalData.AcademicID;
-                    worksheet.Cells[row, 9].Value = stAcademicData.Batch.Specialization.SpecializationName;
-                    worksheet.Cells[row, 10].Value = stAcademicData.Batch.Specialization.Department.DepartmentName;
-                    worksheet.Cells[row, 11].Value = stAcademicData.Batch.Specialization.SpecializationName;
-                    worksheet.Cells[row, 12].Value = stAcademicData.StPersonalData.EnrollmentYear.AcademicYearName;
-                    worksheet.Cells[row, 13].Value = stAcademicData.StLevel;
-                   
-                    worksheet.Cells[row, 14].Value = stAcademicData.StudyType;
-                    if (stAcademicData.StPersonalData.StHighSchoolData != null)
-                    {
-                        worksheet.Cells[row, 15].Value = stAcademicData.StPersonalData.StHighSchoolData.CertificateType;
-                        worksheet.Cells[row, 16].Value = stAcademicData.StPersonalData.StHighSchoolData.CertificateYear;
-                        worksheet.Cells[row, 17].Value = stAcademicData.StPersonalData.StHighSchoolData.Source;
-                        worksheet.Cells[row, 18].Value = stAcademicData.StPersonalData.StHighSchoolData.Average;
-                        worksheet.Cells[row, 19].Value = "";
-                    }
-                    else
-                    {
-                        worksheet.Cells[row, 15].Value = "";
-                        worksheet.Cells[row, 16].Value = "";
-                        worksheet.Cells[row, 17].Value = "";
-                        worksheet.Cells[row, 18].Value = "";
-                        worksheet.Cells[row, 19].Value = "";
-                    }
-
-
-                    string modelRange = "A" + row.ToString() + ":S" + row.ToString();
-                    var modelTable = worksheet.Cells[modelRange];
-                    worksheet.Row(row).Height = 42.5;
-                    modelTable.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
-                    modelTable.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    modelTable.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    modelTable.Style.Border.Left.Color.SetColor(Color.Black);
-
-                    modelTable.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    modelTable.Style.Border.Right.Color.SetColor(Color.Black);
-
-                    modelTable.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                    modelTable.Style.Border.Bottom.Color.SetColor(Color.Black);
-
-                    modelRange = "L" + row.ToString() + ":M" + row.ToString();
-                    modelTable = worksheet.Cells[modelRange];
-                    modelTable.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    modelTable.Style.Fill.BackgroundColor.SetColor(PinkFromHex);
-
-                    modelRange = "O" + row.ToString() + ":R" + row.ToString();
-                    modelTable = worksheet.Cells[modelRange];
-                    modelTable.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    modelTable.Style.Fill.BackgroundColor.SetColor(colGradFromHex);
-
-
-                    //worksheet.Cells[row, 17].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    //worksheet.Cells[row, 17].Style.Border.Left.Color.SetColor(Color.Black);
-
-
-                    row++;
-                    no++;
-                }
-
-                // set some core property values
-                xlPackage.Workbook.Properties.Title = "User List";
-                xlPackage.Workbook.Properties.Author = "Ameen Bashaaib";
-                xlPackage.Workbook.Properties.Subject = "User List";
-                // save the new spreadsheet
-                xlPackage.Save();
-                // Response.Clear();
-            }
-            stream.Position = 0;
-            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "كشف المقيدين.xlsx");
-        }
-        //==============================================
-        private bool StAcademicDataExists(int id)
-        {
-            return _StAcademicDataRepository.List().Any(e => e.Id == id);
-        }
-
-
-
-        List<Batch> FillSelectBatchsList(string batchName)
-        {
-            var Batches = _BatchRepository.List().ToList();
-            Batches.Insert(0, new Batch { Id = -1, BatchName = batchName  });
-
-            return Batches;
-        }
-
-        async Task<List<AcademicYear>> FillSelectAcademicYearesList()
-        {
-            List<AcademicYear> AcademicYeares =(await _AcademicYearRepository.ListAsync()).ToList();   
-
-            return AcademicYeares;
-        }
-
-        private async Task FullAllListes(string text)
-        {
-            ViewData["AcademicYearId"] = new SelectList(await FillSelectAcademicYearesList(), "Id", "AcademicYearName");
-            ViewData["BatchId"] = new SelectList(FillSelectBatchsList(text), "Id", "BatchName");
-
-            ViewData["SpecializationId"] = new SelectList(FillSelectSpecializationesList(text), "Id", "SpecializationName");
-        }
-
-        private async Task FullAllListes()
-        {
-            ViewData["AcademicYearId"] = new SelectList((await _AcademicYearRepository.ListAsync()).ToList(), "Id", "AcademicYearName");
-            ViewData["BatchId"] = new SelectList(_BatchRepository.List().ToList(), "Id", "BatchName");
-
-            ViewData["SpecializationId"] = new SelectList(_SpecializationRepository.List().ToList(), "Id", "SpecializationName");
-        }
-
-        List<Specialization> FillSelectSpecializationesList(string specializationName)
-        {
-            var specializationes = _SpecializationRepository.List().ToList();
-            specializationes.Insert(0, new Specialization { Id = -1,  SpecializationName = specializationName });
-
-            return specializationes;
-        }
-
-
-        ErrorResult CheckModelErrors(CreateStAcademicDataDataViewModel model)
-        {
-            
-            if (model.BatchId == -1)
-            {                               
-                return (GetErrorResult(true, "الرجاء اختيار الدفعة من القائمة"));
-            }
-           
-           
-            //var StAcademicDataList = _StAcademicDataRepository.List();
-
-            //var checkStAcademicDataF = StAcademicDataList
-            //.Any(x => x.StPersonalData.AcademicID == model.AcademicID && x.AcademicYear.Id == model.AcademicYearId && x.Term == model.Term && x.Id != model.Id);
-
-            //if (checkStAcademicDataF)
-            //{
-            //    return (GetErrorResult(true, "لقد تم إيجاد بيانات سابقة بنفس العام الاكادمي " +
-            //        "و الفصل الدراسي للطالب .. الرجاء اختيار عام أخر او اختيار فصل دراسي آخر"));
-            //}
-            //var checkStAcademicDataS = StAcademicDataList
-            //    .Any(x => x.StPersonalData.AcademicID == model.AcademicID && x.StLevel == model.StLevel && x.Term == model.Term && x.Id != model.Id);
-
-            //if (checkStAcademicDataS)
-            //{                
-            //    return (GetErrorResult(true, "لقد تم إيجاد بيانات سابقة بنفس المستوى و الفصل الدراسي للطالب .." +
-            //        " الرجاء اختيار مستوى أخر او اختيار فصل دراسي آخر"));
-            //}
-
-            //var checkStAcademicDatath = StAcademicDataList
-            // .Any(x => x.StPersonalData.AcademicID == model.AcademicID && x.IsCurrentYear == true && x.Id != model.Id);
-
-            //if (checkStAcademicDatath && model.IsCurrentYear == true)
-            //{
-            //    ViewBag.Message = " لقد تم تعين فصل دراسي سابق  كفصل حالي للطالب .. الرجاء تعين فصل واحد فقط كفصل حالي للطالب  ";
-                
-            //    return (GetErrorResult(true, " لقد تم تعين فصل دراسي سابق  كفصل حالي للطالب .. " +
-            //        "الرجاء تعين فصل واحد فقط كفصل حالي للطالب  "));
-            //}
-
-            return (GetErrorResult(false,""));
-        }
-
-        private bool IsCourseGradesEntered(int StAcademicDataId)
-        {
-            var StA = _StAcademicDataRepository.Find(StAcademicDataId);
-            var stAs = StA.CourseGrades.Where(x => x.StStatusForCourse == StStatusForCourse.غير_محدد && x.CourseType == true).ToList();
-            if (stAs != null)
-            {
-                if (stAs.Count > 0)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        private bool IsAllStfaildedCourseGradesSucceeded(int academicID)
-        {
-
-            var StAList = _StAcademicDataRepository.List().Where(x => x.StPersonalData.AcademicID == academicID).ToList() ;
-
-            foreach (var StA in StAList)
-            {
-               
-
-                var isAllStCourseGradesSucceeded = StA.CourseGrades.Where(y => y.CourseType == false).All(x => x.StStatusForCourse == StStatusForCourse.ناجح);
-                if (!isAllStCourseGradesSucceeded)
-                {
-                    return false;
-                }
-            }          
-            return true;
-        }
-
-        private bool IsCourseGradefaildIsExist(CourseGrade courseGrade)
-        {
-            var StA = _StAcademicDataRepository.Find(courseGrade.Id);
-            var stAs = StA.CourseGrades.Where(x => x.StStatusForCourse == StStatusForCourse.غير_محدد && x.CourseType == true).ToList();
-            if (stAs != null)
-            {
-                if (stAs.Count > 0)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-        private List<CourseGrade> CourseGradesFailed(int AcademicId)
-        {
-            var stAs = _StAcademicDataRepository.List().Where(x => x.StPersonalData.AcademicID == AcademicId);
-            List<CourseGrade> AllcourseGradesFailed = new();
-            foreach (var StA in stAs)
-            {
-                var CourseGradesFailedForStAcademicData = StA.CourseGrades.Where(x => x.StStatusForCourse != StStatusForCourse.ناجح && x.StStatusForCourse != StStatusForCourse.غير_محدد && x.Course.IsSubCourse == false ).ToList();
-                foreach (var CourseGradeFailed in CourseGradesFailedForStAcademicData)
-                {
-                    var IsCourseGradesFailedExit = StA.CourseGrades.Any(x => x.StAcademicData.StPersonalData.AcademicID == CourseGradeFailed.StAcademicData.StPersonalData.AcademicID && x.Course.Id == CourseGradeFailed.Course.Id && x.CourseType == false);
-                    if (CourseGradeFailed is not null && !IsCourseGradesFailedExit)
-                    {
-                        AllcourseGradesFailed.Add(CourseGradeFailed);
-                    }
-                }
-
-            }
-            
-           
-            return AllcourseGradesFailed;
-        }
-
-
-       
-
-        private GeneralInfo GetGeneralInfo()
-        {
-            var generalInfo = _generalInfoRepository.List().FirstOrDefault();
-            return (generalInfo);
-        }
-
-
-
-        private async Task<AcademicYear> GetpreviousYear(int currentYearId)
-        {
-            var academicYearlist =(await _AcademicYearRepository.ListAsync()).ToList();
-            AcademicYear previousYear = (from AcademicYear in academicYearlist
-                          where AcademicYear.Id == currentYearId                         
-                          let reversed = academicYearlist.OrderByDescending(p => p.Id)
-                          let previous = reversed.SkipWhile(p => p.Id != currentYearId).Skip(1).FirstOrDefault()                         
-                          select  previous ).First();
-            ////var previousYear = _AcademicYearRepository.List().SingleOrDefault(x => x.IsCurrentYear == true);
-            return (previousYear);
-        }
-
-        private bool isCanAddStAcademicData(StAcademicData oldStAcademicData)
-        {
-            // Check if current academic data exists for the student
-            bool isHasCurrentStAcademicData = _StAcademicDataRepository.List()
-                .Any(x => x.StPersonalData.AcademicID == oldStAcademicData.StPersonalData.AcademicID && x.AcademicYear.IsCurrentYear);
-
-            if (isHasCurrentStAcademicData)
-            {
-                // If current data exists, return false (cannot add duplicate data)
-                return false;
+                TempData["ErrorMessage"] = "عذراً، لم يتم العثور على بيانات هذا الطالب.";
+                return RedirectToAction(nameof(Index)); // أو أي شاشة أخرى
             }
 
-            // Check if previous academic data has a passing or failing status
-            return _StAcademicDataRepository.List()
-                .Where(x => x.StPersonalData.AcademicID == oldStAcademicData.StPersonalData.AcademicID && x.AcademicYear == oldStAcademicData.AcademicYear)
-                .Any(x => x.StStatus == StStatus.ناجح || x.StStatus == StStatus.راسب);
-        
-        //var IsCanAddStAcademicData = false;
-        //    var StAcademicDatas = _StAcademicDataRepository
-        //        .List().Where(x => x.StPersonalData.AcademicID == oldStAcademicData.StPersonalData.AcademicID && x.AcademicYear == oldStAcademicData.AcademicYear);
-        //    bool IsHasCurrentStAcademicData = _StAcademicDataRepository.List()
-        //        .Any(x => x.StPersonalData.AcademicID == oldStAcademicData.StPersonalData.AcademicID && x.AcademicYear.IsCurrentYear == true);
-
-        //    if (IsHasCurrentStAcademicData)
-        //    {
-        //        return false;
-        //    }
-        //    foreach (var StAcademicData in StAcademicDatas)
-        //    {
-        //        IsCanAddStAcademicData = (StAcademicData.StStatus == StStatus.ناجح || StAcademicData.StStatus == StStatus.راسب) ? true : false;
-                           
-        //    }
-        //    return IsCanAddStAcademicData;
-        }
-          
-        private Batch GetNextBatch(StAcademicData oldstAcademicData)
-        {
-            var BatchList = _BatchRepository.List();
-            Batch nextBatch = (from StAcademicData in BatchList
-                               where StAcademicData.Id == oldstAcademicData.Batch.Id
-                               let ordered = BatchList.OrderBy(p => p.Id)
-                                         let Next = ordered.SkipWhile(p => p.Id != oldstAcademicData.Batch.Id).Skip(1).FirstOrDefault()
-                                         select Next).First();
-            return nextBatch;
-        }
-
-        private Level GetNextStAcademicDataLevel(StAcademicData StAcademicDatalistTerm1, StAcademicData StAcademicDatalistTerm2)
-        {
-            
-            Level nextlevel = StAcademicDatalistTerm2.StLevel;
-            if ((StAcademicDatalistTerm1.StStatus == StStatus.ناجح && StAcademicDatalistTerm2.StStatus == StStatus.ناجح) || StAcademicDatalistTerm1.StStatus == StStatus.متخرج)
-            {
-                switch (StAcademicDatalistTerm1.StLevel)
-                {
-                    case Level.الأول:
-                        nextlevel = Level.الثاني;
-                        break;
-                    case Level.الثاني:
-                        nextlevel = Level.الثالث;
-                        break;
-                    case Level.الثالث:
-                        nextlevel = Level.الرابع;
-                        break;
-                    //case Level.الرابع:
-                    //    nextlevel = Level.الخامس;
-                    //    break;
-                    //case Level.الخامس:
-                    //    nextlevel = Level.السادس;
-                    //    break;
-                    //case Level.السادس:
-                    //    nextlevel = Level.السابع;
-                    //    break;
-                    //case Level.السابع:
-                    //    nextlevel = Level.الشامل;
-                    //    break;
-
-                }
-            }
-            return (nextlevel);
-        }
-        static ErrorResult GetErrorResult(bool IshasError,string ErrorMsg)
-        {
-            var ER = new ErrorResult()
-            {
-                IshasError = IshasError,
-                ErrorMsg = ErrorMsg
-            };
-            return (ER);
-        }
-
-        private void AddCourseGradeTostAcademicData(StAcademicData stAcademicData)
-        {
-            List<Course> stAcCourses = new List<Course>();
-             stAcCourses = _courseRepository.List().Where(x => x.Level == stAcademicData.StLevel).Where(x => x.Term == stAcademicData.Term).Where(x => x.Specialization == stAcademicData.Batch.Specialization).Where(x => x.Course_sGender == Course_sGender.كلاالجنسين).ToList();
-            if (stAcademicData.StPersonalData.Sex == Sex.ذكر)
-            {
-
-                List<Course> MaleStAcCourses = _courseRepository.List().Where(x => x.Level == stAcademicData.StLevel).Where(x => x.Term == stAcademicData.Term).Where(x => x.Specialization == stAcademicData.Batch.Specialization).Where(x => x.Course_sGender == Course_sGender.ذكور).ToList();
-                stAcCourses = stAcCourses.Concat(MaleStAcCourses).ToList();
-            }
-            else
-            {
-                List<Course> FemaleStAcCourses = _courseRepository.List().Where(x => x.Level == stAcademicData.StLevel).Where(x => x.Term == stAcademicData.Term).Where(x => x.Specialization == stAcademicData.Batch.Specialization).Where(x => x.Course_sGender == Course_sGender.اناث).ToList();
-                stAcCourses = stAcCourses.Concat(FemaleStAcCourses).ToList();
-            }
-
-           
-            foreach (var course in stAcCourses)
-            {
-
-                var courseGrade = new CourseGrade()
-                {
-                    Course = course,
-                    CourseType = true,
-                    StAcademicData = stAcademicData,
-                    StStatusForCourse = StStatusForCourse.غير_محدد,
-                };
-                _courseGradeRepository.Add(courseGrade);
-            }
-        }
-
-
-        async Task<IList<StAcademicData>> GetStAcademicDatas(bool IsCurrentYear, bool IsSelectCurrentYear, int? AcademicYearId, int? BatchId, StudyType? studyType, StStatus? stStatus, Term? term)
-        {
-            IList<StAcademicData> stAcademicDataList = new List<StAcademicData>();
-
-            if (AcademicYearId != null)
-            {
-                ViewData["AcademicYearId"] = new SelectList(await FillSelectAcademicYearesList(), "Id", "AcademicYearName", AcademicYearId ?? 0);
-                var academicYear = _AcademicYearRepository.FindAsync(AcademicYearId ?? 0);
-                //model.IsCurrentYear = academicYear.IsCurrentYear;
-
-                var StAcademicDataOfAcademicYear = _StAcademicDataRepository.List().Where(x => x.AcademicYear.Id == AcademicYearId && x.Term == term).ToList();
-                if (StAcademicDataOfAcademicYear != null)
-                {
-                    stAcademicDataList = StAcademicDataOfAcademicYear;
-                }
-
-            }
-            if (BatchId != null && BatchId != -1)            
-            {
-
-                var BatchOfStAcademicData = stAcademicDataList.Where(x => x.Batch.Id == BatchId).ToList();
-                if (BatchOfStAcademicData != null)
-                {
-                    stAcademicDataList = BatchOfStAcademicData;
-                }
-
-                ViewData["BatchId"] = new SelectList(FillSelectBatchsList("-- الكل --"), "Id", "BatchName", BatchId ?? -1);
-            }
-
-            if (studyType != null)
-            {
-               
-                var StudyTypesOfStAcademicData = stAcademicDataList.Where(x => x.StudyType == studyType).ToList();
-                if (StudyTypesOfStAcademicData != null)
-                {
-                    stAcademicDataList = StudyTypesOfStAcademicData;
-                }
-            }
-
-            if (stStatus != null)
-            {
-                var StStatusOfStAcademicData = stAcademicDataList.Where(x => x.StStatus == stStatus).ToList();
-                if (StStatusOfStAcademicData != null)
-                {
-                    stAcademicDataList = StStatusOfStAcademicData;
-                }
-            }
-
-            return stAcademicDataList;
-
-        }
-
-
-        private bool IsCurrentYearClosed(Term term)
-        {
-            var currentYear = _AcademicYearRepository.GetCurrentYearAsync();
-            var StAcademicOfAllStInCurrentYear = _StAcademicDataRepository.List().Where(x => x.AcademicYear.Id == currentYear.Id);
-
-
-            var stAs = StAcademicOfAllStInCurrentYear.Where(x => x.StStatus == StStatus.مقيد && x.Term == term).ToList();
-            if (stAs != null)
-            {
-                if (stAs.Count > 0)
-                {
-                    return false;
-                }
-            }
-            return true;
+            return View(viewModel);
         }
     }
 }

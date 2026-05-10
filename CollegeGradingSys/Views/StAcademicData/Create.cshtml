@@ -1,5 +1,5 @@
 ﻿@using CollegeGradingSys.Models.Enums
-@model CollegeGradingSys.ViewModels.CreateStAcademicDataDataViewModel
+@model CollegeGradingSys.ViewModels.StAcademic.CreateStAcademicDataDataViewModel
 
 @{
     ViewData["Title"] = "تقيد الطالب";
@@ -93,7 +93,7 @@
 
                     <div class="form-group mt-4">
                         <input type="submit" value="تقييد" class="btn col-2 btn-primary btn-sm" />
-                        <a class="btn btn-secondary btn-sm" asp-action="AllStAcademicDatas" asp-route-id="@Model.AcademicID">السجل الاكاديمي</a>
+                        <a class="btn btn-secondary btn-sm" asp-action="StudentAcademicHistory" asp-route-academicID="@Model.AcademicID">السجل الاكاديمي</a>
                         <a class="btn btn-secondary  btn-sm" asp-action="Index">القائمة الرئسية</a>
                     </div>
                 </form>

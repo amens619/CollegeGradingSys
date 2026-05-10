@@ -1,26 +1,42 @@
 ﻿using CollegeGradingSys.Models;
-using CollegeGradingSys.Models.Enums;
+using CollegeGradingSys.ViewModels;
+using CollegeGradingSys.ViewModels.StAcademic;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Services.Interfaces
 {
-    public interface IStAcademicDataService
+     public interface IStAcademicDataService
     {
-        Task<IList<StAcademicData>> GetAllAsync();
+        // العرض والاستعلام
+        Task<StAcademicDataUnifiedVM> GetIndexDataAsync(StAcademicDataUnifiedVM filter, int pageNumber , int pageSize );
+        Task<StAcademicDataDataViewModel> GetStudentAcademicHistoryAsync(int academicID);
 
-        Task<IList<StAcademicData>> GetFilteredAsync(
-            int? academicYearId,
-            int? batchId,
-            string studentName,
-            StStatus? stStatus,
-            Term? term,
-            StudyType? studyType);
+        // الإضافة (Create)
+        Task<CreateStAcademicDataDataViewModel> GetCreateFormAsync(int academicId);
+        Task CreateAsync(CreateStAcademicDataDataViewModel model);
 
-        Task<StAcademicData> GetByIdAsync(int id);
+        // التعديل (Edit)
+        Task<CreateStAcademicDataDataViewModel> GetEditFormAsync(int id);
+        Task EditAsync(CreateStAcademicDataDataViewModel model);
 
-        Task<StAcademicData> AddAsync(StAcademicData entity);
-        Task<StAcademicData> UpdateAsync(StAcademicData entity);
-        Task<StAcademicData> DeleteAsync(int id);
+        // الحذف
+        Task DeleteAsync(int id);
+
+        // عمليات خاصة
+        Task PromoteAllStudentsToNextYearAsync(); // ترحيل الطلاب
+        Task FillListsForModelAsync(CreateStAcademicDataDataViewModel model); // إعادة تعبئة القوائم عند الخطأ
+
+        // الطباعة
+        Task<PrintConfEnrollVM> GetPrintConfEnrollAsync(int id);
+        Task<PrintConfEnrollVM> GetPrintGradeReportAsync(int id);
+        Task<PrintGraduatStatementVM> GetPrintGraduatStatementAsync(int id);
+        Task<PrintAlmushayakhaStatementVM> GetPrintAlmushayakhaStatementAsync(int id);
+
+        // التصدير
+        Task<MemoryStream> ExportStAcademicDataToExcelAsync(StAcademicDataFilterVM filter);
+        Task<MemoryStream> ExportGraduateStToExcelAsync(StAcademicDataFilterVM filter);
+        Task<StudentGradesFilterVM> GetStudentGradesReportAsync(int academicId, int? level, int? term, int? yearId);
     }
 }

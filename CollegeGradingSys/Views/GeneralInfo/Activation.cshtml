@@ -1,0 +1,118 @@
+﻿@model CollegeGradingSys.ViewModels.GeneralInfo.GeneralInfoVM
+
+@{
+    Layout = "_LoginLayout";
+    ViewData["Title"] = "تفعيل ترخيص النظام";
+}
+
+<!-- استخدام Flexbox لتوسيط الشاشة في منتصف الصفحة تماماً -->
+<section class="content d-flex justify-content-center align-items-center" style="min-height: 85vh;">
+    <div class="container-fluid">
+
+        <!-- 🟢 عرض رسائل النجاح أو التحذير -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="row justify-content-center">
+                <div class="col-md-12 ">
+                    <div class="alert alert-success alert-dismissible fade show text-right shadow-sm" role="alert">
+                        <strong><i class="fas fa-check-circle ml-1"></i> تم بنجاح!</strong> @TempData["SuccessMessage"]
+                        <button type="button" class="close float-left" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <!-- أضفنا mb-4 لعمل مسافة بين الخطأ والبطاقة البيضاء -->
+            <div class="row justify-content-center mb-4">
+                <div class="col-md-12 ">
+                    <div class="alert alert-danger alert-dismissible fade show text-right shadow-sm" role="alert" style="border-radius: 10px;">
+                        <button type="button" class="close float-left" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h6 class="fw-bold mb-2">
+                            <i class="fas fa-exclamation-triangle ml-1"></i> عذراً، يرجى الانتباه:
+                        </h6>
+                        <!-- أزلنا text-danger وأضفنا كلاسات لتنظيف القائمة النقطية -->
+                        <div asp-validation-summary="All" class="mb-0" style="list-style-type: none; padding-right: 0;"></div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="row justify-content-center">
+            
+            <div class="col-md-12">
+                <div class="card card-outline card-success shadow-lg" style="border-radius: 15px; border-top-width: 4px;">
+                    <div class="card-header bg-white text-center pt-4 pb-3" style="border-radius: 15px 15px 0 0;">
+                        <div class="text-success mb-2">
+                            <i class="fas fa-shield-alt fa-3x"></i>
+                        </div>
+                        <h3 class="card-title w-100 fw-bold float-none text-dark" style="font-size: 1.5rem;">
+                            تفعيل ترخيص النظام
+                        </h3>
+                    </div>
+
+                    <form asp-action="Activation" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="card-body px-4 py-4">
+
+                            <!-- قسم عرض بصمة الجهاز -->
+                            <div class="alert alert-light text-center border shadow-sm mb-4" style="border-radius: 10px; background-color: #f8f9fa;">
+                                <h6 class="fw-bold text-dark mb-2">
+                                    <i class="fas fa-desktop text-info ml-1"></i> البصمة الخاصة بهذا الجهاز:
+                                </h6>
+                                <!-- كلاس user-select-all يحدد النص بالكامل بمجرد النقر عليه لتسهيل النسخ -->
+                                <h3 class="fw-bold text-success user-select-all p-2 mb-1" style="font-family: Consolas, monospace; letter-spacing: 2px; background: #e9ecef; border-radius: 5px;" dir="ltr">
+                                    @ViewBag.MachineId
+                                </h3>
+                                <small class="text-muted d-block mt-2">
+                                    انقر على الكود أعلاه لتحديده ونسخه، ثم أرسله لمطور النظام.
+                                </small>
+                            </div>
+
+                            <hr class="mb-4" />
+
+                            <!-- قسم إدخال مفتاح التفعيل -->
+                            <div class="form-group text-right">
+                                <label asp-for="SystemLicenseKey" class="control-label fw-bold mb-2">أدخل مفتاح التفعيل (License Key):</label>
+
+                                <!-- جعلنا الإدخال ltr لكي يكتب الكود الإنجليزي من اليسار لليمين بشكل صحيح -->
+                                <div class="input-group input-group-lg shadow-sm" dir="ltr">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-white"><i class="fas fa-key text-success"></i></span>
+                                    </div>
+                                    <input asp-for="SystemLicenseKey" class="form-control text-center text-success fw-bold" placeholder="A1B2C-D3E4F-5G6H7" style="font-family: Consolas, monospace; font-size: 1.2rem; letter-spacing: 1px;" autocomplete="off" />
+                                </div>
+                                <span asp-validation-for="SystemLicenseKey" class="text-danger d-block mt-1"></span>
+                            </div>
+                        </div>
+
+                        <!-- أزرار التفعيل -->
+                        <div class="card-footer text-center bg-white pb-4 pt-0" style="border-radius: 0 0 15px 15px; border-top: none;">
+                            <button type="submit" class="btn btn-success btn-lg px-5 shadow" style="border-radius: 30px; font-weight: bold;">
+                                <i class="fas fa-unlock-alt ml-2"></i> تفعيل النظام الآن
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- رسالة حقوقية أسفل المربع -->
+                <div class="text-center mt-3 text-muted">
+                    <small><i class="fas fa-copyright ml-1"></i> هذا النظام محمي بموجب حقوق الملكية الفكرية.</small>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

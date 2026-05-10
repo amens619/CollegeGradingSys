@@ -19,10 +19,7 @@ namespace CollegeGradingSys.Services.Implementations
         public Task<StHighSchoolData> GetByAcademicIdAsync(int academicId)
             => _repo.GetByAcademicIdAsync(academicId);
 
-        Task<StHighSchoolData> IStHighSchoolDataService.DeleteAsync(int id)
-        {
-            throw new System.NotImplementedException();
-        }
+       
     }
 
 }

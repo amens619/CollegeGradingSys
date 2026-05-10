@@ -1,11 +1,11 @@
 ﻿using CollegeGradingSys.Models;
-using CollegeGradingSys.ViewModels;
+using CollegeGradingSys.ViewModels.AcademicYear;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Services.Interfaces
 {
-    public interface IAcademicYearService
+    public interface IAcademicYearService :IGenericService<AcademicYear>
     {
         Task<AcademicYearIndexVM> GetIndexViewAsync();
 
@@ -19,6 +19,8 @@ namespace CollegeGradingSys.Services.Interfaces
         Task<bool> IsCurrentYearClosedAsync();
 
         Task<AcademicYear?> CreateAsync(AcademicYear newYear);
+
+        Task<AcademicYear> GetCurrentYearAsync();
 
         Task<AcademicYearEditVM> GetEditViewAsync(int id);
         Task UpdateAsync(int id, AcademicYearEditVM vm);

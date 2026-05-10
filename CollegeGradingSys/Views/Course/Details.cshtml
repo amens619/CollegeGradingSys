@@ -1,12 +1,12 @@
-﻿@model CollegeGradingSys.Models.Course
+﻿@using CollegeGradingSys.ViewModels.Course
+@model CourseDetailsViewModel
 
 @{
     ViewData["Title"] = "التفصيل";
-    ViewData["PageName"] = "إدارة العام الجامعي";
+    ViewData["PageName"] = "إدارة المواد الدراسية";
     //ViewData["SubPageName"] = "القائمة الرئسية";
 }
 
-<!-- Main content -->
 <section class="content">
     <div class="container-fluid">
         <div class="row">
@@ -17,7 +17,6 @@
                             التفصيل
                         </h3>
                     </div>
-                    <!-- /.card-header -->
                     <div class="card-body">
                         <div class="row">
                             <div class="col-sm-3 my-2">
@@ -26,17 +25,26 @@
                             <div class="col-sm-9 my-2">
                                 @Html.DisplayFor(model => model.Level)
                             </div>
+
                             <div class="col-sm-3 my-2">
                                 @Html.DisplayNameFor(model => model.Term)
                             </div>
                             <div class="col-sm-9 my-2">
                                 @Html.DisplayFor(model => model.Term)
                             </div>
+
                             <div class="col-sm-3 my-2">
                                 @Html.DisplayNameFor(model => model.CourseName)
                             </div>
                             <div class="col-sm-9 my-2">
                                 @Html.DisplayFor(model => model.CourseName)
+                            </div>
+
+                            <div class="col-sm-3 my-2">
+                                @Html.DisplayNameFor(model => model.Course_sGender)
+                            </div>
+                            <div class="col-sm-9 my-2">
+                                @Html.DisplayFor(model => model.Course_sGender)
                             </div>
                             <div class="col-sm-3 my-2">
                                 @Html.DisplayNameFor(model => model.BigGrade)
@@ -44,6 +52,7 @@
                             <div class="col-sm-9 my-2">
                                 @Html.DisplayFor(model => model.BigGrade)
                             </div>
+
                             <div class="col-sm-3 my-2">
                                 @Html.DisplayNameFor(model => model.SmallGrade)
                             </div>
@@ -64,7 +73,7 @@
                                     @Html.DisplayNameFor(model => model.ParentId)
                                 </div>
                                 <div class="col-sm-9 my-2">
-                                    @Html.DisplayFor(model => model.Parent.CourseName)
+                                    @Html.DisplayFor(model => model.ParentCourseName)
                                 </div>
                             }
                             else
@@ -73,6 +82,7 @@
                                     <span class="badge bg-success">مادة أساسية</span>
                                 </div>
                             }
+
                             <div class="col-sm-3 my-2">
                                 @Html.DisplayNameFor(model => model.Note)
                             </div>
@@ -84,11 +94,16 @@
                     </div>
 
                     <div class="card-footer">
-                        <a asp-action="Edit" class="btn btn-success btn-sm align-self-center" asp-route-id="@Model.Id">تعديل</a>
+                        <!-- Modal placeholder -->
+                        <div id="modal-placeholder"></div>
+                        <button type="button" class="btn btn-success btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Edit", "Course", new { id = Model.Id })">
+                            تعديل
+                        </button>
+                       @*  <a asp-action="Edit" class="btn btn-success btn-sm align-self-center" asp-route-id="@Model.Id">تعديل</a> *@
                         <a class="btn btn-secondary  btn-sm" asp-action="Index">القائمة الرئسية</a>
                     </div>
                 </div>
             </div>
         </div>
-    </div> 
+    </div>
 </section>

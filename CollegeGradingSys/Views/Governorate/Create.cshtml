@@ -1,4 +1,5 @@
-﻿@model CollegeGradingSys.ViewModels.NationalityGovernorateViewModel
+﻿@using CollegeGradingSys.ViewModels.Nationality
+@model NationalityGovernorateViewModel
 
 
 @{
@@ -35,7 +36,7 @@
                                 <div class="form-group col-md-6">
                                     <label asp-for="NationalityId" class="control-label"></label>
                                     <select asp-for="NationalityId" class="form-control text-center"
-                                            asp-items="@(new SelectList(Model.Nationalities,"Id","CountryName"))"></select>
+                                            asp-items="@(new SelectList(Model.Nationalities, "Id", "Name"))"></select>
                                     <span asp-validation-for="NationalityId" class="text-danger"></span>
                                 </div>
                             </div>

@@ -1,4 +1,4 @@
-﻿<cs-pager cs-paging-pagenumber="(int)Model.PageNumber"
+﻿@* <cs-pager cs-paging-pagenumber="(int)Model.PageNumber"
           cs-paging-totalitems="(int)Model.TotalItems"
           cs-paging-pagesize="Model.PageSize"
           cs-pagenumber-param="pagenumber"
@@ -9,4 +9,25 @@
           cs-pager-li-non-active-class="page-item disabled"
           cs-pager-link-current-class="page-link"
           cs-pager-link-other-class="page-link">
-</cs-pager>
+</cs-pager> *@
+
+<nav aria-label="Page navigation" class="d-flex justify-content-center mt-4 mb-3">
+    <cs-pager cs-paging-pagenumber="(int)Model.PageNumber"
+              cs-paging-totalitems="(int)Model.TotalItems"
+              cs-paging-pagesize="Model.PageSize"
+              cs-pagenumber-param="pagenumber"
+              asp-controller="@ViewData["Controller"]"
+              asp-action="@ViewData["Action"]"
+              cs-pager-ul-class="pagination custom-pagination shadow-sm"
+              cs-pager-li-current-class="page-item active"
+              cs-pager-li-other-class="page-item"
+              cs-pager-li-non-active-class="page-item disabled"
+              cs-pager-link-current-class="page-link"
+              cs-pager-link-other-class="page-link"
+              cs-show-first-last="true"
+              cs-first-page-text="الأولى"
+              cs-last-page-text="الأخيرة"
+              cs-previous-page-text="« السابق"
+              cs-next-page-text="التالي »"
+              cs-pager-max-pageritems="5"> </cs-pager>
+</nav>

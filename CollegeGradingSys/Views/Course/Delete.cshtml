@@ -1,0 +1,67 @@
+﻿@model CollegeGradingSys.Models.Course
+
+@{
+    ViewData["Title"] = "حذف المادة";
+    ViewData["PageName"] = "إدارة المواد الدراسية";
+}
+
+<section class="content">
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+
+                <div class="card card-outline card-danger shadow-sm">
+                    <div class="card-header text-center">
+                        <h3 class="card-title font-weight-bold">تأكيد حذف المادة</h3>
+                    </div>
+
+                    <form asp-action="Delete">
+                        <div class="card-body">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                            <input type="hidden" asp-for="Id" />
+
+                            @if (ViewBag.Message != null || TempData["ErrorMessage"] != null)
+                            {
+                                <div class="alert alert-danger">
+                                    @(ViewBag.Message ?? TempData["ErrorMessage"])
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning text-center">
+                                    <h5><i class="fas fa-exclamation-triangle"></i> تحذير!</h5>
+                                    هل أنت متأكد من أنك تريد بالفعل حذف هذه المادة؟
+                                    <br />
+                                    <small>لا يمكن التراجع عن هذا الإجراء.</small>
+                                </div>
+                            }
+
+                            <hr />
+
+                            <div class="form-group col-md-12">
+                                <label asp-for="CourseName" class="control-label"></label>
+                                <input asp-for="CourseName" readonly class="form-control text-center font-weight-bold" />
+                            </div>
+                        </div>
+
+                        <div class="card-footer text-center">
+                            <button type="submit" class="btn btn-danger px-4 mx-2">
+                                <i class="fas fa-trash-alt mr-1"></i> تأكيد الحذف
+                            </button>
+
+                            <a asp-action="Index" class="btn btn-secondary px-4 mx-2">
+                                إلغاء الأمر والرجوع
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

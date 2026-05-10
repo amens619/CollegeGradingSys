@@ -1,6 +1,7 @@
-﻿@model CollegeGradingSys.ViewModels.CourseIndexViewModel
+﻿@model CourseIndexViewModel
 
 @using CollegeGradingSys.Models.Enums
+@using CollegeGradingSys.ViewModels.Course
 @using Microsoft.AspNetCore.Authorization
 @inject IAuthorizationService authorizationService
 
@@ -37,10 +38,10 @@
                 <div class="row ">
                     <div class="form-group col-md-4">
                         <label asp-for="SpecializationId" class="control-label"></label>
-                        <select asp-for="SpecializationId" name="SpecializationId" class="form-control text-center"
-                                asp-items="ViewBag.Specializations">
-                            <option value="-1">-- الكل --</option>
-                        </select>
+                         <select asp-for="SpecializationId" class="form-control text-center"
+                                asp-items="Model.SpecializationsList">
+                            <option value="">-- الكل --</option>
+                        </select>                      
 
                     </div>
                     <div class="form-group col-md-4">
@@ -61,7 +62,7 @@
             </div>
             <div class="card-footer">
                 <input type="submit" value="تصفية" class="btn btn-secondary btn-sm" />
-                <a asp-action="Index" class="btn btn-secondary btn-sm" asp-route-id=-1>إلغاء التصفية</a>
+                <a asp-action="Index" class="btn btn-secondary btn-sm" asp-route-clear="true" asp-route-id=-1>إلغاء التصفية</a>
             </div>
         </div>
         }
@@ -171,11 +172,11 @@
                                                 }
                                                 @if ((await authorizationService.AuthorizeAsync(User, "DeleteCoursePolicy")).Succeeded)
                                                 {
-                                                    <button type="button" class="btn btn-outline-danger btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Delete", "Course", new { id = item.Id })">
+                                                    <a asp-action="Delete" class="btn btn-outline-danger btn-sm align-self-center" asp-route-id="@item.Id">
                                                         <i class="fas fa-trash-alt" width="17" height="17"></i>
-                                                    </button>
-
+                                                    </a>
                                                 }
+                                               
 
                                             </td>
                                         </tr>

@@ -19,10 +19,10 @@ namespace CollegeGradingSys.Controllers
         [Obsolete]
         private readonly IHostingEnvironment hostingEnvironment;
         public IConfiguration _configuration { get; }
-        private readonly ICollegeGradingSysRepository<DBSettings> _DBSettingsRepository;
+        private readonly IRepository<DBSettings> _DBSettingsRepository;
 
         [Obsolete]
-        public DBSettingsController(IHostingEnvironment hostingEnvironment, IConfiguration Configuration, ICollegeGradingSysRepository<DBSettings> DBSettingsRepository)
+        public DBSettingsController(IHostingEnvironment hostingEnvironment, IConfiguration Configuration, IRepository<DBSettings> DBSettingsRepository)
         {
             _configuration = Configuration;
             _DBSettingsRepository = DBSettingsRepository;
@@ -31,9 +31,9 @@ namespace CollegeGradingSys.Controllers
         }
         public IActionResult Index()
         {
-            var dBSettings = _DBSettingsRepository.List();
+            var dBSettings = _DBSettingsRepository.Query();
 
-            dBSettings = dBSettings.OrderByDescending(x => x.Id).ToList();
+            dBSettings = dBSettings.OrderByDescending(x => x.Id);
 
 
 
@@ -49,7 +49,7 @@ namespace CollegeGradingSys.Controllers
         [HttpPost]
         [Obsolete]
         [Authorize(Policy = "CreateBackupPolicy")]
-        public ActionResult Backup(int id)
+        public async Task<ActionResult> Backup(int id)
         {
             string BackupPath = Path.Combine(hostingEnvironment.ContentRootPath.ToString(), "wwwroot", "Backups");
             //string BackupPath = Path.Combine("D:", "Backups");
@@ -77,7 +77,7 @@ namespace CollegeGradingSys.Controllers
                 this.SetSuccessMessage("تمت أخذ نسخة احتياطية بنجاح");
                 con.Close();
                 var DBSetting = new DBSettings() { BackupName = uniqueFileName + ".bak" };
-                _DBSettingsRepository.Add(DBSetting);
+               await _DBSettingsRepository.AddAsync(DBSetting);
             }
             catch (Exception ex)
             {
@@ -88,9 +88,9 @@ namespace CollegeGradingSys.Controllers
         }
 
         [Obsolete]
-        public IActionResult GetBlobDownload(int id)
+        public async Task<IActionResult> GetBlobDownload(int id)
         {
-            var GP = _DBSettingsRepository.Find(id);
+            var GP =await _DBSettingsRepository.FindAsync(id);
 
             string uploadFolder = Path.Combine(hostingEnvironment.ContentRootPath.ToString(), "wwwroot", "Backups");
 
@@ -109,14 +109,14 @@ namespace CollegeGradingSys.Controllers
 
         // GET: DBSettings/Delete/5
         [Authorize(Policy = "DeleteBackupPolicy")]
-        public IActionResult Delete(int? id)
+        public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var DBSetting = _DBSettingsRepository.Find((int)id);
+            var DBSetting =await _DBSettingsRepository.FindAsync((int)id);
             if (DBSetting == null)
             {
                 return NotFound();
@@ -128,14 +128,14 @@ namespace CollegeGradingSys.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "DeleteBackupPolicy")]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var DBSetting = _DBSettingsRepository.Find((int)id);
+            var DBSetting =await _DBSettingsRepository.FindAsync((int)id);
             if (DBSetting == null)
             {
                 return NotFound();
             }
-            _DBSettingsRepository.Delete((int)id);
+           await _DBSettingsRepository.DeleteAsync((int)id);
 
             string previousFileUrl = DBSetting.BackupName;
 

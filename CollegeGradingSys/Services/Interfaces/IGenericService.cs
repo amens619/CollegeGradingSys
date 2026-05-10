@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Services.Interfaces
@@ -16,7 +17,10 @@ namespace CollegeGradingSys.Services.Interfaces
         Task<bool> ExistsAsync(int id);
         Task<int> CountAsync();
         Task<List<SelectItemVM>> GetSelectItemsAsync(
-            Func<TEntity, SelectItemVM> selector,
-            string placeholder = "-- اختر --");
+             Expression<Func<TEntity, SelectItemVM>> selector,
+             string placeholder = "-- اختر --");
+
+        Task<List<SelectItemVM>> GetSelectItemsAsync(
+           Expression<Func<TEntity, SelectItemVM>> selector);
     }
 }

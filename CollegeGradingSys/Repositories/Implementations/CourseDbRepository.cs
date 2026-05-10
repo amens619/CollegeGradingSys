@@ -26,7 +26,10 @@ namespace CollegeGradingSys.Repositories.Implementations
 
         public async Task<Course> FindAsync(int id)
         {
-            return await _db.Course.SingleOrDefaultAsync(c => c.Id == id);
+            return await _db.Course
+                 .Include(c => c.Specialization)
+                .Include(c => c.Parent)
+                .SingleOrDefaultAsync(c => c.Id == id);
         }
 
         public async Task<Course> AddAsync(Course entity)
@@ -56,7 +59,7 @@ namespace CollegeGradingSys.Repositories.Implementations
 
         public IQueryable<Course> Query()
         {
-            return _db.Course.AsQueryable();
+            return _db.Course.Include(c => c.Specialization).AsQueryable();
         }
 
         public async Task<bool> ExistsAsync(int id)

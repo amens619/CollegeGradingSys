@@ -3,7 +3,7 @@
 using CollegeGradingSys.Data;
 using CollegeGradingSys.Models;
 //using CollegeGradingSys.Models.Repositories;
-using CollegeGradingSys.ViewModels;
+using CollegeGradingSys.ViewModels.Adminstration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -601,10 +601,78 @@ namespace CollegeGradingSys.Controllers
             return RedirectToAction("EditRole",new { Id = roleId});
         }
 
+        [HttpGet]
+        [Authorize(Policy = "EditUserPolicy")]
+        public async Task<IActionResult> ResetUserPassword(string id)
+        {
+            var user = await userManager.FindByIdAsync(id);
 
-       
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"رقم المستخدم  {id} غير موجود";
+                return View("NotFound");
+            }
+            else if (user.UserName == "Admin")
+            {
+                ViewBag.ErrorMessage = $"لا يمكن تعديل كلمة مرور هذا المستخدم";
+                return View("NotFound");
+            }
 
-      
+            var model = new AdminResetPasswordViewModel
+            {
+                UserId = user.Id,
+                UserName = user.UserName
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Policy = "EditUserPolicy")]
+        public async Task<IActionResult> ResetUserPassword(AdminResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await userManager.FindByIdAsync(model.UserId);
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"رقم المستخدم  {model.UserId} غير موجود";
+                return View("NotFound");
+            }
+            else if (user.UserName == "Admin")
+            {
+                ViewBag.ErrorMessage = $"لا يمكن تعديل كلمة مرور هذا المستخدم";
+                return View("NotFound");
+            }
+
+            // توليد رمز إعادة التعيين (Token) الخاص بـ Identity
+            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+
+            // تغيير كلمة المرور باستخدام الرمز
+            var result = await userManager.ResetPasswordAsync(user, token, model.NewPassword);
+
+            if (result.Succeeded)
+            {
+                // يمكنك استخدام TempData لإظهار رسالة نجاح في صفحة التعديل
+                TempData["SuccessMessage"] = "تم تغيير كلمة المرور بنجاح.";
+                return RedirectToAction("EditUser", new { Id = user.Id });
+            }
+
+            // في حال وجود أخطاء (مثل عدم احتواء كلمة المرور على رموز أو أرقام حسب إعدادات Identity)
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return View(model);
+        }
+
+
+
 
         public IList<IdentityUser> GetListUsers()
         {

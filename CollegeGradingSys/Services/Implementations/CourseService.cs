@@ -3,6 +3,8 @@ using CollegeGradingSys.Models.Enums;
 using CollegeGradingSys.Repositories.Interfaces;
 using CollegeGradingSys.Services.Interfaces;
 using CollegeGradingSys.ViewModels;
+using CollegeGradingSys.ViewModels.Course;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -12,64 +14,68 @@ namespace CollegeGradingSys.Services.Implementations
 {
     public class CourseService : GenericService<Course>, ICourseService
     {
-        private readonly ICourseRepository _courseRepository;
+        private readonly ICourseRepository _courseRepo;
         private readonly IGenericService<Specialization> _specializationService;
-        private readonly ICourseGradeService _courseGradeService;
+        private readonly ICourseGradeRepository _courseGradeRepo;       
+        private readonly IRepository<Batch> _batchRepo;
 
         public CourseService(
-            ICourseRepository courseRepository,
+            ICourseRepository courseRepo,
             IGenericService<Specialization> specializationService,
-            ICourseGradeService courseGradeService)
-                : base(courseRepository)
+                IRepository<Batch> batchRepo,
+                ICourseGradeRepository courseGradeRepo
+           )
+                : base(courseRepo)
         {
-            _courseRepository = courseRepository;
+            _courseRepo = courseRepo;
             _specializationService = specializationService;
-            _courseGradeService = courseGradeService;
+            _courseGradeRepo = courseGradeRepo;           
+            _batchRepo = batchRepo;
         }
 
-        public async Task<IList<Course>> GetAllAsync()
-        {
-            return await _courseRepository.ListAsync();
-        }
+        //public async Task<IList<Course>> GetAllAsync()
+        //{
+        //    return await _courseRepository.ListAsync();
+        //}
 
         public async Task<IList<Course>> GetAllWithRelationsAsync()
         {
-            return await _courseRepository.ListWithRelationsAsync();
+            return await _courseRepo.ListWithRelationsAsync();
         }
 
-        public async Task<Course> GetByIdAsync(int id)
-        {
-            return await _courseRepository.FindAsync(id);
-        }
+        //public async Task<Course> GetByIdAsync(int id)
+        //{
+        //    return await _courseRepository.FindAsync(id);
+        //}
 
         public async Task<Course> GetByIdWithRelationsAsync(int id)
         {
-            return await _courseRepository.FindWithRelationsAsync(id);
+            return await _courseRepo.FindWithRelationsAsync(id);
         }
 
-        public async Task<Course> CreateAsync(Course course)
-        {
-            return await _courseRepository.AddAsync(course);
-        }
+        //public async Task<Course> CreateAsync(Course course)
+        //{
+        //    return await _courseRepository.AddAsync(course);
+        //}
 
-        public async Task<Course> UpdateAsync(Course course)
-        {
-            return await _courseRepository.UpdateAsync(course);
-        }
+        //public async Task<Course> UpdateAsync(Course course)
+        //{
+        //    return await _courseRepository.UpdateAsync(course);
+        //}
 
-        public async Task<bool> DeleteAsync(int id)
-        {
-            if (!await _courseRepository.ExistsAsync(id))
-                return false;
+        //public async Task<bool> DeleteAsync(int id)
+        //{
+        //    if (!await _courseRepository.ExistsAsync(id))
+        //        return false;
 
-            await _courseRepository.DeleteAsync(id);
-            return true;
-        }
+        //    await _courseRepository.DeleteAsync(id);
+        //    return true;
+        //}
 
-        public async Task<bool> ExistsAsync(int id)
-        {
-            return await _courseRepository.ExistsAsync(id);
-        }
+        //public async Task<bool> ExistsAsync(int id)
+        //{
+        //    return await _courseRepository.ExistsAsync(id);
+        //}
 
         // Use Cases
         public async Task<CourseDetailsViewModel> GetDetailsViewModelAsync(int id)
@@ -95,38 +101,47 @@ namespace CollegeGradingSys.Services.Implementations
             };
         }
 
+
         public async Task<CourseIndexViewModel> GetIndexViewModelAsync(Term? term, Level? level, int? specializationId)
         {
-            var courses = (await GetAllAsync())
-                .OrderBy(x => x.Level)
-                .ThenBy(x => x.Term)
-                .ToList();
-
             var vm = new CourseIndexViewModel();
 
+            // 1. نبدأ بناء الاستعلام (IQueryable) بدون تنفيذه
+            // لاحظ أننا ألغينا Include(Level) و Include(Term) لأنها أعمدة عادية
+            var query = _courseRepo.Query()
+                .Include(x => x.Specialization)
+                .AsQueryable();
+
+            // 2. نطبق الفلاتر على مستوى قاعدة البيانات (SQL)
             if (specializationId != null && specializationId != -1)
             {
                 vm.SpecializationId = specializationId;
-                courses = courses.Where(x => x.Specialization.Id == specializationId).ToList();
+                query = query.Where(x => x.Specialization != null && x.Specialization.Id == specializationId);
             }
 
             if (level != null)
             {
                 vm.Level = level;
-                courses = courses.Where(x => x.Level == level).ToList();
+                query = query.Where(x => x.Level == level);
             }
 
             if (term != null)
             {
                 vm.Term = term;
-                courses = courses.Where(x => x.Term == term).ToList();
+                query = query.Where(x => x.Term == term);
             }
+
+            // 3. أخيراً: نرتب البيانات وننفذ الاستعلام (نجلب البيانات المتوافقة فقط من الداتابيز)
+            var courses = await query
+                .OrderBy(x => x.Level)
+                .ThenBy(x => x.Term)
+                .ToListAsync(); // نستخدم ToListAsync لأن الدالة async
 
             vm.Courses = courses;
             return vm;
         }
 
-        public async Task<CreateCourseViewModel> GetCreateViewModelAsync()
+        public CreateCourseViewModel GetCreateViewModelAsync()
         {
             return new CreateCourseViewModel
             {
@@ -298,19 +313,21 @@ namespace CollegeGradingSys.Services.Implementations
             await UpdateAsync(course);
             return (true, string.Empty);
         }
+       
 
         public async Task<(bool CanDelete, string ErrorMessage)> CanDeleteCourseAsync(int id)
-        {
-            var allCourses = await GetAllAsync();
-            var subCourses = allCourses.Where(x => x.ParentId == id).ToList();
-            if (subCourses != null && subCourses.Count > 0)
+        {           
+            bool hasSubCourses = await _courseRepo.Query()
+                .AnyAsync(x => x.ParentId == id);
+
+            if (hasSubCourses)
             {
                 return (false, "لا يمكن حذف المادة بسبب وجود مواد فرعية تابعة لها");
-            }
+            }                       
+            bool hasGrades = await _courseGradeRepo.Query()
+                .AnyAsync(x => x.Course.Id == id);
 
-            var allCourseGrades = await _courseGradeService.GetAllAsync();
-            var courseGrades = allCourseGrades.Where(x => x.Course.Id == id).ToList();
-            if (courseGrades != null && courseGrades.Count > 0)
+            if (hasGrades)
             {
                 return (false, "لا يمكن حذف المادة بسبب وجود درجات مرصودة للطلاب في هذه المادة");
             }
@@ -343,6 +360,44 @@ namespace CollegeGradingSys.Services.Implementations
         public async Task<List<Specialization>> GetSpecializationsAsync()
         {
             return (await _specializationService.GetAllAsync()).ToList();
+        }
+
+        public async Task<List<SelectItemVM>> GetCoursesByBatchAsync(int batchId, Level level, Term term)
+        {
+            // 1. جلب بيانات الدفعة لمعرفة التخصص الخاص بها
+            var batch = await _batchRepo.Query()
+                .Include(x => x.Specialization)
+                .FirstOrDefaultAsync(x => x.Id == batchId);
+
+            if (batch == null || batch.Specialization == null)
+                return new List<SelectItemVM>();
+
+            // 2. جلب المواد بناءً على تخصص الدفعة والمستوى والترم
+            var courses = await _courseRepo.Query()
+                .Where(x => x.Specialization.Id == batch.Specialization.Id
+                         && x.Level == level
+                         && x.Term == term)
+                .Select(x => new SelectItemVM { Id = x.Id, Name = x.CourseName }) // تحويل سريع
+                .ToListAsync();
+
+            return courses;
+        }
+
+        public async Task<List<SelectItemVM>> GetCoursesBySpecializationAsync(int specializationId, Level? level, Term? term)
+        {
+            var query = _courseRepo.Query().Where(x => x.Specialization.Id == specializationId);
+
+            if (level.HasValue)
+                query = query.Where(x => x.Level == level.Value);
+
+            if (term.HasValue)
+                query = query.Where(x => x.Term == term.Value);
+
+            var courses = await query
+                .Select(x => new SelectItemVM { Id = x.Id, Name = x.CourseName })
+                .ToListAsync();
+
+            return courses;
         }
     }
 }

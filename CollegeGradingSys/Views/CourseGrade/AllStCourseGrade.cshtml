@@ -1,5 +1,6 @@
 ﻿@using CollegeGradingSys.Models.Enums
-@model CollegeGradingSys.ViewModels.CourseGradeIndexViewModel
+@using CollegeGradingSys.ViewModels.Course
+@model CourseGradeIndexViewModel
 
 @{
     ViewData["Title"] = "ادارةالدرجات";
@@ -33,7 +34,7 @@
         </div>
         <div class="card mb-4">
             <div class="card-header ">
-                <a class="btn btn-outline-primary align-self-center btn-sm" asp-controller="StAcademicData" asp-action="AllStAcademicDatas" asp-route-id="@Model.AcademicID">تغيير السجل</a>
+                <a class="btn btn-outline-primary align-self-center btn-sm" asp-controller="StAcademicData" asp-action="StudentAcademicHistory" asp-route-academicID="@Model.AcademicID">تغيير السجل</a>
             </div>
             <div class="card-body">
                 <div class="row">

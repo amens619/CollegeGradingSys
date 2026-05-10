@@ -1,48 +1,9 @@
-﻿//using CollegeGradingSys.Repositories.Interfaces;
-//using CollegeGradingSys.ViewModels;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Threading.Tasks;
-
-//namespace CollegeGradingSys.Services
-//{
-//    public class AcademicYearService
-//    {
-//        private readonly IAcademicYearRepository _repository;
-
-//        public AcademicYearService(IAcademicYearRepository repository)
-//        {
-//            _repository = repository;
-//        }
-
-//        public async Task<List<AcademicYearSelectItemViewModel>> GetAcademicYearsAsync(string placeholder)
-//        {
-//            var years = await _repository.ListAsync();
-
-//            var result = years
-//                .Select(y => new AcademicYearSelectItemViewModel
-//                {
-//                    Id = y.Id,
-//                    Name = y.AcademicYearName
-//                })
-//                .ToList();
-
-//            // إضافة خيار placeholder
-//            result.Insert(0, new AcademicYearSelectItemViewModel
-//            {
-//                Id = -1,
-//                Name = placeholder
-//            });
-
-//            return result;
-//        }
-//    }
-//}
-using CollegeGradingSys.Models;
+﻿using CollegeGradingSys.Models;
 using CollegeGradingSys.Repositories.Interfaces;
+using CollegeGradingSys.Services.Implementations;
 using CollegeGradingSys.Services.Interfaces;
 using CollegeGradingSys.Utilities.Exceptions;
-using CollegeGradingSys.ViewModels;
+using CollegeGradingSys.ViewModels.AcademicYear;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using System;
@@ -50,17 +11,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-public class AcademicYearService : IAcademicYearService
+public class AcademicYearService :GenericService<AcademicYear>, IAcademicYearService
 {
     private readonly IAcademicYearRepository _yearRepo;
-    private readonly IStAcademicDataService _stAcademicRepo;
-    private readonly IStPersonalDataService _stPersonalRepo;
+    private readonly IStAcademicDataRepository _stAcademicRepo;
+    private readonly IStPersonalDataRepository _stPersonalRepo;
 
     public AcademicYearService(
         IAcademicYearRepository yearRepo,
-        IStAcademicDataService stAcademicRepo,
-        IStPersonalDataService stPersonalRepo
-        )
+        IStAcademicDataRepository stAcademicRepo,
+        IStPersonalDataRepository stPersonalRepo
+        ) : base(yearRepo)
     {
         _yearRepo = yearRepo;
         _stAcademicRepo = stAcademicRepo;
@@ -145,7 +106,7 @@ public class AcademicYearService : IAcademicYearService
         {
             var prevCurrent = (await _yearRepo.ListAsync())
                 .Where(x => x.IsCurrentYear)
-                .ToList();
+                .ToList();              
 
             foreach (var p in prevCurrent)
             {
@@ -155,6 +116,11 @@ public class AcademicYearService : IAcademicYearService
         }
 
         return await _yearRepo.AddAsync(newYear);       
+    }
+
+    public async Task<AcademicYear> GetCurrentYearAsync()
+    {
+        return await _yearRepo.GetCurrentYearAsync();
     }
 
     public async Task<AcademicYearEditVM> GetEditViewAsync(int id)
@@ -235,13 +201,13 @@ public class AcademicYearService : IAcademicYearService
     {
        
         // منع الحذف إن كانت هناك سجلات شخصية / أكاديمية مرتبطة
-        var personalList = await _stPersonalRepo.GetAllAsync();
+        var personalList = await _stPersonalRepo.ListAsync();
         var hasPersonal = personalList.Any(x => x.EnrollmentYear != null && x.EnrollmentYear.Id == id);
         if (hasPersonal)
             throw new DomainException("لا يمكن حذف العام الجامعي لأن هناك طلابًا مسجلين فيه. احذف الطلاب أولاً.");
        
 
-        var academicList = await _stAcademicRepo.GetAllAsync();
+        var academicList = await _stAcademicRepo.ListAsync();
         var hasAcademic = academicList.Any(x => x.AcademicYear != null && x.AcademicYear.Id == id);
         if (hasAcademic)
             throw new DomainException("لا يمكن حذف العام الجامعي بسبب وجود سجلات أكاديمية مرتبطة.");
@@ -280,7 +246,7 @@ public class AcademicYearService : IAcademicYearService
         if (year == null)
             throw new DomainException("العام الدراسي غير موجود.");
 
-           var stAcademic = (await _stAcademicRepo.GetAllAsync()).Where(x => x.AcademicYear.Id == year.Id);
+           var stAcademic = (await _stAcademicRepo.ListAsync()).Where(x => x.AcademicYear.Id == year.Id);
         if(!stAcademic.Any(x => x.StStatus == CollegeGradingSys.Models.Enums.StStatus.مقيد))
             throw new DomainException("لا يمكن إغلاق العام الدراسي لوجود طلاب ما زالوا مقيدين.");
 
@@ -319,7 +285,7 @@ public class AcademicYearService : IAcademicYearService
 
     private async Task<bool> HasStudentsAsync(int id)
     {
-        return (await  _stPersonalRepo.GetAllAsync()).Any(x => x.EnrollmentYear != null && x.EnrollmentYear.Id == id);
+        return (await  _stPersonalRepo.ListAsync()).Any(x => x.EnrollmentYear != null && x.EnrollmentYear.Id == id);
          
     }
 

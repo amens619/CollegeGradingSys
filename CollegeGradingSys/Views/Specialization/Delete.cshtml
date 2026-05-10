@@ -1,5 +1,5 @@
-﻿@model CollegeGradingSys.Models.Specialization
-
+﻿@using CollegeGradingSys.ViewModels.Specialization
+@model SpecializationVM
 @{
     ViewData["Title"] = "حذف تخصص";
     ViewData["PageName"] = "إدارة تخصصات";
@@ -28,10 +28,10 @@
                                     @Html.DisplayFor(model => model.SpecializationName)
                                 </div>
                                 <div class="col-sm-3 my-2">
-                                    @Html.DisplayNameFor(model => model.Department.DepartmentName)
+                                    @Html.DisplayNameFor(model => model.DepartmentName)
                                 </div>
                                 <div class="col-sm-9 my-2">
-                                    @Html.DisplayFor(model => model.Department.DepartmentName)
+                                    @Html.DisplayFor(model => model.DepartmentName)
                                 </div>
                             </div>
                         </div>

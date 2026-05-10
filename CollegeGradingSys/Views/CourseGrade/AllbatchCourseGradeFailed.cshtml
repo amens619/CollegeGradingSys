@@ -1,6 +1,7 @@
-﻿@model CollegeGradingSys.ViewModels.AllbatchCourseGradeFailedViewModel
+﻿@model AllbatchCourseGradeFailedViewModel
 
 @using CollegeGradingSys.Models.Enums
+@using CollegeGradingSys.ViewModels.Batch
 @using Microsoft.AspNetCore.Authorization
 @inject IAuthorizationService authorizationService
 
@@ -39,10 +40,11 @@
                     <div class="row ">
                         <div class="form-group col-md-3">
                             <label asp-for="SpecializationId" class="control-label"></label>
-                            <select asp-for="SpecializationId" name="SpecializationId" id="SpecializationList" class="form-control text-center"
-                                    asp-items="ViewBag.Specializations">
-                                <option value="-1">-- الكل --</option>
+                            <select asp-for="SpecializationId" class="form-control text-center"
+                                    asp-items="Model.SpecializationsList">
+                                <option value="">-- الكل --</option>
                             </select>
+                           
                         </div>
                         <div class="form-group col-md-3">
                             <label class="control-label">المستوى</label>
@@ -61,33 +63,45 @@
 
                         <div class="form-group col-md-3">
                             <label class="control-label">المادة</label>
-                            <select id="CourseList" name="CourseId" class="form-control text-center"
+                            <select asp-for="CourseId" class="form-control text-center"
+                                    asp-items="Model.CourseList">
+                                <option value="">-- الكل --</option>
+                            </select>
+                            @* <select id="CourseList" name="CourseId" class="form-control text-center"
                                     asp-items="ViewBag.CourseList">
                                 <option value="-1">-- الكل --</option>
-                            </select>
+                            </select> *@
 
                         </div>
 
                     </div>
                     <div class="card my-3 col-mb-6">
                         <div class="card-body">
-                            @if (ViewBag.IsSelectCurrentYear)
+                            @if (Model.IsSelectCurrentYear)
                             {
                                 <div class="form-group mb-2 mt-0 col-md-6">
                                     <label class="control-label">العام</label>
-                                    <select name="AcademicYearId" disabled class="form-control  disabled text-center "
-                                            asp-items="ViewBag.AcademicYearsList">
+                                    <select asp-for="AcademicYearId" class="form-control text-center"
+                                            asp-items="Model.AcademicYearsList">
+                                        <option value="">-- الكل --</option>
                                     </select>
+                                    @* <select name="AcademicYearId" disabled class="form-control  disabled text-center "
+                                            asp-items="ViewBag.AcademicYearsList">
+                                    </select> *@
                                 </div>
                             }
                             else
                             {
                                 <div class="form-group mb-2 col-md-6">
                                     <label class="control-label">العام</label>
-                                    <select id="" name="AcademicYearId" class="form-control text-center "
+                                    <select asp-for="AcademicYearId" class="form-control text-center"
+                                            asp-items="Model.AcademicYearsList">
+                                        <option value="">-- الكل --</option>
+                                    </select>
+                                    @* <select id="" name="AcademicYearId" class="form-control text-center "
                                             asp-items="ViewBag.AcademicYearsList">
                                         <option value="-1">-- الكل --</option>
-                                    </select>
+                                    </select> *@
                                 </div>
                             }
                             <div class="form-group form-check my-2 col-md-6">
@@ -164,10 +178,10 @@
                                             @no
                                         </td>
                                         <td class="text-center" style="vertical-align: middle;">
-                                            @Html.DisplayFor(modelItem => item.StAcademicData.StPersonalData.AcademicID)
+                                            @Html.DisplayFor(modelItem => item.AcademicID)
                                         </td>
                                         <td class="text-center" style="vertical-align: middle;">
-                                            @Html.DisplayFor(modelItem => item.StAcademicData.StPersonalData.StName)
+                                            @Html.DisplayFor(modelItem => item.StName)
                                         </td>
                                         <td class="text-center" style="vertical-align: middle;">
                                             @Html.DisplayFor(modelItem => item.Course.CourseName)
@@ -182,7 +196,7 @@
                                                 <button type="button" class="btn btn-outline-success btn-sm align-self-center " data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Edit", "CourseGrade", new { id = item.Id })">
                                                     <i class="fas fa-edit" width="17" height="17"></i>
                                                 </button>
-                                                @if (item.StAcademicData.AcademicYear.IsCurrentYear)
+                                                @if (item.IsCurrentYear)
                                                 {
                                                     <a asp-action="Delete" class="btn btn-outline-danger btn-sm align-self-center" asp-route-id="@item.Id">
                                                         <i class="fas fa-trash-alt" width="17" height="17"></i>

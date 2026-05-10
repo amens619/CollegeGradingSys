@@ -1,4 +1,6 @@
-﻿@model CollegeGradingSys.Models.Batch
+﻿@using CollegeGradingSys.ViewModels.Batch
+@model BatchDeleteVM
+
 
 @{
     ViewData["Title"] = "حذف دفعة";
@@ -25,13 +27,7 @@
                                 </div>
                                 <div class="col-sm-9 my-2">
                                     @Html.DisplayFor(model => model.BatchName)
-                                </div>
-                                <div class="col-sm-3 my-2">
-                                    @Html.DisplayNameFor(model => model.Note)
-                                </div>
-                                <div class="col-sm-9 my-2">
-                                    @Html.DisplayFor(model => model.Note)
-                                </div>
+                                </div>                               
                             </div>
                         </div>
 

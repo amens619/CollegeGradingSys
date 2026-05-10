@@ -1,17 +1,10 @@
-﻿using CollegeGradingSys.Data;
-using CollegeGradingSys.Models;
-using CollegeGradingSys.Repositories.Implementations;
-using CollegeGradingSys.Repositories.Interfaces;
+﻿using CollegeGradingSys.Models;
 using CollegeGradingSys.Services.Interfaces;
 using CollegeGradingSys.Utilities.Exceptions;
-using CollegeGradingSys.ViewModels;
+using CollegeGradingSys.ViewModels.Batch;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Controllers
@@ -19,53 +12,40 @@ namespace CollegeGradingSys.Controllers
     [Authorize(Roles = "Admin,Owner")]
     public class BatchController : Controller
     {
-       
         private readonly IBatchService _batchService;
         private readonly IGenericService<Specialization> _specializationService;
-        private readonly IStAcademicDataService StAcademicDataRepository;
 
-        public BatchController(IBatchService batchService,
-            IGenericService<Specialization> specializationService,
-            IStAcademicDataService StAcademicDataRepository)
+        public BatchController(
+            IBatchService batchService,
+            IGenericService<Specialization> specializationService)
         {
             _batchService = batchService;
             _specializationService = specializationService;
-            this.StAcademicDataRepository = StAcademicDataRepository;
         }
 
         // GET: Batche
-        public async Task<IActionResult> Index(int? id , int? SpecializationId)
+        public async Task<IActionResult> Index(int? SpecializationId)
         {
-
+            var specializations = await _specializationService.GetAllAsync();
 
             var viewModel = new BatchIndexData
             {
                 Batches = await _batchService.GetBatchesAsync(SpecializationId),
-                SpecializationId = SpecializationId
+                SpecializationId = SpecializationId,
+                // الاستغناء عن ViewData
+                SpecializationsList = new SelectList(specializations, "Id", "SpecializationName", SpecializationId ?? -1)
             };
 
-            ViewData["SpecializationId"] = new SelectList(
-                await _specializationService.GetAllAsync(),
-                "Id",
-                "SpecializationName",
-                SpecializationId ?? -1
-            );
-
             return View(viewModel);
-           
         }
-
-      
 
         // GET: Batche/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id <= 0)
-                return NotFound();
+            if (id == null || id <= 0) return NotFound();
 
-            var batch = await _batchService.GetByIdAsync(id ?? 0);
-            if (batch == null)
-                return NotFound();
+            var batch = await _batchService.GetByIdAsync(id.Value);
+            if (batch == null) return NotFound();
 
             var vm = new BatchDetailsVM
             {
@@ -76,37 +56,36 @@ namespace CollegeGradingSys.Controllers
             };
 
             return View(vm);
-           
         }
 
         // GET: Batche/Create
-        
         [Authorize(Policy = "CreateBatchPolicy")]
-        public async Task<IActionResult> CreateAsync()
+        public async Task<IActionResult> Create()
         {
-            ViewData["SpecializationId"] = new SelectList(
-               await FillSelectSpecializationsListAsync(),
-               "Id",
-               "SpecializationName"
-           );
-           
-            return View();
+            var specializations = await _specializationService.GetAllAsync();
+
+            var vm = new BatchCreateDataVM
+            {
+                // الاستغناء عن ViewData وتمرير القائمة عبر المودل
+                SpecializationsList = new SelectList(specializations, "Id", "SpecializationName")
+            };
+
+            return View(vm);
         }
 
         // POST: Batche/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "CreateBatchPolicy")]
-        public async Task<IActionResult> Create(BatchCreateDataVM  batchCreateData)
+        public async Task<IActionResult> Create(BatchCreateDataVM batchCreateData)
         {
-            ViewData["SpecializationId"] =
-                    new SelectList(await FillSelectSpecializationsListAsync(),
-                      "Id", "SpecializationName");
-
             if (!ModelState.IsValid)
+            {
+                // إعادة تعبئة القائمة المنسدلة عند فشل التحقق
+                var specializations = await _specializationService.GetAllAsync();
+                batchCreateData.SpecializationsList = new SelectList(specializations, "Id", "SpecializationName", batchCreateData.SpecializationId);
                 return View(batchCreateData);
+            }
 
             try
             {
@@ -116,58 +95,50 @@ namespace CollegeGradingSys.Controllers
             catch (DomainException ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
+
+                // إعادة تعبئة القائمة في حال خطأ قواعد العمل
+                var specializations = await _specializationService.GetAllAsync();
+                batchCreateData.SpecializationsList = new SelectList(specializations, "Id", "SpecializationName", batchCreateData.SpecializationId);
                 return View(batchCreateData);
-            }          
-          
+            }
         }
 
         // GET: Batche/Edit/5
         [Authorize(Policy = "EditBatchPolicy")]
         public async Task<IActionResult> Edit(int id)
         {
-            if (id <= 0)            
-                return NotFound();
-           
+            if (id <= 0) return NotFound();
 
-            var Batch =await _batchService.GetByIdAsync(id);
+            var batch = await _batchService.GetByIdAsync(id);
+            if (batch == null) return NotFound();
 
-            if (Batch == null)            
-                return NotFound();
-           
-            
-            var model = new BatchCreateDataVM
+            var specializations = await _specializationService.GetAllAsync();
+
+            // استخدام BatchEditVM كما هو متوقع في الـ POST
+            var model = new BatchEditVM
             {
-                
-                Id = Batch.Id,
-                BatchName = Batch.BatchName,
-                SpecializationId = Batch.Specialization?.Id ?? 0,
-                Note = Batch.Note
-                 
-            };  
-            
-            ViewData["SpecializationId"] = new SelectList(
-                  await _specializationService.GetAllAsync(),
-                  "Id",
-                  "SpecializationName",
-                  model.SpecializationId
-              );
+                Id = batch.Id,
+                BatchName = batch.BatchName,
+                SpecializationId = batch.Specialization?.Id ?? 0,
+                Note = batch.Note,
+                SpecializationsList = new SelectList(specializations, "Id", "SpecializationName", batch.Specialization?.Id)
+            };
+
             return View(model);
         }
 
         // POST: Batche/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "EditBatchPolicy")]
         public async Task<IActionResult> Edit(int id, BatchEditVM vm)
         {
-            if (id != vm.Id)
-                return NotFound();
+            if (id != vm.Id) return NotFound();
 
             if (!ModelState.IsValid)
             {
-                vm.Specializations = await _specializationService.GetAllAsync();
+                var specializations = await _specializationService.GetAllAsync();
+                vm.SpecializationsList = new SelectList(specializations, "Id", "SpecializationName", vm.SpecializationId);
                 return View(vm);
             }
 
@@ -181,21 +152,20 @@ namespace CollegeGradingSys.Controllers
                 ModelState.AddModelError(string.Empty, ex.Message);
             }
 
-            vm.Specializations = await _specializationService.GetAllAsync();
+            // في حال الوصول إلى هنا (استثناء من السيرفس)
+            var specs = await _specializationService.GetAllAsync();
+            vm.SpecializationsList = new SelectList(specs, "Id", "SpecializationName", vm.SpecializationId);
             return View(vm);
-
         }
 
         // GET: Batche/Delete/5
         [Authorize(Policy = "DeleteBatchPolicy")]
         public async Task<IActionResult> Delete(int id)
         {
-            if (id <= 0)
-                return NotFound();
+            if (id <= 0) return NotFound();
 
             var batch = await _batchService.GetByIdAsync(id);
-            if (batch == null)
-                return NotFound();
+            if (batch == null) return NotFound();
 
             var vm = new BatchDeleteVM
             {
@@ -205,13 +175,6 @@ namespace CollegeGradingSys.Controllers
             };
 
             return View(vm);
-           
-          
-
-          
-
-           
-          
         }
 
         // POST: Batche/Delete/5
@@ -227,36 +190,10 @@ namespace CollegeGradingSys.Controllers
             }
             catch (DomainException ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Message);
+                // استخدام TempData بدلاً من ViewBag لنقل الرسالة إلى صفحة أخرى
+                TempData["ErrorMessage"] = ex.Message;
                 return RedirectToAction(nameof(Delete), new { id });
-            }           
-          
+            }
         }
-
-      
-
-        //async Task<List<Specialization>> FillSelectSpecializationsListAsync(string specializationName)
-        //{
-        //    var specializations = (await _specializationService.GetAllAsync()).ToList();
-        //    specializations.Insert(0, new Specialization { Id = -1, SpecializationName = specializationName });
-
-        //    return specializations;
-        //}
-
-        async Task<List<SelectItemVM>> FillSelectSpecializationsListAsync()
-        {
-            var SelectItemVM = await _specializationService.GetSelectItemsAsync(b => new SelectItemVM
-            {
-                Id = b.Id,
-                Name = b.SpecializationName
-            }, "-- أختر --");
-            return SelectItemVM;
-        }
-
-
     }
-
-    //public class task<T>
-    //{
-    //}
 }

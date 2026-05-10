@@ -1,4 +1,5 @@
-﻿@model CollegeGradingSys.ViewModels.BatchCreateDataVM
+﻿@using CollegeGradingSys.ViewModels.Batch
+@model BatchCreateDataVM
 
 
 @{
@@ -33,8 +34,11 @@
                                     <span asp-validation-for="BatchName" class="text-danger"></span>
                                 </div>
                                 <div class="form-group col-md-6">
-                                    <label asp-for="SpecializationId" class="control-label"></label>
-                                    <select asp-for="SpecializationId" class="form-control text-center" asp-items="ViewBag.SpecializationId"></select>
+                                    <label asp-for="SpecializationId" class="control-label"></label>                                 
+                                    <select asp-for="SpecializationId" class="form-control text-center"
+                                            asp-items="Model.SpecializationsList">
+                                        <option value="">-- الكل --</option>
+                                    </select>
                                 </div>
                                 <div class="form-group col-md-12">
                                     <label asp-for="Note" class="control-label"></label>

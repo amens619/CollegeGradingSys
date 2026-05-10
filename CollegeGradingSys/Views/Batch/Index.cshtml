@@ -1,5 +1,6 @@
-﻿@model CollegeGradingSys.ViewModels.BatchIndexData
+﻿@model BatchIndexData
 
+@using CollegeGradingSys.ViewModels.Batch
 @using Microsoft.AspNetCore.Authorization
 @inject IAuthorizationService authorizationService
 
@@ -27,8 +28,12 @@
 
                 <div class="form-group pb-2 col-md-4">
                     <label asp-for="SpecializationId" class="control-label"></label>
-                    <select asp-for="SpecializationId" class="form-control text-center" asp-items="ViewBag.SpecializationId"></select>
+                        <select asp-for="SpecializationId" class="form-control text-center"
+                                asp-items="Model.SpecializationsList">
+                            <option value="">-- الكل --</option>
+                        </select>
                 </div>
+                    
             </div>
             <div class="card-footer">
                 <input type="submit" value="تصفية" class="btn btn-success btn-sm" />

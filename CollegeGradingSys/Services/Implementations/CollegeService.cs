@@ -1,25 +1,25 @@
 ﻿using CollegeGradingSys.Models;
+using CollegeGradingSys.Models.Enums;
 using CollegeGradingSys.Repositories.Interfaces;
 using CollegeGradingSys.Services.Interfaces;
 using CollegeGradingSys.Utilities.Exceptions;
 using CollegeGradingSys.ViewModels;
+using CollegeGradingSys.ViewModels.AcademicYear;
+using CollegeGradingSys.ViewModels.College;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Services.Implementations
 {
-    public class CollegeService : ICollegeService
+    public class CollegeService : GenericService<College>, ICollegeService
     {
         private readonly IRepository<College> _repo;
-
-        public CollegeService(IRepository<College> repo)
+        public CollegeService(IRepository<College> repo) : base(repo)
         {
             _repo = repo;
         }
-
-        public async Task<IList<College>> GetAllAsync()
-            => await _repo.ListAsync();
 
         public async Task CreateAsync(CollegeCreateVM vm)
         {
@@ -34,10 +34,7 @@ namespace CollegeGradingSys.Services.Implementations
             await _repo.AddAsync(college);
         }
 
-        public async Task<College?> GetByIdAsync(int id)
-        {
-            return await _repo.FindAsync(id);
-        }
+       
 
         public async Task UpdateAsync(CollegeVM vm)
         {
@@ -45,30 +42,32 @@ namespace CollegeGradingSys.Services.Implementations
             if (college == null)
                 throw new DomainException("الكلية غير موجودة");
 
-            var exists = await _repo.Query()
-                .AnyAsync(x => x.CollegeName == vm.CollegeName && x.Id != vm.Id);
 
-            if (exists)
+            // نمرر الـ Id لكي يستثني الكلية الحالية من البحث
+            if (await ExistsByNameAsync(vm.CollegeName, vm.Id))
                 throw new DomainException("يوجد كلية بنفس الاسم");
 
             college.CollegeName = vm.CollegeName.Trim();
             await _repo.UpdateAsync(college);
         }
 
-        public virtual async Task<bool> DeleteAsync(int id)
+       
+        public async Task<bool> ExistsByNameAsync(string name, int? excludeId = null)
         {
-            if (!await _repo.ExistsAsync(id))
-                return false;
+           
 
-            await _repo.DeleteAsync(id);
-            return true;
+            var query = _repo.Query().Where(x => x.CollegeName == name);
+
+            if (excludeId.HasValue)
+            {
+                query = query.Where(x => x.Id != excludeId.Value);
+            }
+
+            return await query.AnyAsync();
         }
 
-        public async Task<bool> ExistsByNameAsync(string name)
-        {
-            return await _repo.Query()
-                .AnyAsync(x => x.CollegeName == name);
-        }
+      
+
     }
 
 }

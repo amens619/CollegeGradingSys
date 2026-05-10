@@ -1,51 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CollegeGradingSys.Models;
+using CollegeGradingSys.Services.Interfaces;
+using CollegeGradingSys.Utilities.Exceptions;
+using CollegeGradingSys.ViewModels.StHighSchoolData;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using CollegeGradingSys.Data;
-using CollegeGradingSys.Models;
-using CollegeGradingSys.ViewModels;
-using System.Globalization;
-using CollegeGradingSys.Repositories.Interfaces;
+using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Controllers
 {
     public class StHighSchoolDataController : Controller
     {
-        private readonly ICollegeGradingSysRepository<StHighSchoolData> _StHighSchoolDataRepository;
-        private readonly ICollegeGradingSysRepository<StPersonalData> _StPersonalDataRepository;
-
-        public StHighSchoolDataController(ICollegeGradingSysRepository<StHighSchoolData> StHighSchoolDataRepository,ICollegeGradingSysRepository<StPersonalData> StPersonalDataRepository)
+        private readonly IStHighSchoolDataService _stHighSchoolDataService;
+        public StHighSchoolDataController(IStHighSchoolDataService stHighSchoolDataService)
         {
-            
-            _StHighSchoolDataRepository = StHighSchoolDataRepository;
-            _StPersonalDataRepository = StPersonalDataRepository;
+            _stHighSchoolDataService = stHighSchoolDataService;
         }
 
+       
         // GET: StHighSchoolData
-        public  IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var stHighSchoolDatas = _StHighSchoolDataRepository.List();            
+            var stHighSchoolDatas = await _stHighSchoolDataService.GetAllAsync();
             return View(stHighSchoolDatas);
         }
 
         // GET: StHighSchoolData/Details/5
-        public IActionResult Details(int? id)
+        
+        public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null || id <= 0) return NotFound();
 
-            var stHighSchoolData = _StHighSchoolDataRepository.Find(id ?? 1);
-          
-            if (stHighSchoolData == null)
-            {
-                return NotFound();
-            }
+            var stHighSchoolData = await _stHighSchoolDataService.GetByIdAsync(id.Value);
+
+            if (stHighSchoolData == null) return NotFound();
 
             return View(stHighSchoolData);
         }
@@ -53,302 +39,155 @@ namespace CollegeGradingSys.Controllers
         // GET: StHighSchoolData/Create
         public IActionResult Create(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-            var model = new StHighSchoolDataVM();
-            model.AcademicID = id ?? 0;
-            
+            if (id == null || id <= 0) return NotFound();
 
-            //ViewData["AcademicID"] = new SelectList(_context.StPersonalData, "AcademicID", "EnrollmentYearH");
+            var model = new StHighSchoolDataVM
+            {
+                AcademicID = id.Value
+            };
+
             return PartialView("_Create", model);
         }
 
+     
         // POST: StHighSchoolData/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public  IActionResult Create([Bind("AcademicID,CertificateType,Average,Source,SeatNo,CertificateYear,HighSchoolName,Note")] StHighSchoolDataVM model)
+        public async Task<IActionResult> Create(StHighSchoolDataVM model)
         {
-            ModelState.ClearValidationState(nameof(model));
-            float newAverage = 0;
-                if (model.Average is not null)
-                {                    
-                    var cultureInfo = new CultureInfo("en");
-                    if (!(decimal.TryParse(model.Average,
-                        NumberStyles.AllowDecimalPoint,
-                        cultureInfo, out var modelAverage)) || !(modelAverage >= 0 && modelAverage <= 100))
-                    {
-                        ModelState.AddModelError(nameof(model.Average), " الرجاء إدخال المعدل رقماً  بين 0 - 100.");
-
-                        //return PartialView("_Edit", model);
-                    }
-                    newAverage = (float)modelAverage;
-                   
-                }
-                else
-                {
-                    ModelState.AddModelError(nameof(model.Average), " الرجاء إدخال المعدل رقماً  بين 0 - 100.");
-                }
-
-                
-                int newCertificateYear = 0;
-                if (model.CertificateYear is not null)
-                {
-                    var cultureInfo = new CultureInfo("en");
-                    if (!(int.TryParse(model.CertificateYear,
-                        NumberStyles.AllowDecimalPoint,
-                        cultureInfo, out var modelCertificateYear)))
-                    {
-                        ModelState.AddModelError(nameof(model.CertificateYear), " الرجاء إدخال سنة الشهادة رقماً .");
-
-                        //return PartialView("_Edit", model);
-                    }
-                    newCertificateYear = (int)modelCertificateYear;
-
-                }
-                else
-                {
-                    ModelState.AddModelError(nameof(model.CertificateYear), " الرجاء إدخال سنة الشهادة .");
-                }
-
-                int newSeatNo = 0;
-                if (model.SeatNo is not null)
-                {
-                    var cultureInfo = new CultureInfo("en");
-                    if (!(int.TryParse(model.SeatNo,
-                        NumberStyles.AllowDecimalPoint,
-                        cultureInfo, out var modelSeatNo)))
-                    {
-                        ModelState.AddModelError(nameof(model.SeatNo), " الرجاء ادخال رقم الجلوس رقماً .");
-
-                        //return PartialView("_Edit", model);
-                    }
-                    newSeatNo = (int)modelSeatNo;
-
-                }
-                else
-                {
-                    ModelState.AddModelError(nameof(model.SeatNo), " الرجاء ادخال رقم الجلوس .");
-                }
-
-                if (!TryValidateModel(model, nameof(model)))
-                {                   
-                    return PartialView("_Create", model);
-                }
-
-
-                var stHighSchoolData = new StHighSchoolData()
-                {
-                    AcademicID = model.AcademicID,
-                    Average = newAverage,
-                    CertificateType = model.CertificateType,
-                    CertificateYear = newCertificateYear,
-                    HighSchoolName = model.HighSchoolName,
-                    SeatNo = newSeatNo,
-                    Source = model.Source,
-                    Note = model.Note,
-                    StPersonalData = model.StPersonalData
-                };
-            try
+            // الآن ModelState سيعمل بشكل تلقائي ومثالي بناءً على خصائص الـ VM
+            if (!ModelState.IsValid)
             {
-                _StHighSchoolDataRepository.Add(stHighSchoolData);
                 return PartialView("_Create", model);
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                //if (!StHighSchoolDataExists(stHighSchoolData.AcademicID))
-                //{
-                //    return NotFound();
-                //}
-                //else
-                //{
-                throw;
-                //}
-            }
 
+            try
+            {
+                var stHighSchoolData = new StHighSchoolData
+                {
+                    AcademicID = model.AcademicID,
+                    CertificateType = model.CertificateType,
+
+                    // نستخدم .Value لأن الخصائص في المودل أصبحت Nullable (float? و int?)
+                    // ونحن متأكدون أنها تحتوي على قيم لأن ModelState.IsValid قد مر بنجاح
+                    Average = model.Average.Value,
+                    CertificateYear = model.CertificateYear.Value,
+                    SeatNo = model.SeatNo.Value,
+
+                    HighSchoolName = model.HighSchoolName,
+                    Source = model.Source,
+                    Note = model.Note
+                };
+
+                await _stHighSchoolDataService.CreateAsync(stHighSchoolData);
+
+                return PartialView("_Create", model);
+            }
+            catch (DomainException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return PartialView("_Create", model);
+            }
         }
-
+       
         // GET: StHighSchoolData/Edit/5
-        public IActionResult Edit(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null || id <= 0) return NotFound();
 
-            StHighSchoolData stHighSchoolData = _StHighSchoolDataRepository.Find(id ?? 1);
-            if (stHighSchoolData == null)
-            {
-                return NotFound();
-            }
-            var model = new StHighSchoolDataVM()
+            var stHighSchoolData = await _stHighSchoolDataService.GetByIdAsync(id.Value);
+
+            if (stHighSchoolData == null) return NotFound();
+
+            var model = new StHighSchoolDataVM
             {
                 AcademicID = stHighSchoolData.AcademicID,
-                Average = stHighSchoolData.Average.ToString(),
                 CertificateType = stHighSchoolData.CertificateType,
-                CertificateYear = stHighSchoolData.CertificateYear.ToString(),
+
+                // التعيين المباشر للأرقام دون الحاجة لـ ToString()
+                Average = stHighSchoolData.Average,
+                CertificateYear = stHighSchoolData.CertificateYear,
+                SeatNo = stHighSchoolData.SeatNo,
+
                 HighSchoolName = stHighSchoolData.HighSchoolName,
-                SeatNo = stHighSchoolData.SeatNo.ToString(),
                 Source = stHighSchoolData.Source,
-                StPersonalData = stHighSchoolData.StPersonalData,
                 Note = stHighSchoolData.Note
             };
 
-            return PartialView("_Edit", model); 
+            return PartialView("_Edit", model);
         }
+       
 
         // POST: StHighSchoolData/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public  IActionResult Edit(int id, [Bind("AcademicID,CertificateType,Average,Source,SeatNo,CertificateYear,HighSchoolName,Note")] StHighSchoolDataVM model)
+        public async Task<IActionResult> Edit(int id, StHighSchoolDataVM model)
         {
-            if (id != model.AcademicID)
+            if (id != model.AcademicID) return NotFound();
+
+            if (!ModelState.IsValid)
             {
-                return NotFound();
-            }
-
-            
-                
-                    ModelState.ClearValidationState(nameof(model));
-                    float newAverage = 0;
-                    if (model.Average is not null)
-                    {
-                        var cultureInfo = new CultureInfo("en");
-                        if (!(decimal.TryParse(model.Average,
-                            NumberStyles.AllowDecimalPoint,
-                            cultureInfo, out var modelAverage)) || !(modelAverage >= 0 && modelAverage <= 100))
-                        {
-                            ModelState.AddModelError(nameof(model.Average), " الرجاء إدخال المعدل رقماً  بين 0 - 100.");
-
-                            //return PartialView("_Edit", model);
-                        }
-                        newAverage = (float)modelAverage;
-
-                    }
-                    else
-                    {
-                        ModelState.AddModelError(nameof(model.Average), " الرجاء إدخال المعدل رقماً  بين 0 - 100.");
-                    }
-
-
-                    int newCertificateYear = 0;
-                    if (model.CertificateYear is not null)
-                    {
-                        var cultureInfo = new CultureInfo("en");
-                        if (!(int.TryParse(model.CertificateYear,
-                            NumberStyles.AllowDecimalPoint,
-                            cultureInfo, out var modelCertificateYear)))
-                        {
-                            ModelState.AddModelError(nameof(model.CertificateYear), " الرجاء إدخال سنة الشهادة رقماً .");
-
-                            //return PartialView("_Edit", model);
-                        }
-                        newCertificateYear = (int)modelCertificateYear;
-
-                    }
-                    else
-                    {
-                        ModelState.AddModelError(nameof(model.CertificateYear), " الرجاء إدخال سنة الشهادة .");
-                    }
-
-                    int newSeatNo = 0;
-                    if (model.SeatNo is not null)
-                    {
-                        var cultureInfo = new CultureInfo("en");
-                        if (!(int.TryParse(model.SeatNo,
-                            NumberStyles.AllowDecimalPoint,
-                            cultureInfo, out var modelSeatNo)))
-                        {
-                            ModelState.AddModelError(nameof(model.SeatNo), " الرجاء ادخال رقم الجلوس رقماً .");
-
-                            //return PartialView("_Edit", model);
-                        }
-                        newSeatNo = (int)modelSeatNo;
-
-                    }
-                    else
-                    {
-                        ModelState.AddModelError(nameof(model.SeatNo), " الرجاء ادخال رقم الجلوس .");
-                    }
-
-                    if (!TryValidateModel(model, nameof(model)))
-                    {
-                    return PartialView("_Edit", model);
-                }
-
-
-                    var stHighSchoolData = new StHighSchoolData()
-                    {
-                        AcademicID = model.AcademicID,
-                        Average = newAverage,
-                        CertificateType = model.CertificateType,
-                        CertificateYear = newCertificateYear,
-                        HighSchoolName = model.HighSchoolName,
-                        SeatNo = newSeatNo,
-                        Source = model.Source,
-                        Note = model.Note,
-                        StPersonalData = model.StPersonalData
-                    };
-                try
-                {
-                    _StHighSchoolDataRepository.Update(id, stHighSchoolData);
                 return PartialView("_Edit", model);
             }
-                catch (DbUpdateConcurrencyException)
-                {
-                    //if (!StHighSchoolDataExists(stHighSchoolData.AcademicID))
-                    //{
-                    //    return NotFound();
-                    //}
-                    //else
-                    //{
-                        throw;
-                    //}
-                }
 
-                
-                      
-            
+            try
+            {
+                var stHighSchoolData = await _stHighSchoolDataService.GetByIdAsync(id);
+                if (stHighSchoolData == null) return NotFound();
+
+                // تحديث البيانات باستخدام القيم النظيفة
+                stHighSchoolData.CertificateType = model.CertificateType;
+                stHighSchoolData.Average = model.Average.Value;
+                stHighSchoolData.CertificateYear = model.CertificateYear.Value;
+                stHighSchoolData.SeatNo = model.SeatNo.Value;
+                stHighSchoolData.HighSchoolName = model.HighSchoolName;
+                stHighSchoolData.Source = model.Source;
+                stHighSchoolData.Note = model.Note;
+
+                await _stHighSchoolDataService.UpdateAsync(stHighSchoolData);
+
+                return PartialView("_Edit", model);
+            }
+            catch (DomainException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return PartialView("_Edit", model);
+            }
         }
+       
 
         // GET: StHighSchoolData/Delete/5
-        public  IActionResult Delete(int? id)
+        public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null || id <= 0) return NotFound();
 
-            var stHighSchoolData = _StHighSchoolDataRepository.Find(id ?? 1);
-                
-            if (stHighSchoolData == null)
-            {
-                return NotFound();
-            }
+            var stHighSchoolData = await _stHighSchoolDataService.GetByIdAsync(id.Value);
+
+            if (stHighSchoolData == null) return NotFound();
 
             return PartialView("_Delete", stHighSchoolData);
         }
 
+       
+
         // POST: StHighSchoolData/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public  IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            
-            _StHighSchoolDataRepository.Delete(id);
-
-            return PartialView("_Delete");
-
+            try
+            {
+                await _stHighSchoolDataService.DeleteAsync(id);
+                return PartialView("_Delete");
+            }
+            catch (DomainException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                var stHighSchoolData = await _stHighSchoolDataService.GetByIdAsync(id);
+                return PartialView("_Delete", stHighSchoolData);
+            }
         }
 
-        //private bool StHighSchoolDataExists(int id)
-        //{
-        //    return _context.StHighSchoolData.Any(e => e.AcademicID == id);
-        //}
+       
     }
 }

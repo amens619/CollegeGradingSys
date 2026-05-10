@@ -1,4 +1,5 @@
-﻿@model CollegeGradingSys.ViewModels.DepartmentSpecializationViewModel
+﻿@using CollegeGradingSys.ViewModels.Specialization
+@model SpecializationVM
 
 @{
     ViewData["Title"] = "إضافة تخصص جديد";
@@ -34,7 +35,7 @@
                                 <div class="form-group col-md-6">
                                     <label asp-for="DepartmentId" class="control-label"></label>
                                     <select asp-for="DepartmentId" class="form-control text-center"
-                                            asp-items="@(new SelectList(Model.Departments,"Id","DepartmentName"))"></select>
+                                            asp-items=Model.DepartmentsList"></select>
                                     <span asp-validation-for="DepartmentId" class="text-danger"></span>
                                 </div>
                             </div>

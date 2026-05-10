@@ -1,4 +1,4 @@
-using CollegeGradingSys.Data;
+﻿using CollegeGradingSys.Data;
 using CollegeGradingSys.Models;
 using CollegeGradingSys.Repositories.Implementations;
 using CollegeGradingSys.Repositories.Interfaces;
@@ -214,13 +214,16 @@ namespace CollegeGradingSys
             });
             //==========================================
             //services.AddMvc();
-
+            services.AddAutoMapper(typeof(Startup));
             services.AddMvc(options =>
             {
                 var policy = new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
                 .Build();
                 options.Filters.Add(new AuthorizeFilter(policy));
+                // 2. 🛑 الفلتر الجديد: حارس بوابة الترخيص (Machine ID)
+                // تأكد من كتابة مسار المجلد الصحيح الذي وضعت فيه الكلاس
+                options.Filters.Add<CollegeGradingSys.Filters.LicenseCheckFilter>();
             });
             //===============================
             services.AddRazorPages()
@@ -238,23 +241,29 @@ namespace CollegeGradingSys
                    options.Password.RequireUppercase = false;
                    options.Password.RequireLowercase = false;
                    options.Password.RequireDigit = false;
+                  
                })
 
-               .AddEntityFrameworkStores<ApplicationDbContext>();
+               .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
             services.AddMvcCore().AddMvcOptions(options =>
             {
                 options.ModelBindingMessageProvider.SetNonPropertyAttemptedValueIsInvalidAccessor(s => "The provided value is invalid.");
             });
             //============================================================================================           
             services.AddScoped<IRepository<College>, CollegeDbRepository>();
-
+            services.AddScoped<ICollegeService, CollegeService>();
             services.AddScoped<IRepository<Nationality>, NationalityDbRepository>();
-
+            services.AddScoped<INationalityService, NationalityService>();
             services.AddScoped<IRepository<Governorate>, GovernorateDbRepository>();
-
+            services.AddScoped<IGovernorateService, GovernorateService>();
             services.AddScoped<IRepository<District>, DistrictDbRepository>();
-
+            //services.AddScoped<IGovernorateService, GovernorateService>();
             services.AddScoped<IRepository<City>, CityDbRepository>();
+      
+
+
+
 
             services.AddScoped<IRepository<DBSettings>, DBSettingsDbRepository>();
 
@@ -264,10 +273,11 @@ namespace CollegeGradingSys
             services.AddScoped<IRepository<Specialization>, SpecializationDbRepository>();
             services.AddScoped<IRepository<Course>, CourseDbRepository>();
             services.AddScoped<IRepository<Batch>, BatchDbRepository>();
+            services.AddScoped<IBatchService, BatchService>();
             services.AddScoped<ISpecializationService, SpecializationService>();
 
-            services.AddScoped<IRepository<StAcademicData>, StAcademicDataDbRepository>();
-            services.AddScoped<IStAcademicDataService, StAcademicDataService>();           
+            //services.AddScoped<IRepository<StAcademicData>, StAcademicDataDbRepository>();
+            //services.AddScoped<IStAcademicDataService, StAcademicDataService>();           
 
             services.AddScoped<IStPersonalDataRepository, StPersonalDataDbRepository>();
             services.AddScoped<IStPersonalDataService, StPersonalDataService>();
@@ -279,6 +289,7 @@ namespace CollegeGradingSys
             services.AddScoped<ICourseRepository, CourseDbRepository>();
             services.AddScoped<ICourseService, CourseService>();
 
+            //services.AddScoped<IRepository<CourseGrade>, CourseGradeDbRepository>();
             services.AddScoped<ICourseGradeRepository, CourseGradeDbRepository>();
             services.AddScoped<ICourseGradeService, CourseGradeService>();
 
@@ -287,9 +298,11 @@ namespace CollegeGradingSys
             services.AddScoped<IStHighSchoolDataRepository, StHighSchoolDataDbRepository>();
             services.AddScoped<IStHighSchoolDataService, StHighSchoolDataService>();
 
+            services.AddScoped<IStAcademicDataRepository, StAcademicDataDbRepository>();
+            services.AddScoped<IStAcademicDataService, StAcademicDataService>();
+            services.AddScoped<IExcelExportService, ExcelExportService>();
 
-           
-          
+
 
 
             services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));
@@ -306,6 +319,14 @@ namespace CollegeGradingSys
             //    .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews();
             services.AddCloudscribePagination();
+
+            services.AddDistributedMemoryCache();
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromHours(2); // مدة حفظ الفلاتر
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -331,7 +352,7 @@ namespace CollegeGradingSys
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseSession();
             app.UseAuthentication();
             app.UseAuthorization();
 

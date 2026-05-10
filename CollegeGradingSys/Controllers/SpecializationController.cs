@@ -1,8 +1,12 @@
 ﻿using CollegeGradingSys.Models;
+using CollegeGradingSys.Services.Implementations;
 using CollegeGradingSys.Services.Interfaces;
 using CollegeGradingSys.ViewModels;
+using CollegeGradingSys.ViewModels.Specialization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Controllers
@@ -11,16 +15,35 @@ namespace CollegeGradingSys.Controllers
     public class SpecializationController : Controller
     {
         private readonly ISpecializationService _specializationService;
+        private readonly IDepartmentService _departmentService;
 
         public SpecializationController(ISpecializationService specializationService)
         {
             _specializationService = specializationService;
         }
         // GET: SpecializationController
+        //public async Task<ActionResult> Index()
+        //{
+        //    var specializations = await _specializationService.GetAllAsync();
+        //    return View(specializations);
+        //}
+
         public async Task<ActionResult> Index()
         {
+            // 1. جلب البيانات الأساسية (الكيانات) من قاعدة البيانات
             var specializations = await _specializationService.GetAllAsync();
-            return View(specializations);
+
+            // 2. تحويل الكيانات إلى ViewModels
+            var vm = specializations.Select(s => new SpecializationIndexVM
+            {
+                Id = s.Id,
+                SpecializationName = s.SpecializationName, 
+                
+                DepartmentName = s.Department != null ? s.Department.DepartmentName : "غير محدد"
+            }).ToList();
+
+            // 3. إرسال قائمة الـ ViewModels إلى الشاشة
+            return View(vm);
         }
 
         // GET: SpecializationController/Details/5
@@ -46,11 +69,11 @@ namespace CollegeGradingSys.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "CreateSpecializationPolicy")]
-        public async Task<ActionResult> Create(DepartmentSpecializationViewModel model)
+        public async Task<ActionResult> Create(SpecializationVM model)
         {
             if (!ModelState.IsValid)
             {
-                model.Departments = await _specializationService.GetDepartmentsAsync();
+                model.DepartmentsList = await PopulateDepartmentsDropdownAsync();
                 return View(model);
             }
 
@@ -71,7 +94,7 @@ namespace CollegeGradingSys.Controllers
                     ModelState.AddModelError(string.Empty, errorMessage);
                 }
 
-                model.Departments = await _specializationService.GetDepartmentsAsync();
+                model.DepartmentsList = await PopulateDepartmentsDropdownAsync();
                 return View(model);
             }
 
@@ -100,11 +123,11 @@ namespace CollegeGradingSys.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "EditSpecializationPolicy")]
-        public async Task<ActionResult> Edit(int id, DepartmentSpecializationViewModel model)
+        public async Task<ActionResult> Edit(int id, SpecializationVM model)
         {
             if (!ModelState.IsValid)
             {
-                model.Departments = await _specializationService.GetDepartmentsAsync();
+                model.DepartmentsList = await PopulateDepartmentsDropdownAsync();
                 return View(model);
             }
 
@@ -121,26 +144,45 @@ namespace CollegeGradingSys.Controllers
                     ModelState.AddModelError(string.Empty, errorMessage);
                 }
 
-                model.Departments = await _specializationService.GetDepartmentsAsync();
+                model.DepartmentsList = await PopulateDepartmentsDropdownAsync();
                 return View(model);
             }
 
             return RedirectToAction(nameof(Index));
         }
 
+       
         // GET: SpecializationController/Delete/5
         [Authorize(Policy = "DeleteSpecializationPolicy")]
         public async Task<ActionResult> Delete(int id)
         {
+            // 1. التحقق من صحة المعرف أولاً كإجراء أمني
+            if (id <= 0)
+            {
+                return NotFound();
+            }
+
+            // 2. جلب التخصص من قاعدة البيانات
             var specialization = await _specializationService.GetByIdAsync(id);
             if (specialization == null)
             {
                 return NotFound();
             }
-            
-            return View(specialization);       
-        }
 
+            // 3. تحويل الكيان (Entity) إلى ViewModel
+            var vm = new SpecializationVM
+            {
+                Id = specialization.Id,
+                SpecializationName = specialization.SpecializationName,
+                DepartmentId = specialization.Department?.Id ?? 0,
+
+                // جلب اسم القسم وعرضه ليتأكد المستخدم من تفاصيل التخصص قبل حذفه
+                DepartmentName = specialization.Department?.DepartmentName
+            };
+
+            // 4. إرسال الـ ViewModel إلى الشاشة
+            return View(vm);
+        }
         // POST: SpecializationController/Delete/5       
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -166,6 +208,17 @@ namespace CollegeGradingSys.Controllers
                 var specialization = await _specializationService.GetByIdAsync(id);
                 return View(specialization);
             }
+        }
+
+        private async Task<SelectList> PopulateDepartmentsDropdownAsync()
+        {
+            var departmentsItems = await _departmentService.GetSelectItemsAsync(c => new SelectItemVM
+            {
+                Id = c.Id,
+                Name = c.DepartmentName
+            }, "-- أختر --");
+
+            return new SelectList(departmentsItems, "Id", "Name");
         }
     }
 }

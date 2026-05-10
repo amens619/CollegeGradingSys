@@ -1,6 +1,7 @@
-﻿@model CollegeGradingSys.ViewModels.StPersonalDataFilteringIndexData
+﻿@* @model StPersonalDataFilteringIndexData
 <link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
+@using CollegeGradingSys.ViewModels.StPersonalData
 @using Microsoft.AspNetCore.Authorization
 @inject IAuthorizationService authorizationService
 
@@ -17,9 +18,9 @@
 <!-- Main content -->
 <section class="content">
     <div class="container-fluid">
-        @if (ViewBag.Message != null)
+        @if (ViewBag?.Message != null)
         {
-            <h5 class="alert alert-danger">@ViewBag.Message</h5>
+            <h5 class="alert alert-danger">@ViewBag?.Message</h5>
         }
         <p>
             @if ((await authorizationService.AuthorizeAsync(User, "CreateStPersonalDataPolicy")).Succeeded)
@@ -36,21 +37,21 @@
                     <div class="row ">
                         <div class="form-group col-md-6">
                             <label class="control-label"> الاسم</label>
-                            <input id="StNameSearch" value="@ViewBag.CurrentFilter" name="SearchString" class="form-control " />
+                            <input id="StNameSearch" value="@ViewBag?.CurrentFilter" name="SearchString" class="form-control " />
                         </div>
                         <div class="form-group col-md-6">
                             <label class="control-label"> رقم القيد </label>
-                            <input id="SearchAcademicID" value="@ViewBag.CurrentAcademicID" name="SearchAcademicID" class="form-control " />
+                            <input id="SearchAcademicID" value="@ViewBag?.CurrentAcademicID" name="SearchAcademicID" class="form-control " />
                         </div>
                     </div>
                     <div class="card my-3 col-mb-6">
                         <div class="card-body">
-                            @if (ViewBag.IsSelectCurrentYear)
+                            @if (ViewBag?.IsSelectCurrentYear)
                             {
                                 <div class="form-group mb-2 mt-0 col-md-6">
                                     <label class="control-label">العام</label>
                                     <select id="AcademicYearId" name="AcademicYearId" disabled class="form-control  disabled text-center "
-                                            asp-items="ViewBag.AcademicYearId"></select>
+                                            asp-items="ViewBag?.AcademicYearId"></select>
                                 </div>
                             }
                             else
@@ -58,7 +59,7 @@
                                 <div class="form-group mb-2 col-md-6">
                                     <label class="control-label">العام</label>
                                     <select id="AcademicYearId" name="AcademicYearId" class="form-control text-center "
-                                            asp-items="ViewBag.AcademicYearId"></select>
+                                            asp-items="ViewBag?.AcademicYearId"></select>
                                 </div>
                             }
                             <div class="form-group form-check my-2 col-md-6">
@@ -196,15 +197,14 @@
                                                     <button type="button" class="btn btn-outline-secondary align-self-center btn-sm" data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Create","StHighSchoolData", new { id = item.AcademicID })">
                                                         إضافة
                                                     </button>
-                                                    @*<a asp-action="Create" class="" asp-controller= asp-route-id="@item.AcademicID"></a>*@
-                                                </td>
-                                            }
+                                                    <a asp-action="Create" class="" asp-controller= asp-route-id="@item.AcademicID"></a>
+@*                                            }
 
 
                                             <td class="text-center " style="vertical-align: middle;">
-                                                @if ((await authorizationService.AuthorizeAsync(User, "AllStAcademicDatasPolicy")).Succeeded)
+                                                @if ((await authorizationService.AuthorizeAsync(User, "StudentAcademicHistoryPolicy")).Succeeded)
                                                 {
-                                                    <a asp-action="AllStAcademicDatas" asp-controller="StAcademicData" class="btn m-1 btn-secondary btn-sm" asp-route-id="@item.AcademicID">السجل الاكاديمي</a>
+                                                    <a asp-action="StudentAcademicHistory" asp-controller="StAcademicData" class="btn m-1 btn-secondary btn-sm" asp-route-id="@item.AcademicID">السجل الاكاديمي</a>
                                                 }
                                                 @if ((await authorizationService.AuthorizeAsync(User, "EditStPersonalDataPolicy")).Succeeded)
                                                 {
@@ -238,11 +238,11 @@
             </div>
         </div>
     </div>
-</section>
+</section>  *@
 <!-- /.content -->
 
 
-@section ProjectScripts {
+@* @section ProjectScripts { *@
 
 @*<script>
     $(document).ready(function () {
@@ -258,4 +258,222 @@
 
     });
 </script>*@
-   }
+@*    } *@
+
+@model CollegeGradingSys.ViewModels.StPersonalData.StPersonalDataFilteringIndexData
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+@using CollegeGradingSys.ViewModels.StPersonalData
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService authorizationService
+
+@{
+    ViewData["Title"] = "البيانات الشخصية للطلاب";
+    ViewData["Controller"] = "StPersonalData";
+    ViewData["Action"] = "Index";
+    ViewData["PageName"] = "البيانات الشخصية للطلاب";
+    ViewData["SubPageName"] = "القائمة الرئسية";
+}
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+
+        <!-- استبدال ViewBag.Message بـ TempData كما فعلنا في الكنترولر -->
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <h5 class="alert alert-danger">@TempData["ErrorMessage"]</h5>
+        }
+        @if (TempData["WarningMessage"] != null)
+        {
+            <h5 class="alert alert-warning">@TempData["WarningMessage"]</h5>
+        }
+
+        <p>
+            @if ((await authorizationService.AuthorizeAsync(User, "CreateStPersonalDataPolicy")).Succeeded)
+            {
+                <a class="btn btn-secondary col-2 btn-sm" asp-action="Create"><i class="fas fa-plus mr-3"></i>إضافة طالب جديد</a>
+            }
+        </p>
+
+        @using (Html.BeginForm("Index", "StPersonalData", FormMethod.Get))
+        {
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row ">
+                        <div class="form-group col-md-6">
+                            <label class="control-label"> الاسم</label>
+                            <!-- التعديل: القراءة من Model -->
+                            <input id="StNameSearch" value="@Model.CurrentFilter" name="searchString" class="form-control " />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label class="control-label"> رقم القيد </label>
+                            <!-- التعديل: القراءة من Model -->
+                            <input id="SearchAcademicID" value="@Model.SearchAcademicID" name="SearchAcademicID" class="form-control " />
+                        </div>
+                    </div>
+                    <div class="card my-3 col-mb-6">
+                        <div class="card-body">
+                            <!-- التعديل: استخدام Model بدلاً من ViewBag -->
+                            @if (Model.IsSelectCurrentYear)
+                            {
+                                <div class="form-group mb-2 mt-0 col-md-6">
+                                    <label class="control-label">العام</label>
+                                    <select asp-for="AcademicYearId" disabled class="form-control disabled text-center"
+                                            asp-items="@Model.AcademicYearsList"></select>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="form-group mb-2 col-md-6">
+                                    <label class="control-label">العام</label>
+                                    <select asp-for="AcademicYearId" class="form-control text-center"
+                                            asp-items="@Model.AcademicYearsList"></select>
+                                </div>
+                            }
+                            <div class="form-group form-check my-2 col-md-6">
+                                <label class="form-check-label">
+                                    <!-- التعديل: استخدام asp-for ليقوم بضبط Checkbox تلقائياً -->
+                                    <input class="form-check-input" asp-for="IsSelectCurrentYear" />
+                                    <span>البحث في السنة الحالية ؟!!!      </span>
+                                </label>
+                            </div>
+                            <div class="col-md-1 mb-0 mt-2">
+                                <input type="submit" value="تطبيق" class="btn btn-primary btn-sm" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <input type="submit" value="تصفية" class="btn btn-secondary btn-sm" />
+                    <a asp-action="Index" class="btn btn-secondary btn-sm" asp-route-id="-1">إلغاء التصفية</a>
+                    @if ((await authorizationService.AuthorizeAsync(User, "ExportAcceptedStToExcelPolicy")).Succeeded)
+                    {
+                        <input type="submit" value="تصدير المقبولين" class="btn btn-success btn-sm" formaction="@Url.Action("ExportAcceptedStToExcel")" formmethod="get" />
+                    }
+                    @if ((await authorizationService.AuthorizeAsync(User, "ExportSthighSchoolToExcelPolicy")).Succeeded)
+                    {
+                        <input type="submit" value="تصدير من واقع الثانوية العامة" class="btn btn-success btn-sm" formaction="@Url.Action("ExportSthighSchoolToExcel")" formmethod="get" />
+                    }
+                </div>
+            </div>
+        }
+
+        <div class="row">
+            <div class=" col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th class="col-1 text-center" style="vertical-align: middle;">رقم القيد</th>
+                                        <th scope="col" class="col-1" style="vertical-align: middle;">اسم الطالب</th>
+                                        <th scope="col" class="col-1 text-center" style="vertical-align: middle;">الرقم الوطني (الهوية)</th>
+                                        <th scope="col" class="col-1 text-center" style="vertical-align: middle;">الجنس</th>
+                                        <th scope="col" class="col-1 text-center" style="vertical-align: middle;">سنة الالتحاق ميلادي</th>
+                                        <th scope="col" class="col-1 text-center" style="vertical-align: middle;">سنة الالتحاق هجري</th>
+                                        <th scope="col" class="col-1 text-center" style="vertical-align: middle;">تاريخ الميلاد</th>
+                                        <th scope="col" class="col-1 text-center" style="vertical-align: middle;">نوع شهادة الثانوية</th>
+                                        <th scope="col" class="col-1 text-center" style="vertical-align: middle;">سنة الشهادة</th>
+                                        <th scope="col" class="col-1 text-center" style="vertical-align: middle;">المعدل (النسبة)</th>
+                                        <th class="col-2 text-center" scope="col" style="vertical-align: middle;">الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.pagedResult.Data)
+                                    {
+                                        string selectedRow = "";
+                                        <!-- التعديل: استخدام Model.SelectedAcademicId بدلاً من ViewData -->
+                                        if (item.AcademicID == Model.SelectedAcademicId)
+                                        {
+                                            selectedRow = "table-success";
+                                        }
+                                        <tr class="@selectedRow">
+                                            <th scope="row" class="text-center" style="vertical-align: middle;">
+                                                @Html.DisplayFor(modelItem => item.AcademicID)
+                                            </th>
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                @Html.DisplayFor(modelItem => item.StName)
+                                            </td>
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                @Html.DisplayFor(modelItem => item.IdentificatioNO)
+                                            </td>
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                @Html.DisplayFor(modelItem => item.Sex)
+                                            </td>
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                @Html.DisplayFor(modelItem => item.EnrollmentYear.AcademicYearName)
+                                            </td>
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                @Html.DisplayFor(modelItem => item.EnrollmentYear.AcademicYearNameH)
+                                            </td>
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                @Html.DisplayFor(modelItem => item.BirthDate)
+                                            </td>
+
+                                            @if (item.StHighSchoolData != null)
+                                            {
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    @Html.DisplayFor(modelItem => item.StHighSchoolData.CertificateType)
+                                                </td>
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    @Html.DisplayFor(modelItem => item.StHighSchoolData.CertificateYear)
+                                                </td>
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    @Html.DisplayFor(modelItem => item.StHighSchoolData.Average)
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <td class="align-items-center text-center" colspan="3" style="vertical-align: middle;">
+                                                    <div id="modal-placeholder"></div>
+                                                    لا توجد بيانات شهادة الثانوية
+                                                    <button type="button" class="btn btn-outline-secondary align-self-center btn-sm" data-toggle="ajax-modal" data-target="#add-contact" data-url="@Url.Action("Create", "StHighSchoolData", new { id = item.AcademicID })">
+                                                        إضافة
+                                                    </button>
+                                                </td>
+                                            }
+
+                                            <td class="text-center " style="vertical-align: middle;">
+                                                @if ((await authorizationService.AuthorizeAsync(User, "AllStAcademicDatasPolicy")).Succeeded)
+                                                {
+                                                    <a asp-action="StudentAcademicHistory" asp-controller="StAcademicData" class="btn m-1 btn-secondary btn-sm" asp-route-academicID="@item.AcademicID">السجل الاكاديمي</a>
+                                                }
+                                                @if ((await authorizationService.AuthorizeAsync(User, "EditStPersonalDataPolicy")).Succeeded)
+                                                {
+                                                    <a asp-action="Edit" class="btn btn-outline-success btn-sm align-self-center" asp-route-id="@item.AcademicID">
+                                                        <i class="fas fa-edit" width="17" height="17"></i>
+                                                    </a>
+                                                }
+                                                @if ((await authorizationService.AuthorizeAsync(User, "DetailsStPersonalDataPolicy")).Succeeded)
+                                                {
+                                                    <a asp-action="Details" class="btn btn-outline-warning btn-sm align-self-center" asp-route-id="@item.AcademicID">
+                                                        <i class="fas fa-eye" width="17" height="17"></i>
+                                                    </a>
+                                                }
+                                                @if ((await authorizationService.AuthorizeAsync(User, "DeleteStPersonalDataPolicy")).Succeeded)
+                                                {
+                                                    <a asp-action="Delete" class="btn btn-outline-danger btn-sm align-self-center" asp-route-id="@item.AcademicID">
+                                                        <i class="fas fa-trash-alt" width="17" height="17"></i>
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <br />
+                        <partial name="_PaginationPartial" model="Model.pagedResult" view-data="ViewData" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- /.content -->
+@section ProjectScripts {
+    @* الأكواد الخاصة بالـ Autocomplete أصبحت معلقة الآن، يمكنك إعادة تفعيلها لاحقاً إذا أردت *@
+}

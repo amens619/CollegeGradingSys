@@ -1,4 +1,4 @@
-﻿@model CollegeGradingSys.Models.Department
+﻿@model CollegeGradingSys.ViewModels.Department.DepartmentVM
 
 @{
     ViewData["Title"] = "حذف قسم";
@@ -27,10 +27,10 @@
                                     @Html.DisplayFor(model => model.DepartmentName)
                                 </div>
                                 <div class="col-sm-3 my-2">
-                                    @Html.DisplayNameFor(model => model.College.CollegeName)
+                                    @Html.DisplayNameFor(model => model.CollegeName)
                                 </div>
                                 <div class="col-sm-9 my-2">
-                                    @Html.DisplayFor(model => model.College.CollegeName)
+                                    @Html.DisplayFor(model => model.CollegeName)
                                 </div>
                             </div>
                         </div>

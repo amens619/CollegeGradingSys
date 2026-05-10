@@ -1,18 +1,17 @@
 ﻿using CollegeGradingSys.Models;
-using CollegeGradingSys.ViewModels;
+using CollegeGradingSys.ViewModels.College;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Services.Interfaces
 {
-    public interface ICollegeService
+    public interface ICollegeService : IGenericService<College>
     {
-        Task<IList<College>> GetAllAsync();
+      
         Task CreateAsync(CollegeCreateVM vm);
-        Task<bool> ExistsByNameAsync(string name);
-        Task<College?> GetByIdAsync(int id);
         Task UpdateAsync(CollegeVM vm);
 
-        Task<bool> DeleteAsync(int id);
+        Task<bool> ExistsByNameAsync(string name, int? excludeId = null);
+
     }
 }

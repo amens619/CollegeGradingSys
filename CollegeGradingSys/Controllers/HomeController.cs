@@ -1,4 +1,5 @@
-﻿using CollegeGradingSys.Services.Interfaces;
+﻿using CollegeGradingSys.Models;
+using CollegeGradingSys.Services.Interfaces;
 using CollegeGradingSys.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -23,16 +24,16 @@ namespace CollegeGradingSys.Controllers
         public async Task<IActionResult> Index()
         {
             var academicYear = await _academicYearService.GetCurrentYearAsync();
-            var homeIndexData = new HomeIndexData();
+            var homeIndexVM = new HomeIndexVM();
             
             if (academicYear != null)
             {
                 var stPersonalData = await _stPersonalDataService.GetByEnrollmentYearAsync(academicYear.Id);
-                homeIndexData.StudentsNO = stPersonalData?.Count() ?? 0;
-                homeIndexData.AcademicYearName = academicYear.AcademicYearName;                 
+                homeIndexVM.StudentsNO = stPersonalData?.Count() ?? 0;
+                homeIndexVM.AcademicYearName = academicYear.AcademicYearName;                 
             }
             
-            return View(homeIndexData);
+            return View(homeIndexVM);
         }
 
         public IActionResult Privacy()

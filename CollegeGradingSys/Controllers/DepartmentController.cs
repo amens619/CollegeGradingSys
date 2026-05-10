@@ -1,7 +1,10 @@
 ﻿using CollegeGradingSys.Services.Interfaces;
 using CollegeGradingSys.ViewModels;
+using CollegeGradingSys.ViewModels.Department;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CollegeGradingSys.Controllers
@@ -10,16 +13,32 @@ namespace CollegeGradingSys.Controllers
     public class DepartmentController : Controller
     {
         private readonly IDepartmentService _departmentService;
+        private readonly ICollegeService _collegeService;
 
-        public DepartmentController(IDepartmentService departmentService)
+        public DepartmentController(IDepartmentService departmentService, ICollegeService collegeService)
         {
             _departmentService = departmentService;
+            _collegeService = collegeService;
         }
         // GET: DepartmentController
         public async Task<ActionResult> Index()
         {
+
+            // 1. جلب البيانات الأساسية من السيرفس
             var departments = await _departmentService.GetAllAsync();
-            return View(departments);
+
+          
+            var vm = departments.Select(d => new DepartmentIndexVM
+            {
+                Id = d.Id,
+                DepartmentName = d.DepartmentName ,
+                CollegeName = d.College != null ? d.College.CollegeName : "غير محدد"
+
+            }).ToList();
+
+            
+            return View(vm);
+            
         }
 
         // GET: DepartmentController/Details/5
@@ -41,11 +60,12 @@ namespace CollegeGradingSys.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "CreateDepartmentPolicy")]
-        public async Task<ActionResult> Create(CollegeDepartmentViewModel model)
+        public async Task<ActionResult> Create(DepartmentVM model)
         {
             if (!ModelState.IsValid)
             {
-                model.Colleges = await _departmentService.GetCollegesAsync();
+                
+                model.CollegesList = await PopulateCollegesDropdownAsync();
                 return View(model);
             }
 
@@ -66,7 +86,8 @@ namespace CollegeGradingSys.Controllers
                     ModelState.AddModelError(string.Empty, errorMessage);
                 }
 
-                model.Colleges = await _departmentService.GetCollegesAsync();
+              
+                model.CollegesList = await PopulateCollegesDropdownAsync();
                 return View(model);
             }
 
@@ -95,11 +116,12 @@ namespace CollegeGradingSys.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "EditDepartmentPolicy")]
-        public async Task<ActionResult> Edit(int id, CollegeDepartmentViewModel model)
+        public async Task<ActionResult> Edit(int id, DepartmentVM model)
         {
             if (!ModelState.IsValid)
             {
-                model.Colleges = await _departmentService.GetCollegesAsync();
+              
+                model.CollegesList = await PopulateCollegesDropdownAsync();
                 return View(model);
             }
 
@@ -115,8 +137,8 @@ namespace CollegeGradingSys.Controllers
                 {
                     ModelState.AddModelError(string.Empty, errorMessage);
                 }
-
-                model.Colleges = await _departmentService.GetCollegesAsync();
+               
+                model.CollegesList = await PopulateCollegesDropdownAsync();
                 return View(model);
             }
 
@@ -127,18 +149,30 @@ namespace CollegeGradingSys.Controllers
         [Authorize(Policy = "DeleteDepartmentPolicy")]
         public async Task<ActionResult> Delete(int id)
         {
-            if (id == null || id == 0)
+            // 1. التحقق من صحة المعرف
+            if (id <= 0)
             {
                 return NotFound();
             }
 
+            // 2. جلب البيانات من قاعدة البيانات
             var department = await _departmentService.GetByIdAsync(id);
             if (department == null)
             {
                 return NotFound();
             }
-            
-            return View(department);       
+
+            // 3. تحويل الكيان (Entity) إلى ViewModel
+            var vm = new DepartmentVM
+            {
+                Id = department.Id,
+                DepartmentName = department.DepartmentName, // افترضت أن الخاصية اسمها هكذا
+               
+                 CollegeName = department.College?.CollegeName
+            };
+
+            // 4. إرسال الـ ViewModel إلى الشاشة
+            return View(vm);
         }
 
         // POST: DepartmentController/Delete/5
@@ -166,6 +200,17 @@ namespace CollegeGradingSys.Controllers
                 var department = await _departmentService.GetByIdAsync(id);
                 return View(department);
             }
+        }
+
+        private async Task<SelectList> PopulateCollegesDropdownAsync()
+        {
+            var collegesItems = await _collegeService.GetSelectItemsAsync(c => new SelectItemVM
+            {
+                Id = c.Id,
+                Name = c.CollegeName
+            }, "-- أختر --");
+
+            return new SelectList(collegesItems, "Id", "Name");
         }
     }
 }

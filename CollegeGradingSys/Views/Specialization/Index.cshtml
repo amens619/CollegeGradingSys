@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CollegeGradingSys.Models.Specialization>
+﻿@model IEnumerable<CollegeGradingSys.ViewModels.Specialization.SpecializationIndexVM>
 
 @using Microsoft.AspNetCore.Authorization
 @inject IAuthorizationService authorizationService
@@ -26,7 +26,7 @@
                                 @Html.DisplayNameFor(model => model.SpecializationName)
                             </th>
                             <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 40%;">
-                                @Html.DisplayNameFor(model => model.Department.DepartmentName)
+                                @Html.DisplayNameFor(model => model.DepartmentName)
                             </th>
 
                             <th style="width: 20%;"></th>
@@ -40,7 +40,7 @@
                                     @Html.DisplayFor(modelItem => item.SpecializationName)
                                 </td>
                                 <td class="text-center td-font-size">
-                                    @Html.DisplayFor(modelItem => item.Department.DepartmentName)
+                                    @Html.DisplayFor(modelItem => item.DepartmentName)
                                 </td>
                                 <td class="text-center">
                                     @if ((await authorizationService.AuthorizeAsync(User, "EditSpecializationPolicy")).Succeeded)

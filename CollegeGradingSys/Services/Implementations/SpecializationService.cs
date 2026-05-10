@@ -2,6 +2,9 @@ using CollegeGradingSys.Models;
 using CollegeGradingSys.Repositories.Interfaces;
 using CollegeGradingSys.Services.Interfaces;
 using CollegeGradingSys.ViewModels;
+using CollegeGradingSys.ViewModels.Specialization;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,34 +14,36 @@ namespace CollegeGradingSys.Services.Implementations
     public class SpecializationService : GenericService<Specialization>, ISpecializationService
     {
         private readonly IRepository<Specialization> _specializationRepository;
+        private readonly IDepartmentService _departmentService;
         private readonly IRepository<Department> _departmentRepository;
         private readonly IRepository<Course> _courseRepository;
         private readonly IRepository<Batch> _batchRepository;
 
         public SpecializationService(
             IRepository<Specialization> specializationRepository,
-            IRepository<Department> departmentRepository,
+            IDepartmentService departmentService,
             IRepository<Course> courseRepository,
+            IRepository<Department> departmentRepository,
             IRepository<Batch> batchRepository)
             : base(specializationRepository)
         {
-            _specializationRepository = specializationRepository;
-            _departmentRepository = departmentRepository;
+            _specializationRepository = specializationRepository;           
             _courseRepository = courseRepository;
             _batchRepository = batchRepository;
+            _departmentService = departmentService;
+                _departmentRepository = departmentRepository;
         }
 
         // Use Cases
-        public async Task<DepartmentSpecializationViewModel> GetCreateViewModelAsync()
-        {
-            var departments = await GetDepartmentsAsync();
-            return new DepartmentSpecializationViewModel
+        public async Task<SpecializationVM> GetCreateViewModelAsync()
+        {            
+            return new SpecializationVM
             {
-                Departments = departments
+                DepartmentsList = await PopulateDepartmentsDropdownAsync()
             };
         }
 
-        public async Task<(bool Success, string ErrorMessage)> CreateSpecializationAsync(DepartmentSpecializationViewModel model)
+        public async Task<(bool Success, string ErrorMessage)> CreateSpecializationAsync(SpecializationVM model)
         {
             if (string.IsNullOrEmpty(model.SpecializationName))
             {
@@ -72,23 +77,23 @@ namespace CollegeGradingSys.Services.Implementations
             return (true, string.Empty);
         }
 
-        public async Task<DepartmentSpecializationViewModel> GetEditViewModelAsync(int id)
+        public async Task<SpecializationVM> GetEditViewModelAsync(int id)
         {
             var specialization = await _specializationRepository.FindAsync(id);
             if (specialization == null)
                 return null;
 
-            var departments = await GetDepartmentsAsync();
-            return new DepartmentSpecializationViewModel
+           
+            return new SpecializationVM
             {
                 Id = specialization.Id,
                 SpecializationName = specialization.SpecializationName,
                 DepartmentId = specialization.Department.Id,
-                Departments = departments
+                DepartmentsList = await PopulateDepartmentsDropdownAsync()
             };
         }
 
-        public async Task<(bool Success, string ErrorMessage)> UpdateSpecializationAsync(int id, DepartmentSpecializationViewModel model)
+        public async Task<(bool Success, string ErrorMessage)> UpdateSpecializationAsync(int id, SpecializationVM model)
         {
             if (string.IsNullOrEmpty(model.SpecializationName))
             {
@@ -124,18 +129,17 @@ namespace CollegeGradingSys.Services.Implementations
 
         public async Task<(bool CanDelete, string ErrorMessage)> CanDeleteSpecializationAsync(int id)
         {
-            var allCourses = await _courseRepository.ListAsync();
-            var coursesOfSpecialization = allCourses
-                .Where(x => x.Specialization.Id == id).ToList();
-            if (coursesOfSpecialization != null && coursesOfSpecialization.Count > 0)
+            
+            bool hasCourses = await _courseRepository.Query()
+                .AnyAsync(x => x.Specialization != null && x.Specialization.Id == id);
+            if (hasCourses)
             {
                 return (false, "لا يمكن حذف التخصص بسبب وجود مواد تابعة له.. الرجاء حذف المواد التابعة له أولا");
             }
 
-            var allBatches = await _batchRepository.ListAsync();
-            var batchesOfSpecialization = allBatches
-                .Where(x => x.Specialization.Id == id).ToList();
-            if (batchesOfSpecialization != null && batchesOfSpecialization.Count > 0)
+            bool hasBatches = await _batchRepository.Query()           
+                .AnyAsync(x => x.Specialization!= null && x.Specialization.Id == id);
+            if (hasBatches)
             {
                 return (false, "لا يمكن حذف التخصص بسبب وجود دفعات تابعة له.. الرجاء حذف الدفعات التابعة له أولا");
             }
@@ -153,12 +157,22 @@ namespace CollegeGradingSys.Services.Implementations
             return specializations.Any(e => e.SpecializationName == specializationName);
         }
 
-        public async Task<List<Department>> GetDepartmentsAsync()
+        private async Task<SelectList> PopulateDepartmentsDropdownAsync()
         {
-            var departments = (await _departmentRepository.ListAsync()).ToList();
-            departments.Insert(0, new Department { Id = -1, DepartmentName = "-- أختر --" });
-            return departments;
+            var collegesItems = await _departmentService.GetSelectItemsAsync(c => new SelectItemVM
+            {
+                Id = c.Id,
+                Name = c.DepartmentName
+            }, "-- أختر --");
+
+            return new SelectList(collegesItems, "Id", "Name");
         }
+        //public async Task<List<Department>> GetDepartmentsAsync()
+        //{
+        //    var departments = (await _departmentRepository.ListAsync()).ToList();
+        //    departments.Insert(0, new Department { Id = -1, DepartmentName = "-- أختر --" });
+        //    return departments;
+        //}
     }
 }
 

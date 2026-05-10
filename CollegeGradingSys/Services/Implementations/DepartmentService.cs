@@ -2,6 +2,8 @@ using CollegeGradingSys.Models;
 using CollegeGradingSys.Repositories.Interfaces;
 using CollegeGradingSys.Services.Interfaces;
 using CollegeGradingSys.ViewModels;
+using CollegeGradingSys.ViewModels.Department;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,29 +15,31 @@ namespace CollegeGradingSys.Services.Implementations
         private readonly IRepository<Department> _departmentRepository;
         private readonly IRepository<College> _collegeRepository;
         private readonly IRepository<Specialization> _specializationRepository;
+        private readonly ICollegeService _collegeService;
 
         public DepartmentService(
             IRepository<Department> departmentRepository,
             IRepository<College> collegeRepository,
+                ICollegeService collegeService,
             IRepository<Specialization> specializationRepository)
             : base(departmentRepository)
         {
             _departmentRepository = departmentRepository;
             _collegeRepository = collegeRepository;
             _specializationRepository = specializationRepository;
+            _collegeService = collegeService;
         }
 
         // Use Cases
-        public async Task<CollegeDepartmentViewModel> GetCreateViewModelAsync()
-        {
-            var colleges = await GetCollegesAsync();
-            return new CollegeDepartmentViewModel
+        public async Task<DepartmentVM> GetCreateViewModelAsync()
+        {           
+            return new DepartmentVM
             {
-                Colleges = colleges
+                 CollegesList = await PopulateCollegesDropdownAsync()
             };
         }
 
-        public async Task<(bool Success, string ErrorMessage)> CreateDepartmentAsync(CollegeDepartmentViewModel model)
+        public async Task<(bool Success, string ErrorMessage)> CreateDepartmentAsync(DepartmentVM model)
         {
             if (string.IsNullOrEmpty(model.DepartmentName))
             {
@@ -69,23 +73,23 @@ namespace CollegeGradingSys.Services.Implementations
             return (true, string.Empty);
         }
 
-        public async Task<CollegeDepartmentViewModel> GetEditViewModelAsync(int id)
+        public async Task<DepartmentVM> GetEditViewModelAsync(int id)
         {
             var department = await _departmentRepository.FindAsync(id);
             if (department == null)
                 return null;
 
-            var colleges = await GetCollegesAsync();
-            return new CollegeDepartmentViewModel
+          
+            return new DepartmentVM
             {
                 Id = department.Id,
                 DepartmentName = department.DepartmentName,
                 CollegeId = department.College.Id,
-                Colleges = colleges
+                 CollegesList = await PopulateCollegesDropdownAsync()
             };
         }
 
-        public async Task<(bool Success, string ErrorMessage)> UpdateDepartmentAsync(int id, CollegeDepartmentViewModel model)
+        public async Task<(bool Success, string ErrorMessage)> UpdateDepartmentAsync(int id, DepartmentVM model)
         {
             if (string.IsNullOrEmpty(model.DepartmentName))
             {
@@ -142,12 +146,17 @@ namespace CollegeGradingSys.Services.Implementations
             return departments.Any(e => e.DepartmentName == departmentName);
         }
 
-        public async Task<List<College>> GetCollegesAsync()
+        private async Task<SelectList> PopulateCollegesDropdownAsync()
         {
-            var colleges = (await _collegeRepository.ListAsync()).ToList();
-            colleges.Insert(0, new College { Id = -1, CollegeName = "-- أختر --" });
-            return colleges;
+            var collegesItems = await _collegeService.GetSelectItemsAsync(c => new SelectItemVM
+            {
+                Id = c.Id,
+                Name = c.CollegeName
+            }, "-- أختر --");
+
+            return new SelectList(collegesItems, "Id", "Name");
         }
+
     }
 }
 

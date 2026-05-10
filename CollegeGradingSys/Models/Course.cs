@@ -33,6 +33,10 @@ namespace CollegeGradingSys.Models
         [DisplayFormat(NullDisplayText = "لا توجد ملاحظات")]
         public string Note { get; set; }
 
+        [Required(ErrorMessage = "يرجى تحديد عدد ساعات المقرر")]
+        [Display(Name = "الساعات المعتمدة")]
+        [Range(1, 10, ErrorMessage = "عدد الساعات يجب أن يكون بين 1 و 10")]
+        public int Hours { get; set; }
 
         public Course_sGender Course_sGender { get; set; }
 

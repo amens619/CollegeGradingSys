@@ -1,0 +1,162 @@
+﻿@model CollegeGradingSys.ViewModels.StudentGradesFilterVM
+
+@using CollegeGradingSys.Models.Enums
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService authorizationService
+
+@{
+    ViewData["Title"] = "تقرير الدرجات";
+    ViewData["PageName"] = "تقرير درجات الطالب المفلترة";
+}
+
+<section class="content">
+    <div class="container-fluid">
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="form-group col-md-6">
+                        <label asp-for="AcademicID" class="control-label">رقم القيد</label>
+                        <input asp-for="AcademicID" readonly class="form-control" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label asp-for="StudentName" class="control-label">اسم الطالب</label>
+                        <input asp-for="StudentName" readonly class="form-control" />
+                    </div>
+                </div>
+
+                <hr />
+
+                <form method="get" asp-action="StudentGradesReport">
+                    <input type="hidden" asp-for="AcademicID" />
+                    <div class="row">
+                        <div class="form-group col-md-3">
+                            <label class="control-label">المستوى</label>
+                            <select name="level" asp-for="SelectedLevel" asp-items="Model.Levels" class="form-control">
+                                <option value="">-- عرض كل المستويات --</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label class="control-label">الفصل الدراسي</label>
+                            <select name="term" asp-for="SelectedTerm" asp-items="Model.Terms" class="form-control">
+                                <option value="">-- عرض كل الفصول --</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label class="control-label">السنة الدراسية</label>
+                            <select name="yearId" asp-for="SelectedYearId" asp-items="Model.AcademicYears" class="form-control">
+                                <option value="">-- عرض كل السنوات --</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-filter"></i> تصفية
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer">
+                <div>
+                    @if ((await authorizationService.AuthorizeAsync(User, "StatementAfterComprehensivePolicy")).Succeeded)
+                    {
+                        <a class="btn btn-success btn-sm shadow-sm" asp-controller="StAcademicData" asp-action="DownloadTranscript" asp-route-id="@Model.AcademicID">
+                            <i class="fas fa-file-excel ml-1"></i> تحميل بيان الدرجات
+                        </a>
+                    }
+                    <a asp-controller="StPersonalData" asp-action="Details" asp-route-id="@Model.AcademicID" class="btn btn-secondary btn-sm float-left">
+                        <i class="fas fa-arrow-right ml-1"></i> العودة للسجل
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="container">
+                            <span class="badge bg-info">ناجح</span>
+                            <span class="badge bg-danger">راسب</span>
+                            <span class="badge bg-warning">محروم</span>
+                            <span class="badge bg-secondary">معتذر</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                       @*  <th scope="col" class="th-font-size text-center" style="vertical-align: middle; width: 10%;">كود المادة</th> *@
+                                        <th scope="col" class="th-font-size text-center" style="vertical-align: middle; width: 35%;">اسم المادة</th>
+                                        <th scope="col" class="th-font-size text-center" style="vertical-align: middle; width: 10%;">الساعات</th>
+                                        <th scope="col" class="th-font-size text-center" style="vertical-align: middle; width: 15%;">الدرجة الرقمية</th>
+                                        <th scope="col" class="th-font-size text-center" style="vertical-align: middle; width: 15%;">التقدير الحرفي</th>
+                                        <th scope="col" class="th-font-size text-center" style="vertical-align: middle; width: 15%;">حالة الطالب</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.Grades != null && Model.Grades.Any())
+                                    {
+                                        @foreach (var item in Model.Grades)
+                                        {
+                                            <tr>
+                                               @*  <td class="text-center" style="vertical-align: middle;">
+                                                    @item.Course?.
+                                                </td> *@
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    @item.Course?.CourseName
+                                                </td>
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    @item.Course?.Hours
+                                                </td>
+                                                <td class="text-center font-weight-bold" style="vertical-align: middle;">
+                                                    @item.Grade
+                                                </td>
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    <span class="badge badge-light border">@item.GradeLetter</span>
+                                                </td>
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    @switch (item.StStatusForCourse.ToString())
+                                                    {
+                                                        case "ناجح":
+                                                        case "Pass":
+                                                            <span class="badge bg-info">@item.StStatusForCourse</span>
+                                                            break;
+                                                        case "راسب":
+                                                        case "Fail":
+                                                            <span class="badge bg-danger">@item.StStatusForCourse</span>
+                                                            break;
+                                                        default:
+                                                            <span class="badge bg-secondary">@item.StStatusForCourse</span>
+                                                            break;
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4 text-muted" style="vertical-align: middle;">
+                                                لا توجد درجات مطابقة لخيارات الفلترة المحددة.
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

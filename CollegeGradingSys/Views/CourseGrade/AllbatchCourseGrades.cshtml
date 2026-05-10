@@ -1,5 +1,6 @@
 ﻿@using CollegeGradingSys.Models.Enums
-@model CollegeGradingSys.ViewModels.AllbatchCourseGradeViewModel
+@using CollegeGradingSys.ViewModels.CourseGrade
+@model AllbatchCourseGradeViewModel
 
 @{
     ViewData["Title"] = "درجات لمادة دراسية للدفعة";
@@ -74,7 +75,7 @@
                 <div class="card-body">
                     <div class="p-2 p-md-2 mb-2  rounded">
                         <h1 class=" text-center my-1">
-                            اسم المادة <span>@Model.courseName</span>
+                            اسم المادة <span>@Model.CourseName</span>
                         </h1>
 
                     </div>
@@ -126,10 +127,10 @@
                                         @no
                                     </td>
                                     <td class="text-center" style="vertical-align: middle;">
-                                        @Html.DisplayFor(modelItem => item.StAcademicData.StPersonalData.AcademicID)
+                                        @Html.DisplayFor(modelItem => item.AcademicID)
                                     </td>
                                     <td class="text-center" style="vertical-align: middle;">
-                                        @Html.DisplayFor(modelItem => item.StAcademicData.StPersonalData.StName)
+                                        @Html.DisplayFor(modelItem => item.StName)
                                     </td>
                                     <td class="text-center" style="vertical-align: middle;">
                                         @Html.DisplayFor(modelItem => item.Grade)

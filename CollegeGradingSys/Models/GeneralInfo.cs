@@ -26,7 +26,7 @@ namespace CollegeGradingSys.Models
         [Display(Name = "مسار النسخ الاحتياطي")]
         public string BackupPath { get; set; }
 
-
+        public string SystemLicenseKey { get; set; } = "";
 
     }
 }

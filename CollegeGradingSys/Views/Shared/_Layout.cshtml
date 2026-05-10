@@ -1,47 +1,41 @@
 ﻿@using CollegeGradingSys.Utilities.Extensions
-@inject SignInManager<IdentityUser> signInManger ;
+@inject SignInManager<IdentityUser> signInManger
+
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@ViewData["Title"] - نظام إدارة الدرجات</title>
-    <!--  <link href="~/css/sidebars.css" rel="stylesheet" /> -->
-    @if (IsSectionDefined("AcademicYearCss"))
-    {
-        @RenderSection("AcademicYearCss", required: true)
-    }
-    <!-- Google Font: Source Sans Pro -->
+
+    <!-- أيقونة الموقع -->
+    <link rel="icon" href="~/images/favicon.ico" type="image/x-icon">
+
+    <!-- أقسام CSS المخصصة -->
+    @await RenderSectionAsync("AcademicYearCss", required: false)
+
+    <!-- خطوط جوجل (Source Sans Pro) -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="~/admin/plugins/fontawesome-free/css/all.min.css">
     <!-- Ionicons -->
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-    <!-- Tempusdominus Bootstrap 4 -->
-    <link rel="stylesheet" href="~/admin/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
 
-    <!-- <link href="~/lib/twitter-bootstrap/css/bootstrap.css" rel="stylesheet" />  -->
-    <!-- iCheck -->
+    <!-- مكتبات وثيم AdminLTE RTL -->
+    <link rel="stylesheet" href="~/admin/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <link rel="stylesheet" href="~/admin/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
-    <!-- JQVMap -->
     <link rel="stylesheet" href="~/admin/plugins/jqvmap/jqvmap.min.css">
-    <!-- Theme style -->
     <link rel="stylesheet" href="~/admin/dist/css/adminlte_rtl.css">
-    <!-- overlayScrollbars -->
     <link rel="stylesheet" href="~/admin/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-    <!-- Daterange picker -->
     <link rel="stylesheet" href="~/admin/plugins/daterangepicker/daterangepicker.css">
-    <!-- summernote -->
     <link rel="stylesheet" href="~/admin/plugins/summernote/summernote-bs4.min.css">
+
     <!-- Bootstrap 4 RTL -->
     <link rel="stylesheet" href="https://cdn.rtlcss.com/bootstrap/v4.2.1/css/bootstrap.min.css">
-    <!-- Custom style for RTL -->
-    <link rel="stylesheet" href="~/admin/dist/css/custom.css">
-    <link href="~/css/vanillaSelectBox.css" rel="stylesheet" />
 
-    @*<link rel="stylesheet" href="~/css/site.css" />*@
-    <!-- Custom styles for this template -->
-    @*<link href="~/css/dashboard.rtl.css" rel="stylesheet" />*@
+    <!-- ملفات النظام المخصصة -->
+    <link rel="stylesheet" href="~/admin/dist/css/custom.css">
+    <link rel="stylesheet" href="~/css/vanillaSelectBox.css" />
 
     <style>
         .card-header {
@@ -51,41 +45,57 @@
         .custom-file-input ~ .custom-file-label::after {
             content: "استعراض";
         }
-        /*    .bd-placeholder-img {
-            font-size: 1.125rem;
-            text-anchor: middle;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            user-select: none;
+
+        /* تنسيقات الـ Pagination العصرية */
+        .custom-pagination {
+            border-radius: 50px;
+            overflow: hidden;
+            background-color: #fff;
         }
 
+            .custom-pagination .page-item .page-link {
+                color: #28a745;
+                border: none;
+                padding: 10px 18px;
+                font-weight: 500;
+                transition: all 0.3s ease;
+            }
 
+            .custom-pagination .page-item:not(.active):not(.disabled) .page-link:hover {
+                background-color: #e8f5e9;
+                color: #1e7e34;
+                transform: translateY(-2px);
+            }
 
+            .custom-pagination .page-item.active .page-link {
+                background-color: #28a745;
+                color: white;
+                border-radius: 50px;
+                box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+                z-index: 1;
+            }
 
-        media (min-width: 768px) {
-          .bd-placeholder-img-lg {
-            font-size: 3.5rem;
-          }
-        }*/
+            .custom-pagination .page-item.disabled .page-link {
+                color: #6c757d;
+                background-color: #f8f9fa;
+            }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-navbar-fixed">
     <div class="wrapper">
 
         <!-- Preloader -->
-        <div class="preloader flex-column justify-content-center align-items-center" @*style="height: 0px;"*@>
+        <div class="preloader flex-column justify-content-center align-items-center">
             <img class="animation__shake" src="~/images/favicon.ico" alt="نظام إدارة الدرجات" height="60" width="60">
         </div>
 
         <!-- Navbar -->
-
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
             <!-- Left navbar links -->
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                 </li>
-
                 <li class="nav-item d-none d-sm-inline-block">
                     <a href="#" class="nav-link">حول</a>
                 </li>
@@ -104,133 +114,143 @@
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-secondary elevation-4">
             <!-- Brand Logo -->
-            <a class="brand-link " style="background-color: #3C7C72" asp-controller="Home" asp-action="Index">
-                <img src="~/images/favicon.ico" alt="نظام إدارة الدرجات" class="brand-image img-circle elevation-3" style="opacity: .8">
-                <span class="brand-text font-weight-light">نظام إدارة الدرجات</span>
+            <a class="brand-link" style="background-color: #3C7C72" asp-controller="Home" asp-action="Index">
+                <img src="~/images/favicon.ico" alt="نظام القبول والتسجيل الجامعي" class="brand-image img-circle elevation-3" style="opacity: .8">
+                <span class="brand-text font-weight-light ">القبول والتسجيل الجامعي</span>
             </a>
 
             <!-- Sidebar -->
             <div class="sidebar">
-                <!-- Sidebar user panel (optional) -->
+                <!-- Sidebar user panel -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <partial name="_LoginPartial" />
                 </div>
 
-
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                        <!-- Add icons to the links using the .nav-icon class
-                             with font-awesome or any other icon font library -->
-                        <li class="nav-item @Html.IfAnyPageActive(new string[] {"Adminstration","DBSettings","College","Department","Specialization","Nationality","Governorate","AcademicYear","Batch","Course"}) ">
 
-                            <a href="#" class="nav-link @Html.IfAnyPageActive2(new string[] {"Adminstration","DBSettings","College","Department","Specialization","Nationality","Governorate","AcademicYear","Batch","Course"})">
+                        <!-- قسم إعدادات النظام -->
+                        <li class="nav-item @Html.IfAnyPageActive(new string[] { "Adminstration", "DBSettings" })">
+                            <a href="#" class="nav-link @Html.IfAnyPageActive2(new string[] { "Adminstration", "DBSettings" })">
                                 <i class="nav-icon fas fa-cog"></i>
-                                <p>
-                                    الاعدادات العامة
-                                    <i class="left  fas fa-angle-left"></i>
-                                </p>
+                                <p>قسم إعدادات النظام <i class="left fas fa-angle-left"></i></p>
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
+                                    <a href="~/GeneralInfo" style="font-size:small" class="nav-link @Html.IfPageActive("Adminstration")">
+                                        <i class="far fa-circle nav-icon"></i><p>الاعدادات العامة</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a href="~/Adminstration/ListUsers" style="font-size:small" class="nav-link @Html.IfPageActive("Adminstration")">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>حسابات المستخدمين</p>
+                                        <i class="far fa-circle nav-icon"></i><p>حسابات المستخدمين</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="~/DBSettings" style="font-size:small" class="nav-link @Html.IfPageActive("DBSettings")">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>الخزن</p>
+                                        <i class="far fa-circle nav-icon"></i><p>الخزن</p>
                                     </a>
                                 </li>
+                            </ul>
+                        </li>
+
+                        <!-- قسم الإعدادات الأكاديمية -->
+                        <li class="nav-item @Html.IfAnyPageActive(new string[] { "College", "Department", "Specialization", "Nationality", "Governorate", "AcademicYear", "Batch", "Course" })">
+                            <a href="#" class="nav-link @Html.IfAnyPageActive2(new string[] { "College", "Department", "Specialization", "Nationality", "Governorate", "AcademicYear", "Batch", "Course" })">
+                                <i class="nav-icon fas fa-th"></i>
+                                <p>قسم الإعدادات الأكاديمية <i class="left fas fa-angle-left"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="~/College" style="font-size:small" class="nav-link @Html.IfPageActive("College")">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>إدارة الكليات</p>
+                                        <i class="far fa-circle nav-icon"></i><p>إدارة الكليات</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="~/Department" style="font-size:small" class="nav-link @Html.IfPageActive("Department")">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>إدارة الاقسام</p>
+                                        <i class="far fa-circle nav-icon"></i><p>إدارة الاقسام</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="~/Specialization" style="font-size:small" class="nav-link @Html.IfPageActive("Specialization")">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>إدارة التخصصات</p>
+                                        <i class="far fa-circle nav-icon"></i><p>إدارة التخصصات</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="~/Nationality" style="font-size:small" class="nav-link @Html.IfPageActive("Nationality")">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>إدارة الدول والجنسيات</p>
+                                        <i class="far fa-circle nav-icon"></i><p>إدارة الدول والجنسيات</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="~/Governorate" style="font-size:small" class="nav-link @Html.IfPageActive("Governorate")">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>إدارة المحافظات</p>
+                                        <i class="far fa-circle nav-icon"></i><p>إدارة المحافظات</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="~/AcademicYear" style="font-size:small" class="nav-link @Html.IfPageActive("AcademicYear")">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>إدارة العام الجامعي</p>
+                                        <i class="far fa-circle nav-icon"></i><p>إدارة العام الجامعي</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="~/Batch" style="font-size:small" class="nav-link @Html.IfPageActive("Batch")">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>إدارة الدفعات</p>
+                                        <i class="far fa-circle nav-icon"></i><p>إدارة الدفعات</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="~/Course" style="font-size:small" class="nav-link @Html.IfPageActive("Course")">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>إدارة المواد</p>
+                                        <i class="far fa-circle nav-icon"></i><p>إدارة المواد</p>
                                     </a>
                                 </li>
-
                             </ul>
                         </li>
-                        <li class="nav-header">  ادارة الطلاب</li>
-                        <li class="nav-item">
-                            <a asp-controller="/StPersonalData" asp-action="Index" style="font-weight:100" asp-route-IsSelectCurrentYear="True" class="nav-link @Html.IfPageActive("StPersonalData")">
-                                <i class="nav-icon fas fa-th"></i>
-                                <p>
-                                    البيانات الشخصية
 
-                                </p>
+                        <!-- قسم شؤون الطلاب -->
+                        <li class="nav-item @Html.IfAnyPageActive(new string[] { "StPersonalData", "StAcademicData" })">
+                            <a href="#" class="nav-link @Html.IfAnyPageActive2(new string[] { "StPersonalData", "StAcademicData" })">
+                                <i class="nav-icon fas fa-user-graduate"></i>
+                                <p>قسم شؤون الطلاب <i class="left fas fa-angle-left"></i></p>
                             </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a asp-controller="StPersonalData" asp-action="Index" style="font-weight:100" asp-route-IsSelectCurrentYear="True" class="nav-link @Html.IfPageActive("StPersonalData")">
+                                        <i class="far fa-circle nav-icon"></i><p>البيانات الشخصية</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-controller="StAcademicData" asp-action="Index" style="font-weight:100" asp-route-IsSelectCurrentYear="True" class="nav-link @Html.IfPageActive("StAcademicData")">
+                                        <i class="far fa-circle nav-icon"></i><p>البيانات الأكاديمية</p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
-                        <li class="nav-item">
-                            <a asp-controller="/StAcademicData" asp-action="Index" style="font-weight:100" asp-route-IsSelectCurrentYear="True" class="nav-link @Html.IfPageActive("StAcademicData")">
-                                <i class="nav-icon fas fa-th"></i>
-                                <p>
-                                    البيانات الأكاديمية
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-header">ادارةالدرجات</li>
-                        <li class="nav-item">
-                            <a asp-controller="/CourseGrade" asp-action="AllbatchCourseGrade" style="font-weight:100" class="nav-link @Html.IfPageActive("CourseGrade","AllbatchCourseGrade")">
-                                <i class="nav-icon fas fa-th"></i>
-                                <p>
-                                    درجات لمادة دراسية للدفعة
 
-                                </p>
+                        <!-- قسم الكنترول ورصد الدرجات -->
+                        <li class="nav-item @Html.IfAnyPageActive(new string[] { "CourseGrade" })">
+                            <a href="#" class="nav-link @Html.IfAnyPageActive2(new string[] { "AllbatchCourseGrade", "AllbatchCourseGradeFailed" })">
+                                <i class="nav-icon fas fa-edit"></i>
+                                <p>قسم الكنترول ورصد الدرجات <i class="left fas fa-angle-left"></i></p>
                             </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a asp-controller="CourseGrade" asp-action="AllbatchCourseGrade" style="font-weight:100" class="nav-link @Html.IfPageActive("CourseGrade", "AllbatchCourseGrade")">
+                                        <i class="far fa-circle nav-icon"></i><p>درجات المادة للدفعة</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-controller="CourseGrade" asp-action="AllbatchCourseGradeFailed" style="font-weight:100" asp-route-IsSelectCurrentYear="True" class="nav-link @Html.IfPageActive("CourseGrade", "AllbatchCourseGradeFailed")">
+                                        <i class="far fa-circle nav-icon"></i><p>درجات المادة التكميلية</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-controller="StAcademicData" asp-action="StudentGradesReport" style="font-weight:100" asp-route-IsSelectCurrentYear="True" class="nav-link @Html.IfPageActive("CourseGrade", "AllbatchCourseGradeFailed")">
+                                        <i class="far fa-circle nav-icon"></i><p>درجات المواد لطالب واحد</p>
+                                    </a>
+                                </li>
+                                
+                            </ul>
                         </li>
-                        <li class="nav-item">
-                            <a asp-controller="/CourseGrade"  style="font-weight:100" asp-action="AllbatchCourseGradeFailed" asp-route-IsSelectCurrentYear="True" class="nav-link @Html.IfPageActive("CourseGrade","AllbatchCourseGradeFailed")">
-                                <i class="nav-icon fas fa-th"></i>
-                                <p>
-                                    درجات الطلاب لمادة دراسية تكميلية
-                                </p>
-                            </a>
-                        </li>
+
                     </ul>
                 </nav>
                 <!-- /.sidebar-menu -->
@@ -238,186 +258,98 @@
             <!-- /.sidebar -->
         </aside>
 
-        <!-- Content Wrapper. Contains page content -->
+        <!-- Content Wrapper -->
         <div class="content-wrapper">
-            <!-- Content Header (Page header) -->
+            <!-- Content Header -->
             <div class="content-header">
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h4 class="m-0">@ViewData["PageName"]</h4>
-                        </div><!-- /.col -->
+                            <h4 class="m-0 text-dark font-weight-bold">@ViewData["PageName"]</h4>
+                        </div>
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
-                                <li class="breadcrumb-item">@ViewData["SubPageName"]</li>
-
+                                <li class="breadcrumb-item text-muted">@ViewData["SubPageName"]</li>
                             </ol>
-                        </div><!-- /.col -->
-                    </div><!-- /.row -->
-                </div><!-- /.container-fluid -->
+                        </div>
+                    </div>
+                </div>
             </div>
-            <!-- /.content-header -->
+
+            <!-- Main Content -->
             @RenderBody()
+
         </div>
         <!-- /.content-wrapper -->
-        <footer class="main-footer">
 
-            <strong>Copyright &copy; 2022 <a class="text-success" href=""></a>.</strong>
-            All rights reserved.
-
+        <footer class="main-footer text-sm">
+            <strong>جميع الحقوق محفوظة &copy; @DateTime.Now.Year <a class="text-success" href="#">نظام إدارة الدرجات</a>.</strong>
             <div class="float-right d-none d-sm-inline-block">
-                <b>Version</b> 2.0
+                <b>الإصدار</b> 3.0
             </div>
         </footer>
 
-        <!-- Control Sidebar -->
-        <aside class="control-sidebar control-sidebar-dark">
-            <!-- Control sidebar content goes here -->
-        </aside>
-        <!-- /.control-sidebar -->
     </div>
     <!-- ./wrapper -->
-    <!-- jQuery -->
+    <!-- ==============================================
+                     Scripts (البرمجيات)
+    =============================================== -->
+    <!-- Core JS -->
     <script src="~/admin/plugins/jquery/jquery.min.js"></script>
-    <!-- jQuery UI 1.11.4 -->
     <script src="~/admin/plugins/jquery-ui/jquery-ui.min.js"></script>
-    <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
     <script>
         $.widget.bridge('uibutton', $.ui.button)
     </script>
-    <!-- Bootstrap 4 -->
     <script src="~/admin/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <!-- ChartJS -->
+
+    <!-- Plugins -->
     <script src="~/admin/plugins/chart.js/Chart.min.js"></script>
-    <!-- Sparkline -->
     <script src="~/admin/plugins/sparklines/sparkline.js"></script>
-    <!-- JQVMap -->
     <script src="~/admin/plugins/jqvmap/jquery.vmap.min.js"></script>
     <script src="~/admin/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
-    <!-- jQuery Knob Chart -->
     <script src="~/admin/plugins/jquery-knob/jquery.knob.min.js"></script>
-    <!-- daterangepicker -->
     <script src="~/admin/plugins/moment/moment.min.js"></script>
     <script src="~/admin/plugins/daterangepicker/daterangepicker.js"></script>
-    <!-- Tempusdominus Bootstrap 4 -->
     <script src="~/admin/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
-    <!-- Summernote -->
     <script src="~/admin/plugins/summernote/summernote-bs4.min.js"></script>
-    <!-- overlayScrollbars -->
     <script src="~/admin/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+
     <!-- AdminLTE App -->
     <script src="~/admin/dist/js/adminlte.js"></script>
-    @*<!-- AdminLTE for demo purposes -->
-        <script src="~/admin/dist/js/demo.js"></script>*@
-    @*<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-        <script src="~/admin/dist/js/pages/dashboard.js"></script>*@
 
-
-
-
-    @*<script src="~/lib/jquery/dist/jquery.min.js"></script>*@
+    <!-- Validation & Custom Scripts -->
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-    @* <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>*@
-    @*<script src="~/lib/twitter-bootstrap/js/bootstrap.min.js"></script>
-    <script src="~/js/sidebars.js"></script>
-    <script src="~/lib/feather-icons/feather.js"></script>*@
-    @*<script>
-        feather.replace()
-    </script>*@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/vanillaSelectBox.js"></script>
-    @if (IsSectionDefined("AcademicYearScripts"))
-    {
-        @RenderSection("AcademicYearScripts", required: true)
-    }
-    @if (IsSectionDefined("FileTypeScripts"))
-    {
-        @RenderSection("FileTypeScripts", required: true)
-    }
-    @if (IsSectionDefined("OtherSourceScripts"))
-    {
-        @RenderSection("OtherSourceScripts", required: true)
-    }
-    @if (IsSectionDefined("StudyAndSurveyScripts"))
-    {
-        @RenderSection("StudyAndSurveyScripts", required: true)
-    }
-    @if (IsSectionDefined("ContractScripts"))
-    {
-        @RenderSection("ContractScripts", required: true)
-    }
-    @if (IsSectionDefined("AdministrativeDocsTemplatesScripts"))
-    {
-        @RenderSection("AdministrativeDocsTemplatesScripts", required: true)
-    }
-    @if (IsSectionDefined("GuidPoliciesScripts"))
-    {
-        @RenderSection("GuidPoliciesScripts", required: true)
-    }
-    @if (IsSectionDefined("ProjectScripts"))
-    {
-        @RenderSection("ProjectScripts", required: true)
-    }
 
-    @*  <script src="~/lib/bootstrap-multiselect/js/bootstrap-multiselect.js" ></script>*@
+    <!-- Custom Event Handlers -->
     <script>
         $(document).ready(function () {
+            // إصلاح كود الـ JavaScript الخاص بالقائمة الجانبية
             $(".mainmenu").click(function () {
-
-                //var gggg = $(this).attr('aria-expanded');
-                //alert(gggg);
-                //var sss = $(this).find('[aria-expanded]').attr('aria-expanded');
-                //alert(sss);
-                if ($(this).attr('aria-expanded') == "true") {
-                    //alert("display");
-                    document.getElementsByClassName('mainmenu').setAttribute("aria-expanded", "true");
-                    $(this).setAttribute("aria-expanded", "true");
+                var isExpanded = $(this).attr('aria-expanded') === "true";
+                if (isExpanded) {
+                    $('.mainmenu').attr("aria-expanded", "true");
                 } else {
-                    //alert("display none");
-                    document.getElementsByClassName('mainmenu').setAttribute("aria-expanded", "false");
-                    //$(this).setAttribute("aria-expanded", "true");
+                    $('.mainmenu').attr("aria-expanded", "false");
                 }
             });
-
         });
     </script>
+
+    <!-- Sections (تم دمج الأقسام المتعددة لتفادي أخطاء النظام مستقبلاً) -->
+    @await RenderSectionAsync("AcademicYearScripts", required: false)
+    @await RenderSectionAsync("FileTypeScripts", required: false)
+    @await RenderSectionAsync("OtherSourceScripts", required: false)
+    @await RenderSectionAsync("StudyAndSurveyScripts", required: false)
+    @await RenderSectionAsync("ContractScripts", required: false)
+    @await RenderSectionAsync("AdministrativeDocsTemplatesScripts", required: false)
+    @await RenderSectionAsync("GuidPoliciesScripts", required: false)
+    @await RenderSectionAsync("ProjectScripts", required: false)
+
+    <!-- السكريبت الرئيسي الخاص بكل شاشة -->
     @await RenderSectionAsync("Scripts", required: false)
-
-
-
-    @*<script src="~/lib/jquery/jquery.js"></script>
-    <script src="~/lib/popper.js/umd/popper.js"></script>
-    <script src="~/lib/twitter-bootstrap/js/bootstrap.js"></script>
-    <script src="~/js/sidebars.js"></script>
-    <script src="~/lib/feather-icons/feather.js"></script>*@
-    @*<script>
-        feather.replace()
-    </script>*@
-
-    @*<script src="~/js/site.js" asp-append-version="true"></script>*@
-    @*<script>
-        $(document).ready(function () {
-            $(".mainmenu").click(function () {
-
-                //var gggg = $(this).attr('aria-expanded');
-                //alert(gggg);
-                //var sss = $(this).find('[aria-expanded]').attr('aria-expanded');
-                //alert(sss);
-                //if ($(this).attr('aria-expanded') == "true") {
-                //    //alert("display");
-                //    document.getElementsByClassName('mainmenu').setAttribute("aria-expanded", "true");
-                //    $(this).setAttribute("aria-expanded", "true");
-                //} else {
-                //    //alert("display none");
-                //    document.getElementsByClassName('mainmenu').setAttribute("aria-expanded", "false");
-                //    //$(this).setAttribute("aria-expanded", "true");
-                //}
-            });
-        });
-    </script>*@
-   @* @await RenderSectionAsync("Scripts", required: false)*@
-
 
 </body>
 </html>

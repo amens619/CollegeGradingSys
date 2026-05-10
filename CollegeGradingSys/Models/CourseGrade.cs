@@ -17,7 +17,11 @@ namespace CollegeGradingSys.Models
         [Display(Name = "العلامة")]
         [DisplayFormat(NullDisplayText = "لم يتم ادخال العلامة")]
         public float? Grade { get; set; }
-       
+
+        [Display(Name = "التقدير الحرفي")]
+        [StringLength(20)] // تحديد طول مناسب لتوفير مساحة قاعدة البيانات
+        public string GradeLetter { get; set; }
+
         [Display(Name = "حالة الطالب للمادة")]
         public  StStatusForCourse StStatusForCourse { get; set; }
 

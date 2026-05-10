@@ -1,5 +1,4 @@
-﻿@model IEnumerable<CollegeGradingSys.Models.Department>
-
+﻿@model IEnumerable<CollegeGradingSys.ViewModels.Department.DepartmentIndexVM>
 @using Microsoft.AspNetCore.Authorization
 @inject IAuthorizationService authorizationService
 
@@ -27,7 +26,7 @@
                                 @Html.DisplayNameFor(model => model.DepartmentName)
                             </th>
                             <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 40%;">
-                                @Html.DisplayNameFor(model => model.College.CollegeName)
+                                @Html.DisplayNameFor(model => model.CollegeName)
                             </th>
                             <th style="width: 20%;"></th>
                         </tr>
@@ -40,7 +39,7 @@
                                     @Html.DisplayFor(modelItem => item.DepartmentName)
                                 </td>
                                 <td class="text-center td-font-size">
-                                    @Html.DisplayFor(modelItem => item.College.CollegeName)
+                                    @Html.DisplayFor(modelItem => item.CollegeName)
                                 </td>
                                 <td class="text-center">
                                     @if ((await authorizationService.AuthorizeAsync(User, "EditDepartmentPolicy")).Succeeded)
