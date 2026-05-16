@@ -68,11 +68,11 @@
                 <div>
                     @if ((await authorizationService.AuthorizeAsync(User, "StatementAfterComprehensivePolicy")).Succeeded)
                     {
-                        <a class="btn btn-success btn-sm shadow-sm" asp-controller="StAcademicData" asp-action="DownloadTranscript" asp-route-id="@Model.AcademicID">
+                        <a class="btn btn-success btn-sm shadow-sm"  asp-action="DownloadTranscript" asp-route-id="@Model.AcademicID">
                             <i class="fas fa-file-excel ml-1"></i> تحميل بيان الدرجات
                         </a>
                     }
-                    <a asp-controller="StPersonalData" asp-action="Details" asp-route-id="@Model.AcademicID" class="btn btn-secondary btn-sm float-left">
+                    <a asp-controller="StAcademicData" asp-action="StudentAcademicHistory" asp-route-academicID="@Model.AcademicID" class="btn btn-secondary btn-sm float-left">
                         <i class="fas fa-arrow-right ml-1"></i> العودة للسجل
                     </a>
                 </div>
@@ -84,10 +84,11 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="container">
-                            <span class="badge bg-info">ناجح</span>
+                            <span class="badge bg-success">ناجح</span>
                             <span class="badge bg-danger">راسب</span>
                             <span class="badge bg-warning">محروم</span>
-                            <span class="badge bg-secondary">معتذر</span>
+                            <span class="badge bg-secondary">غائب</span>
+                            <span class="badge bg-light text-dark border">غير محدد</span>
                         </div>
                     </div>
                     <div class="card-body">
@@ -109,8 +110,8 @@
                                         @foreach (var item in Model.Grades)
                                         {
                                             <tr>
-                                               @*  <td class="text-center" style="vertical-align: middle;">
-                                                    @item.Course?.
+                                                @* <td class="text-center" style="vertical-align: middle;">
+                                                    @item.Course?.CourseCode
                                                 </td> *@
                                                 <td class="text-center" style="vertical-align: middle;">
                                                     @item.Course?.CourseName
@@ -125,20 +126,31 @@
                                                     <span class="badge badge-light border">@item.GradeLetter</span>
                                                 </td>
                                                 <td class="text-center" style="vertical-align: middle;">
-                                                    @switch (item.StStatusForCourse.ToString())
+
+                                                    @switch (item.StStatusForCourse)
                                                     {
-                                                        case "ناجح":
-                                                        case "Pass":
-                                                            <span class="badge bg-info">@item.StStatusForCourse</span>
+                                                        case StStatusForCourse.ناجح:
+                                                            <span class="badge bg-success">ناجح</span>
                                                             break;
-                                                        case "راسب":
-                                                        case "Fail":
-                                                            <span class="badge bg-danger">@item.StStatusForCourse</span>
+                                                        case StStatusForCourse.راسب:
+                                                            <span class="badge bg-danger">راسب</span>
+                                                            break;
+                                                        case StStatusForCourse.محروم:
+                                                            <span class="badge bg-warning">محروم</span>
+                                                            break;
+                                                        case StStatusForCourse.غائب:
+                                                            <span class="badge bg-secondary">غائب</span>
+                                                            break;
+                                                        case StStatusForCourse.غير_محدد:
+                                                            <span class="badge bg-light text-dark border">غير محدد</span>
                                                             break;
                                                         default:
-                                                            <span class="badge bg-secondary">@item.StStatusForCourse</span>
+                                                            <span class="badge bg-light text-dark border">
+                                                                @item.StStatusForCourse.ToString().Replace("_", " ")
+                                                            </span>
                                                             break;
                                                     }
+
                                                 </td>
                                             </tr>
                                         }

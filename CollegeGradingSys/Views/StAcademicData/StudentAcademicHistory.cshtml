@@ -48,8 +48,8 @@
                 <div>
                     @if ((await authorizationService.AuthorizeAsync(User, "StatementAfterComprehensivePolicy")).Succeeded)
                     {
-                        <a class="btn btn-success btn-sm shadow-sm" asp-action="StudentGradesReport" asp-route-id="@Model.AcademicID">
-                            <i class="fas fa-file-excel ml-1"></i> عرض بيان الدرجات
+                        <a class="btn btn-secondary m-1 btn-sm" asp-action="StudentGradesReport" asp-route-id="@Model.AcademicID">
+                            عرض بيان الدرجات
                         </a>
                     }
                     @if ((await authorizationService.AuthorizeAsync(User, "StatementAfterComprehensivePolicy")).Succeeded)

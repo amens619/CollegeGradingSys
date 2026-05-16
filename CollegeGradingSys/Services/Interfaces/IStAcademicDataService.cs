@@ -38,5 +38,7 @@ namespace CollegeGradingSys.Services.Interfaces
         Task<MemoryStream> ExportStAcademicDataToExcelAsync(StAcademicDataFilterVM filter);
         Task<MemoryStream> ExportGraduateStToExcelAsync(StAcademicDataFilterVM filter);
         Task<StudentGradesFilterVM> GetStudentGradesReportAsync(int academicId, int? level, int? term, int? yearId);
+
+        Task<SingleTermGradesVM> GetSingleTermGradesAsync(int stAcademicDataId);
     }
 }

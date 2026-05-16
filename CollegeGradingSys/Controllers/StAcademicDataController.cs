@@ -234,6 +234,13 @@ namespace CollegeGradingSys.Controllers
             return View(model);
         }
 
+        public async Task<IActionResult> PrintGraduatStatement(int id)
+        {
+            var model = await _service.GetPrintGraduatStatementAsync(id);
+            return View(model);
+        }
+        
+
         //[Authorize(Policy = "ExportSthighSchoolToExcelPolicy")]
         //public async Task<ActionResult> ExportSthighSchoolToExcel(bool IsSelectCurrentYear, int? AcademicYearId)
         //{
@@ -322,6 +329,18 @@ namespace CollegeGradingSys.Controllers
                 return RedirectToAction(nameof(Index)); // أو أي شاشة أخرى
             }
 
+            return View(viewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SingleTermGrades(int id)
+        {
+            var viewModel = await _service.GetSingleTermGradesAsync(id);
+            if (viewModel == null)
+            {
+                TempData["ErrorMessage"] = "عذراً، لم يتم العثور على السجل الأكاديمي المطلوب.";
+                return RedirectToAction(nameof(Index));
+            }
             return View(viewModel);
         }
     }

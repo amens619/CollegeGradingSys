@@ -29,10 +29,18 @@
                         <span asp-validation-for="CourseName" class="text-danger"></span>
                     </div>
                     <div class="form-group col-md-6">
+
+                        <label asp-for="IsSubCourse" class="control-label"></label>
+                        <select id="EditCourseIsSubCourse" asp-for="IsSubCourse" readonly class="form-control text-center">
+                            <option value="False">مادة أساسية</option>
+                            <option value="True">مادة فرعية</option>
+                        </select>
+                    </div>
+                   @*  <div class="form-group col-md-6">
                         <label asp-for="CourseType" class="control-label"></label>
                         <input asp-for="CourseType" readonly class="form-control text-center" />
                         <span asp-validation-for="CourseType" class="text-danger"></span>
-                    </div>
+                    </div> *@
                     <div class="form-group col-md-3">
                         <label id="BigGrade" asp-for="BigGrade" class="control-label"></label>
                         <input asp-for="BigGrade" type="number" readonly class="form-control text-center" />
@@ -48,15 +56,20 @@
                         <select id="EditStStatusForCourse" asp-for="StStatusForCourse" class="form-control text-center"
                                 asp-items="Html.GetEnumSelectList<StStatusForCourse>()"></select>
                         <span asp-validation-for="StStatusForCourse" class="text-danger"></span>
-                    </div>
+                    </div>                   
                     <div class="form-group col-md-6">
                         <label asp-for="Grade" class="control-label"></label>
-                        @*@Html.TextBox("Grade", 0.00D, null)*@
-                        <input id="EditCourseGrade" 
-                               onkeypress="CheckNumeric()"  asp-for="Grade" class="form-control text-center" />
+
+                        <input id="EditCourseGrade"
+                               type="number"
+                               step="any"
+                               min="0"
+                               max="@Model.BigGrade"
+                               asp-for="Grade"
+                               class="form-control text-center" />
+
                         <span asp-validation-for="Grade" class="text-danger"></span>
                     </div>
-
 
                 </div>
                 <div class="modal-footer justify-content-between">

@@ -419,7 +419,24 @@ namespace CollegeGradingSys.Services.Implementations
         }
 
         public Task<PrintConfEnrollVM> GetPrintGradeReportAsync(int id) => GetPrintConfEnrollAsync(id);
-        public Task<PrintGraduatStatementVM> GetPrintGraduatStatementAsync(int id) => throw new NotImplementedException();
+        public async Task<PrintGraduatStatementVM> GetPrintGraduatStatementAsync(int id)
+        {
+            var entity = await _stAcademicDataRepo.FindAsync(id) ?? throw new DomainException("السجل غير موجود");
+            var general = _generalInfoRepo.Query().FirstOrDefault();
+            var currentYear = await _academicYearService.GetCurrentYearAsync();
+
+            return new PrintGraduatStatementVM
+            {
+                StName = entity.StPersonalData.StName,
+                AcademicID = entity.StPersonalData.AcademicID.ToString(),
+                AcademicYearName = currentYear.AcademicYearName,
+                StDepartmentHead = general?.StDepartmentHead,
+                StLevel = entity.StLevel.ToString(),
+                Nationality = entity.StPersonalData.Nationality?.NationalityName,
+                 
+                PrintConfEnrollDate = DateTime.Now.ToString("yyyy/MM/dd")
+            };
+        }
         public Task<PrintAlmushayakhaStatementVM> GetPrintAlmushayakhaStatementAsync(int id) => throw new NotImplementedException();
 
         public async Task<MemoryStream> ExportStAcademicDataToExcelAsync(StAcademicDataFilterVM filter)
@@ -475,6 +492,30 @@ namespace CollegeGradingSys.Services.Implementations
             return viewModel;
         }
         public Task<MemoryStream> ExportGraduateStToExcelAsync(StAcademicDataFilterVM filter) => ExportStAcademicDataToExcelAsync(filter);
+
+        public async Task<SingleTermGradesVM> GetSingleTermGradesAsync(int stAcademicDataId)
+        {
+            // جلب السجل الأكاديمي المحدد مع الطالب والدرجات والمواد التابعة له
+            var academicData = await _stAcademicDataRepo.FindAsync(stAcademicDataId);
+               
+
+            if (academicData == null) return null;
+
+            return new SingleTermGradesVM
+            {
+                StAcademicDataId = academicData.Id,
+                AcademicID = academicData.StPersonalData.AcademicID,
+                StudentName = academicData.StPersonalData.StName,
+                Level = academicData.StLevel,
+                Term = academicData.Term ?? Term.الأول, // التعامل مع القيم المجهولة بأمان
+                AcademicYearName = academicData.AcademicYear?.AcademicYearName,
+
+                // 💡 تحديد إذا كانت السنة مفتوحة بناءً على خاصية IsCurrentYear التي أعددتها سابقاً
+                IsYearOpen = academicData.AcademicYear?.IsCurrentYear ?? false,
+
+                Grades = academicData.CourseGrades?.ToList() ?? new List<CourseGrade>()
+            };
+        }
 
         private async Task<List<AcademicYearSelectItemVM>> FillSelectAcademicYearesList(string placeholder)
         {

@@ -87,28 +87,31 @@
                                 <table class="table  table-bordered table-hover">
                                     <thead >
                                         <tr>
-                                            <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 2%;">
+                                            <th scope="col" class="th-font-size text-center" style="vertical-align: middle; width: 4%;">
                                                 م
                                             </th>
-                                            <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 15%;">
+                                            <th scope="col" class="th-font-size text-center" style="vertical-align: middle; width: 18%;">
                                                 اسم المادة
                                             </th>
-                                            <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 10%;">
-                                                نوع المادة  ( فرعية/أساسية)
+                                            <th scope="col" class="th-font-size text-center" style="vertical-align: middle; width: 10%;">
+                                                نوع المادة (فرعية/أساسية)
                                             </th>
-                                            <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 15%;">
+                                            <th scope="col" class="th-font-size text-center" style="vertical-align: middle; width: 18%;">
                                                 اسم المادة الاساسية
                                             </th>
-                                            <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 10%;">
+                                            <th scope="col" class="th-font-size text-center" style="vertical-align: middle; width: 7%;">
                                                 الدرجة
                                             </th>
-                                            <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 13%;">
+                                            <th scope="col" class="th-font-size text-center" style="vertical-align: middle; width: 9%;">
+                                                التقدير الحرفي
+                                            </th>
+                                            <th scope="col" class="th-font-size text-center" style="vertical-align: middle; width: 10%;">
                                                 حالة الطالب للمادة
                                             </th>
-                                            <th scope="col" class=" col  th-font-size text-center" style="vertical-align: middle;width: 20%;">
+                                            <th scope="col" class="th-font-size text-center" style="vertical-align: middle; width: 12%;">
                                                 ملاحظة
                                             </th>
-                                            <th scope="col" style="width: 20%;"></th>
+                                            <th scope="col" style="width: 12%;"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -146,6 +149,9 @@
                                                 </td>
                                                 <td class="text-center" style="vertical-align: middle;">
                                                     @Html.DisplayFor(modelItem => item.Grade)
+                                                </td>
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    @Html.DisplayFor(modelItem => item.GradeLetter)
                                                 </td>
                                                 <td class="text-center" style="vertical-align: middle;">
                                                     @switch (item.StStatusForCourse)

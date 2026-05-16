@@ -1,0 +1,141 @@
+﻿@model CollegeGradingSys.ViewModels.StAcademic.SingleTermGradesVM
+@using CollegeGradingSys.Models.Enums
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService authorizationService
+
+@{
+    ViewData["Title"] = "إدارة درجات الفصل";
+    ViewData["PageName"] = $"درجات الـ{Model.Level} - الـ{Model.Term}";
+}
+
+<section class="content">
+    <div class="container-fluid">
+
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <div class="row">
+                    <div class="form-group col-md-3">
+                        <label class="control-label">رقم القيد</label>
+                        <input asp-for="AcademicID" readonly class="form-control text-center text-bold" />
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label class="control-label">اسم الطالب</label>
+                        <input asp-for="StudentName" readonly class="form-control" />
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label class="control-label">العام الدراسي</label>
+                        <input asp-for="AcademicYearName" readonly class="form-control text-center" />
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label class="control-label">حالة النظام</label>
+                        <div>
+                            @if (Model.IsYearOpen)
+                            {
+                                <span class="badge bg-success p-2 w-100"><i class="fas fa-lock-open ml-1"></i> السنة مفتوحة للتعديل</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger p-2 w-100"><i class="fas fa-lock ml-1"></i> السنة مغلقة</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-white">
+                <a asp-action="Details" asp-route-id="@Model.AcademicID" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-right ml-1"></i> العودة للسجل الأكاديمي التفصيلي
+                </a>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h3 class="card-title float-right"><i class="fas fa-graduation-cap ml-2"></i> قائمة المواد والدرجات المسجلة</h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover mb-0 text-center">
+                        <thead class="bg-light">
+                            <tr>
+                                <th style="width: 5%; vertical-align: middle;">م</th>
+                               @*  <th style="width: 12%; vertical-align: middle;">كود المادة</th> *@
+                                <th style="width: 33%; vertical-align: middle;">اسم المادة</th>
+                                <th style="width: 8%; vertical-align: middle;">الساعات</th>
+                                <th style="width: 12%; vertical-align: middle;">الدرجة</th>
+                                <th style="width: 10%; vertical-align: middle;">التقدير الحرفي</th>
+                                <th style="width: 12%; vertical-align: middle;">حالة المادة</th>
+                                <th style="width: 8%; vertical-align: middle;">العمليات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Grades != null && Model.Grades.Count > 0)
+                            {
+                                int index = 1;
+                                foreach (var item in Model.Grades)
+                                {
+                                    <tr>
+                                        <td style="vertical-align: middle;">@(index++)</td>
+                                       @*  <td style="vertical-align: middle;">@item.Course?.CourseCode</td> *@
+                                        <td style="vertical-align: middle;" class="text-right pr-3">@item.Course?.CourseName</td>
+                                        <td style="vertical-align: middle;">@item.Course?.Hours</td>
+                                        <td style="vertical-align: middle;" class="font-weight-bold text-primary">
+                                            @(item.Grade.HasValue? item.Grade.Value.ToString("N2") : "---")
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            <span class="badge badge-light border">@(item.GradeLetter ?? "---")</span>
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            @switch (item.StStatusForCourse)
+                                            {
+                                                case StStatusForCourse.ناجح:
+                                                    <span class="badge bg-success">ناجح</span>
+                                                    break;
+                                                case StStatusForCourse.راسب:
+                                                    <span class="badge bg-danger">راسب</span>
+                                                    break;
+                                                case StStatusForCourse.محروم:
+                                                    <span class="badge bg-warning">محروم</span>
+                                                    break;
+                                                case StStatusForCourse.غائب:
+                                                    <span class="badge bg-secondary">غائب</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-light text-dark border">غير محدد</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            @if (Model.IsYearOpen && (await authorizationService.AuthorizeAsync(User, "EditStAcademicDataPolicy")).Succeeded)
+                                            {
+                                                <button type="button" class="btn btn-outline-success btn-sm"
+                                                        data-toggle="ajax-modal"
+                                                        data-url="@Url.Action("Edit", "CourseGrade", new { id = item.Id })">
+                                                    <i class="fas fa-edit"></i> رصد
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button type="button" disabled class="btn btn-outline-secondary btn-sm" title="السنة مغلقة أو لا تملك صلاحية">
+                                                    <i class="fas fa-lock"></i>
+                                                </button>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="8" class="text-center py-4 text-muted">
+                                        لا توجد مواد مسجلة لهذا الطالب في هذا الفصل الدراسي بعد.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>

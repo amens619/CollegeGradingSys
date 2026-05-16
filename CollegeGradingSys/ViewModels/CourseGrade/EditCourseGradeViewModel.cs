@@ -29,8 +29,9 @@ namespace CollegeGradingSys.ViewModels.CourseGrade
 
         // البيانات القابلة للتعديل
         [Display(Name = "العلامة")]
-        [Range(0, 100, ErrorMessage = "الدرجة يجب أن تكون بين 0 و 100")]
-        public string Grade { get; set; } // String للتعامل مع الكسور أو القيم الفارغة في الإدخال
+        // 💡 حذفنا [Range] لأن الدرجة الكبرى متغيرة (BigGrade) ولأن النوع String
+        [RegularExpression(@"^\d+(\.\d+)?$", ErrorMessage = "يرجى إدخال رقم صحيح أو عشري صحيح (مثال: 95.5)")]
+        public string Grade { get; set; }
 
         [Display(Name = "حالة الطالب للمادة")]
         public StStatusForCourse StStatusForCourse { get; set; }

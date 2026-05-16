@@ -190,6 +190,8 @@ namespace CollegeGradingSys.Services.Implementations
             };
         }
 
+       
+
         public async Task UpdateGradeAsync(EditCourseGradeViewModel model)
         {
             var entity = await _repo.FindWithRelationsAsync(model.Id);
@@ -212,10 +214,23 @@ namespace CollegeGradingSys.Services.Implementations
             entity.Grade = newGrade;
             entity.StStatusForCourse = model.StStatusForCourse;
 
-            // منطق تحديد الحالة تلقائياً إذا تم إدخال درجة
-            if (newGrade.HasValue && (model.StStatusForCourse == StStatusForCourse.ناجح || model.StStatusForCourse == StStatusForCourse.راسب))
+            // 💡 منطق تحديد الحالة والتقدير الحرفي إذا تم إدخال درجة
+            if (newGrade.HasValue)
             {
-                entity.StStatusForCourse = newGrade >= entity.Course.SmallGrade ? StStatusForCourse.ناجح : StStatusForCourse.راسب;
+                // 1. تحديد حالة النجاح والرسوب
+                if (model.StStatusForCourse == StStatusForCourse.ناجح || model.StStatusForCourse == StStatusForCourse.راسب)
+                {
+                    entity.StStatusForCourse = newGrade.Value >= entity.Course.SmallGrade ? StStatusForCourse.ناجح : StStatusForCourse.راسب;
+                }
+
+                // 2. 💡 حساب التقدير الحرفي (بناءً على النسبة المئوية للمادة)
+                float percentage = (newGrade.Value / entity.Course.BigGrade) * 100;
+                entity.GradeLetter = GetGradeLetterFromPercentage(percentage);
+            }
+            else
+            {
+                // في حال تم تفريغ الدرجة (null)
+                entity.GradeLetter = null;
             }
 
             await _repo.UpdateAsync(entity);
@@ -225,6 +240,19 @@ namespace CollegeGradingSys.Services.Implementations
             {
                 await RecalculateParentCourseGradeAsync(entity.StAcademicData.Id, entity.Course.ParentId.Value);
             }
+        }
+
+       
+        private string GetGradeLetterFromPercentage(float percentage)
+        {
+           
+            if (percentage >= 90) return "ممتاز";
+            if (percentage >= 80) return "جيد جداً";
+            if (percentage >= 65) return "جيد";
+            if (percentage >= 50) return "مقبول";
+            return "ضعيف";
+
+           
         }
 
         //// ================== Delete ==================
