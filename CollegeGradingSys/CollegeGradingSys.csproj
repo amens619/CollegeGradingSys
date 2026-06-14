@@ -38,6 +38,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Folder Include="Properties\PublishProfiles\" />
 		<Folder Include="wwwroot\Backups\" />
 	</ItemGroup>
 
