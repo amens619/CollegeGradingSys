@@ -728,7 +728,7 @@ namespace CollegeGradingSys.Services.Implementations
 
             if (student == null) return null;
             var StAcademicData = student.StAcademicDatas?
-                .Where(x => x.StStatus == StStatus.متخرج  || x.StStatus == StStatus.ناجح).LastOrDefault();
+                .Where(x => x.StStatus == StStatus.متخرج  || x.StStatus == StStatus.ناجح ).LastOrDefault();
             string templatePath = Path.Combine(_env.WebRootPath, "Templates", "AcademicTranscript.xlsx");
             FileInfo templateFile = new FileInfo(templatePath);
 
@@ -759,43 +759,84 @@ namespace CollegeGradingSys.Services.Implementations
                     
                     for (int semester = 1; semester <= 2; semester++)
                     {
+                        //// جلب السجل الأكاديمي الذي يطابق المستوى والفصل الحالي في الحلقة (Loop)
+                        //// نستخدم (int) لتحويل الـ enum إلى رقم لمطابقته مع عداد الـ for loop
+                        //var periodGrades = (student.StAcademicDatas ?? new List<StAcademicData>())
+                        //    .Where(a => (int)a.StLevel == level-1 && (int)a.Term == semester-1 && a.CourseGrades != null)
+                        //    .SelectMany(a => a.CourseGrades)
+                        //    .ToList();
+
+
+
+                        //if (periodGrades.Any())
+                        //{
+                        //    // 1. جلب كائن السنة الأكاديمية مرة واحدة فقط لزيادة الأداء
+                        //    var academicYearInfo = periodGrades.FirstOrDefault()?.StAcademicData?.AcademicYear;
+
+                        //    // 2. استخدام String Interpolation مع التحقق من الـ Null
+                        //    var academicYear = academicYearInfo != null
+                        //        ? $"{academicYearInfo.AcademicYearNameH}/{academicYearInfo.AcademicYearName}"
+                        //        : ""; // إذا كانت البيانات غير موجودة، سيترك الخلية فارغة بدلاً من إيقاف النظام
+
+                        //    worksheet.Cells[4, startColumn +1].Value = periodGrades.FirstOrDefault()?.StAcademicData?.StLevel;
+                        //    worksheet.Cells[4, startColumn + 5].Value = academicYear;
+
+
+                        //    // أ. إذا وجدت درجات: اطبعها بشكل طبيعي
+                        //    foreach (var grade in periodGrades)
+                        //    {
+                        //     if (grade.Course.IsSubCourse == true) continue; // لتجنب  الكورس  فرعي 
+                        //        worksheet.Cells[startRow, startColumn].Value = grade.Course?.CourseName;
+                        //        worksheet.Cells[startRow, startColumn+5].Value = grade.Course?.Hours; // (تأكد أن اسم الخاصية في موديل Course هو Credits أو Hours)
+
+                        //        // 💡 التعديلات الجديدة بناءً على الموديل:
+                        //        worksheet.Cells[startRow, startColumn+6].Value = grade.Grade; // استخدام Grade بدلاً من FinalMark
+                        //        worksheet.Cells[startRow, startColumn+7].Value = grade.GradeLetter; // استخدام التقدير الحرفي
+                        //        startRow++;
+                        //    }
+                        //}
+
                         // جلب السجل الأكاديمي الذي يطابق المستوى والفصل الحالي في الحلقة (Loop)
-                        // نستخدم (int) لتحويل الـ enum إلى رقم لمطابقته مع عداد الـ for loop
+                        // واستبعاد الكورسات الفرعية (IsSubCourse) مبكراً لتخفيف البيانات
                         var periodGrades = (student.StAcademicDatas ?? new List<StAcademicData>())
-                            .Where(a => (int)a.StLevel == level-1 && (int)a.Term == semester-1 && a.CourseGrades != null)
+                            .Where(a => (int)a.StLevel == level - 1 && (int)a.Term == semester - 1 && a.CourseGrades != null)
                             .SelectMany(a => a.CourseGrades)
+                            .Where(g => g.Course != null && g.Course.IsSubCourse != true)
                             .ToList();
-                     
-                      
 
                         if (periodGrades.Any())
                         {
-                            // 1. جلب كائن السنة الأكاديمية مرة واحدة فقط لزيادة الأداء
+                            // 1. جلب كائن السنة الأكاديمية
                             var academicYearInfo = periodGrades.FirstOrDefault()?.StAcademicData?.AcademicYear;
-
-                            // 2. استخدام String Interpolation مع التحقق من الـ Null
                             var academicYear = academicYearInfo != null
                                 ? $"{academicYearInfo.AcademicYearNameH}/{academicYearInfo.AcademicYearName}"
-                                : ""; // إذا كانت البيانات غير موجودة، سيترك الخلية فارغة بدلاً من إيقاف النظام
+                                : "";
 
-                            worksheet.Cells[4, startColumn +1].Value = periodGrades.FirstOrDefault()?.StAcademicData?.StLevel;
+                            worksheet.Cells[4, startColumn + 1].Value = periodGrades.FirstOrDefault()?.StAcademicData?.StLevel;
                             worksheet.Cells[4, startColumn + 5].Value = academicYear;
 
+                            // 🛑 التعديل الجوهري: تصفية الدرجات المكررة (الدور الأول والتكميلي)
+                            var finalGrades = periodGrades
+                                .GroupBy(g => g.Course.Id) // نجمع الدرجات حسب معرف المادة (تأكد أن الخاصية اسمها CourseId)
+                                .Select(group =>
+                                {
+                                    // إذا كان هناك أكثر من درجة لنفس المادة، نختار الدرجة الأكبر (التي تمثل التكميلي غالباً لأنها ستلغي الرسوب)
+                                    // (ملاحظة: إذا كنت تريد جلب أحدث درجة أُدخلت بدلاً من الأكبر، استخدم OrderByDescending(x => x.Id) بدلاً من Grade)
+                                    return group.OrderByDescending(g => g.Grade).FirstOrDefault();
+                                })
+                                .ToList();
 
-                            // أ. إذا وجدت درجات: اطبعها بشكل طبيعي
-                            foreach (var grade in periodGrades)
+                            // طباعة الدرجات المصفاة النهائية (درجة واحدة فقط لكل مادة)
+                            foreach (var grade in finalGrades)
                             {
-                             
                                 worksheet.Cells[startRow, startColumn].Value = grade.Course?.CourseName;
-                                worksheet.Cells[startRow, startColumn+5].Value = grade.Course?.Hours; // (تأكد أن اسم الخاصية في موديل Course هو Credits أو Hours)
-
-                                // 💡 التعديلات الجديدة بناءً على الموديل:
-                                worksheet.Cells[startRow, startColumn+6].Value = grade.Grade; // استخدام Grade بدلاً من FinalMark
-                                worksheet.Cells[startRow, startColumn+7].Value = grade.GradeLetter; // استخدام التقدير الحرفي
+                                worksheet.Cells[startRow, startColumn + 5].Value = grade.Course?.Hours;
+                                worksheet.Cells[startRow, startColumn + 6].Value = grade.Grade;
+                                worksheet.Cells[startRow, startColumn + 7].Value = grade.GradeLetter;
                                 startRow++;
                             }
                         }
-                     
+
                     }
                 }
 
