@@ -666,6 +666,90 @@
                                         </td>
                                     </tr>
                                     }
+                                @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin"))
+                                {
+                                    <tr>
+                                        <td class="text-start td-font-size">إدارة بيانات الطلاب</td>
+                                        <td class="text-start">
+                                            <div class="row col-12 mx-3">
+                                                @for (int i = 33; i <= 36; i++)
+                                                {
+                                                    <div class="col-auto form-check m-1">
+                                                        <input type="hidden" asp-for="@Model.Claims[i].ClaimType" />
+                                                        <input type="hidden" asp-for="@Model.Claims[i].ClaimValue" />
+                                                        <input asp-for="@Model.Claims[i].IsSelected" disabled class="form-check-input" />
+                                                        <label class="form-check-label td-font-size" asp-for="@Model.Claims[i].IsSelected">
+                                                            @Model.Claims[i].ClaimValue
+                                                        </label>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+
+                                @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin"))
+                                {
+                                    <tr>
+                                        <td class="text-start td-font-size">تصدير التقارير والكشوفات</td>
+                                        <td class="text-start">
+                                            <div class="row col-12 mx-3">
+                                                @for (int i = 37; i <= 41; i++)
+                                                {
+                                                    <div class="col-auto form-check m-1">
+                                                        <input type="hidden" asp-for="@Model.Claims[i].ClaimType" />
+                                                        <input type="hidden" asp-for="@Model.Claims[i].ClaimValue" />
+                                                        <input asp-for="@Model.Claims[i].IsSelected" disabled class="form-check-input" />
+                                                        <label class="form-check-label td-font-size" asp-for="@Model.Claims[i].IsSelected">
+                                                            @Model.Claims[i].ClaimValue
+                                                        </label>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+
+                                @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin"))
+                                {
+                                    <tr>
+                                        <td class="text-start td-font-size">السجل الأكاديمي والوثائق</td>
+                                        <td class="text-start">
+                                            <div class="row col-12 mx-3">
+                                                @for (int i = 42; i <= 49; i++)
+                                                {
+                                                    <div class="col-auto form-check m-1">
+                                                        <input type="hidden" asp-for="@Model.Claims[i].ClaimType" />
+                                                        <input type="hidden" asp-for="@Model.Claims[i].ClaimValue" />
+                                                        <input asp-for="@Model.Claims[i].IsSelected" disabled class="form-check-input" />
+                                                        <label class="form-check-label td-font-size" asp-for="@Model.Claims[i].IsSelected">
+                                                            @Model.Claims[i].ClaimValue
+                                                        </label>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+
+                                @if (@Model.Roles.Any(x => x == "Owner" || x == "Admin"))
+                                {
+                                    <tr>
+                                        <td class="text-start td-font-size">درجات الطلاب</td>
+                                        <td class="text-start">
+                                            <div class="row col-12 mx-3">
+                                                <div class="col-auto form-check m-1">
+                                                    <input type="hidden" asp-for="@Model.Claims[50].ClaimType" />
+                                                    <input type="hidden" asp-for="@Model.Claims[50].ClaimValue" />
+                                                    <input asp-for="@Model.Claims[50].IsSelected" disabled class="form-check-input" />
+                                                    <label class="form-check-label td-font-size" asp-for="@Model.Claims[50].IsSelected">
+                                                        @Model.Claims[50].ClaimValue
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
                             </tbody>
                         </table>
                     </div>

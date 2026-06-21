@@ -237,10 +237,10 @@ namespace CollegeGradingSys
                options => {
                    options.SignIn.RequireConfirmedEmail = false;
                     //options.SignIn.RequireConfirmedAccount = true;
-                    options.Password.RequiredLength = 10;
-                   options.Password.RequireUppercase = false;
-                   options.Password.RequireLowercase = false;
-                   options.Password.RequireDigit = false;
+                    options.Password.RequiredLength = 5;
+                   //options.Password.RequireUppercase = false;
+                   //options.Password.RequireLowercase = false;
+                   //options.Password.RequireDigit = false;
                   
                })
 
